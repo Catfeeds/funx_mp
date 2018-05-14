@@ -1,4 +1,5 @@
-
+application/logs/
+application/cache/
 public/.htaccess
 
 .DS_Store
