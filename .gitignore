@@ -1,7 +1,5 @@
-application/logs/
-application/cache/
+
 public/.htaccess
-application/config/config.php
 
 .DS_Store
 .idea/
