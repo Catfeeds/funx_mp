@@ -3,10 +3,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 $config['eloquent'] = array(
 	'driver'    => 'mysql',
-	'host'      => '120.79.181.154',
+	'host'      => 'localhost',
 	'database'  => 'funxdata',
 	'username'  => 'root',
-	'password'  => 'A23f@#53g3g2g=023',
+	'password'  => 'A23f@#53g3g2g=',
 	'charset'   => 'utf8',
 	'collation' => 'utf8_general_ci',
 	'prefix'    => ''

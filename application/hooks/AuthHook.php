@@ -28,6 +28,10 @@ class AuthHook {
             'common/imageupload',
             'common/fileupload',
 
+            'service/servicetype/servicetype',
+            'service/serviceorder/serviceorder',
+            'service/serviceorder/serviceOrder1',
+
 
         );
 
