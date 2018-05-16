@@ -53,3 +53,11 @@ $config['danbayUserName']   = 'jindihuohua';
 $config['danbayPassword']   = 'a123456';
 $config['danbaymToken']     = '6nQIQ3EOpkaNtRly1M2MDoDjX7jxGjntldYv1JbsQB7srroptaUc3z2QypzDbgzc';
 
+//微信公众号信息
+$config['wx_map_appid']     = '';
+$config['wx_map_secret']    = '';
+$config['wx_map_token']     = '';
+$config['wx_map_aes_key']   = '';
+$config['wx_customer_oauth_scopes']   = 'snsapi_userinfo';
+$config['wx_oauth_callback']   = '';
+
