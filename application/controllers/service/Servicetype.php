@@ -26,6 +26,7 @@ class Servicetype extends MY_Controller
         $filed  = ['id','name'];
         $type   = Servicetypemodel::where($where)->orderBy('id','desc')->get($filed)->toArray();
         $this->api_res(0,['list'=>$type]);
+
     }
 
 

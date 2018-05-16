@@ -16,7 +16,7 @@ class Serviceorder extends MY_Controller
     }
 
     /**
-     * 维修服务预约
+     * 维修 - 服务预约
      */
     public function serviceOrder()
     {
@@ -30,11 +30,10 @@ class Serviceorder extends MY_Controller
             return;
         }
         $room_id = $room->id;
-        $this->api_res(0,['room_id'=>$room_id]);
-
+       // $this->api_res(0, ['room_id' => $room_id]);
         if(!$this->validation())
         {
-            $fieldarr   = ['addr_from','addr_to','name','phone','time','remark'];
+            $fieldarr   = ['addr_from','addr_to','name','phone','time','remark','paths'];
             $this->api_res(1002,['ermsg'=>$this->form_first_error($fieldarr)]);
             return ;
         }
@@ -44,13 +43,53 @@ class Serviceorder extends MY_Controller
         $id->name    = trim($post['name']);
         $id->phone   = trim($post['phone']);
         $id->time    = trim($post['time']);
-        $id->time    = trim($post['remark']);
+        $id->remark  = isset($post['remark'])?($post['remark']):null;
+        $id->paths  = isset($post['paths'])?($post['paths']):null;
+        $id->room_id   = trim($room_id);
         if($id->save()){
             $this->api_res(0);
         }else{
             $this->api_res(1009);
         }
     }
+
+    /**
+     * 清洁 - 服务预约
+     */
+    public function cleanService(){
+        $this->load->model('roomunionmodel');
+        $post = $this->input->post(NULL, true);
+        $store_id = intval(strip_tags(trim($post['store_id'])));
+        $room_number = strip_tags(trim($post['number']));
+        $room = Roomunionmodel::where('store_id', $store_id)->where('number', $room_number)->first();
+        if (!$room) {
+            $this->api_res(1007);
+            return;
+        }
+        $room_id = $room->id;
+        //$this->api_res(0,['room_id'=>$room_id]);
+        if(!$this->validation())
+        {
+            $fieldarr   = ['name','phone','time','remark'];
+            $this->api_res(1002,['ermsg'=>$this->form_first_error($fieldarr)]);
+            return ;
+        }
+        $id             = new Serviceordermodel();
+        $id->name    = trim($post['name']);
+        $id->phone   = trim($post['phone']);
+        $id->time    = trim($post['time']);
+        $id->remark  = isset($post['remark'])?($post['remark']):null;
+        $id->room_id   = trim($room_id);
+        if($id->save()){
+            $this->api_res(0);
+        }else{
+            $this->api_res(1009);
+        }
+    }
+
+    /**
+     * 表单验证规则
+     */
     private function validation()
     {
         $this->load->library('form_validation');
@@ -88,11 +127,16 @@ class Serviceorder extends MY_Controller
             array(
                 'field' => 'time',
                 'label' => '预约时间',
+                'rules' => 'trim|required',
+            ),
+            array(
+                'field' => 'paths',
+                'label' => '图片上传',
                 'rules' => 'trim',
             ),
              array(
                  'field' => 'remark',
-                 'label' => '预约时间',
+                 'label' => '需求备注',
                  'rules' => 'trim',
              ),
         );
