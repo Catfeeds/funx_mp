@@ -16,6 +16,15 @@ class Storemodel extends Basemodel{
 
     protected $hidden   = ['updated_at','deleted_at'];
 
+    public function roomUnion()
+    {
+        return $this->hasMany(Roomunionmodel::class,'store_id');
+    }
+
+    public function roomType()
+    {
+        return $this->hasMany(Roomtypemodel::class,'store_id');
+    }
 //    //门店所管辖的楼栋
 //    public function building(){
 //
