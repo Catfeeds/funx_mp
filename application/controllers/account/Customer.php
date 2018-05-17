@@ -13,4 +13,6 @@ class Customer extends MY_Controller
         parent::__construct();
     }
 
+    //用户
+
 }

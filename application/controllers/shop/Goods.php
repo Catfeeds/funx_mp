@@ -44,5 +44,5 @@ class Goods extends MY_Controller
             $this->api_res(1005);
         }
     }
-    
+
 }
