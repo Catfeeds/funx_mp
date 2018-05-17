@@ -34,7 +34,12 @@ class AuthHook {
 
             'shop/goodscategory/listgoods',
             'shop/goods/goodsinfo',
-            'shop/goods/searchgoods'
+            'shop/goods/searchgoods',
+
+            'basic/store/show',
+            'basic/store/liststore',
+            'basic/store/get',
+
 
         );
 
