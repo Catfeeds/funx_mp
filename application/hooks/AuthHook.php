@@ -28,6 +28,11 @@ class AuthHook {
             'common/imageupload',
             'common/fileupload',
 
+            'basic/store/show',
+            'basic/store/liststore',
+            'basic/store/get',
+            'basic/roomtype/get',
+
             'service/servicetype/servicetype',
             'service/serviceorder/serviceorder',
             'service/serviceorder/cleanservice',
@@ -35,20 +40,14 @@ class AuthHook {
             'shop/goodscategory/listgoods',
             'shop/goods/goodsinfo',
             'shop/goods/searchgoods',
-<<<<<<< HEAD
+
             'shop/goodsaddress/addaddress',
             'shop/goodsaddress/deleteaddress',
             'shop/goodsaddress/updateaddress',
             'shop/goodscart/cart',
-            'shop/goodscart/deletecart'
-=======
+            'shop/goodscart/deletecart',
 
-            'basic/store/show',
-            'basic/store/liststore',
-            'basic/store/get',
-            'basic/roomtype/get',
 
->>>>>>> 4f9b3148d8f8093f9b4815e7bc1a85df0efc3910
 
         );
 
