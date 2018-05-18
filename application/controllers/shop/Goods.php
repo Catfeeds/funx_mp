@@ -37,7 +37,6 @@ class Goods extends MY_Controller
     {
         $name = $this->input->post('name',true);
         $field = ['id', 'name', 'shop_price', 'description', 'goods_thumb'];
-
         if (isset($name)){
             $goods = Goodsmodel::where('name', 'like', "%$name%")->orderBy('id', 'desc')->get($field);
             $this->api_res(0,['searchgoods'=>$goods]);
@@ -45,26 +44,5 @@ class Goods extends MY_Controller
             $this->api_res(1005);
         }
     }
-
-    /**
-     * 表单验证规则
-     */
- /*  private function validation()
-    {
-        $this->load->library('form_validation');
-        $config = array(
-            array(
-                'field' => 'name',
-                'label' => '商品名',
-                'rules' => 'trim|required',
-            ),
-            array(
-                'field' => 'id',
-                'label' => '商品id',
-                'rules' => 'trim|required',
-            ),
-        );
-        return $config;
-    }*/
 
 }
