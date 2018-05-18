@@ -21,10 +21,10 @@ class Goodscart extends MY_Controller
     {
         $this->load->model('Goodsmodel');
         $post = $this->input->post(null,true);
-        $customer_id = intval(strip_tags(trim($post['customer_id'])));
+        $uxid = intval(strip_tags(trim($post['uxid'])));
         $field = ['id','goods_id','quantity'];
-        if(isset($customer_id)){
-            $goodscart = Goodscartmodel::with('goods')->where('customer_id',$customer_id)->get($field);
+        if(isset($uxid)){
+            $goodscart = Goodscartmodel::with('goods')->where('uxid',$uxid)->get($field);
             $this->api_res(0,['goodslist'=>$goodscart]);
         }else{
             $this->api_res(1005);
@@ -50,22 +50,22 @@ class Goodscart extends MY_Controller
     public function addCart()
     {
         $post = $this->input->post(null,true);
-        $customer_id = intval(strip_tags(trim($post['customer_id'])));
+        $uxid = intval(strip_tags(trim($post['uxid'])));
         $goods_id = intval(strip_tags(trim($post['goods_id'])));
         if(!$this->validation())
         {
-            $field = ['id','goods_id','customer_id'];
+            $field = ['id','goods_id','uxid'];
             $this->api_res(1002,['errmsg'=>$this->form_first_error($field)]);
             return ;
         }
-        $addcart = Goodscartmodel::where('customer_id',$customer_id)->where('goods_id',$goods_id)->first();
+        $addcart = Goodscartmodel::where('uxid',$uxid)->where('goods_id',$goods_id)->first();
         if(isset($addcart))
         {
             $addcart->increment("quantity");
             $this->api_res(0);
         }else{
             $cart = new Goodscartmodel();
-            $cart->customer_id = $customer_id;
+            $cart->uxid = $uxid;
             $cart->goods_id = $goods_id;
             $cart->quantity = 1;
             if ($cart->save()) {
@@ -120,7 +120,7 @@ class Goodscart extends MY_Controller
         $this->load->library('form_validation');
         $config = array(
             array(
-                'field' => 'customer_id',
+                'field' => 'uxid',
                 'label' => '客户id',
                 'rules' => 'trim|required',
             ),

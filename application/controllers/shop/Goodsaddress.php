@@ -20,7 +20,7 @@ class Goodsaddress extends MY_Controller
     public function addAddress()
     {
         $post = $this->input->post(null,true);
-        $customer_id = intval(strip_tags(trim($post['customer_id'])));
+        $uxid = intval(strip_tags(trim($post['uxid'])));
         if(!$this->validation())
         {
             $field = ['apartment','building','room_number','name','phone'];
@@ -33,7 +33,7 @@ class Goodsaddress extends MY_Controller
         $address->room_number   = trim($post['room_number']);
         $address->name          = trim($post['name']);
         $address->phone         = trim($post['phone']);
-        $address->customer_id   = trim($customer_id);
+        $address->uxid   = trim($uxid);
 
         if($address->save()){
             $this->api_res(0,['id' => $address->id]);
@@ -88,9 +88,9 @@ class Goodsaddress extends MY_Controller
     public function listAddress()
     {
         $post        = $this->input->post(NULL,true);
-        $customer_id = intval(trim($post['customer_id']));
-        $field       = ['id','customer_id','apartment','building','room_number','name','phone'];
-        $listaddress = Goodsaddressmodel::where('customer_id',$customer_id)->orderBy('id','desc')->get($field);
+        $uxid = intval(trim($post['uxid']));
+        $field       = ['id','uxid','apartment','building','room_number','name','phone'];
+        $listaddress = Goodsaddressmodel::where('uxid',$uxid)->orderBy('id','desc')->get($field);
         $this->api_res(0,['list'=>$listaddress]);
     }
 
@@ -103,7 +103,7 @@ class Goodsaddress extends MY_Controller
            $this->load->library('form_validation');
            $config = array(
                array(
-                   'field' => 'customer_id',
+                   'field' => 'uxid',
                    'label' => '客户id',
                    'rules' => 'trim|required',
                ),

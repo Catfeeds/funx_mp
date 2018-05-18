@@ -29,8 +29,9 @@ class AuthHook {
             'common/fileupload',
 
             'service/servicetype/servicetype',
+            'service/serviceorder/order',
             'service/serviceorder/serviceorder',
-            'service/serviceorder/cleanservice',
+            'service/serviceorder/cleanorder',
 
             'shop/goodscategory/listgoods',
             'shop/goods/goodsinfo',
