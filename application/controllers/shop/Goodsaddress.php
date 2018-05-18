@@ -83,6 +83,19 @@ class Goodsaddress extends MY_Controller
     }
 
     /**
+     * 收货人地址列表
+     */
+    public function listAddress()
+    {
+        $post        = $this->input->post(NULL,true);
+        $customer_id = intval(trim($post['customer_id']));
+        $field       = ['id','customer_id','apartment','building','room_number','name','phone'];
+        $listaddress = Goodsaddressmodel::where('customer_id',$customer_id)->orderBy('id','desc')->get($field);
+        $this->api_res(0,['list'=>$listaddress]);
+    }
+
+
+    /**
      * 表单验证规则
      */
         private function validation()
