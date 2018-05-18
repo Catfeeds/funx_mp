@@ -38,7 +38,7 @@ class Goodsaddress extends MY_Controller
         if($address->save()){
             $this->api_res(0,['id' => $address->id]);
         }else{
-            $this->api_re0s(1009);
+            $this->api_res(1009);
         }
     }
 
