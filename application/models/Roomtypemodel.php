@@ -29,9 +29,10 @@ class Roomtypemodel extends Basemodel{
         return $this->belongsTo(Storemodel::class,'store_id')->select('id','name','city');
     }
 
-    //房型的房间
-    public function room(){
-        return $this->hasMany(Roommodel::class,'room_type_id');
+    //集中式房型下的房间
+    public function roomunion()
+    {
+        return $this->hasMany(Roomunionmodel::class,'room_type_id');
     }
 
 

@@ -40,7 +40,7 @@ class Store extends MY_Controller
     }
 
     /**
-     * 获取门店信息
+     * 获取门店和门店下房型信息
      */
     public function get()
     {
@@ -60,9 +60,9 @@ class Store extends MY_Controller
         $store->images  = $this->fullAliossUrl(json_decode($store->images),true);
         $this->load->model('roomunionmodel');
         $this->load->model('roomtypemodel');
-        $min_price  = $store->roomUnion()->min('rent_price');
-        $max_price  = $store->roomUnion()->max('rent_price');
-        $room_types = $store->roomType()->get(['id','name','feature','images',])->map(function($room_type){
+        $min_price  = $store->roomunion()->min('rent_price');
+        $max_price  = $store->roomunion()->max('rent_price');
+        $room_types = $store->roomtype()->get(['id','name','feature','images',])->map(function($room_type){
             $room_type->images  = $this->fullAliossUrl(json_decode($room_type->images),true);
             return $room_type;
         });

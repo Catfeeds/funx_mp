@@ -50,6 +50,7 @@ class AuthHook {
             'basic/store/show',
             'basic/store/liststore',
             'basic/store/get',
+            'basic/roomtype/get',
 
 
         );
