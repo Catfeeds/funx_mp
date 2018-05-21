@@ -546,7 +546,7 @@ class LookupRef
 
             $maxValueKey = null;
 
-            // The basic algorithm is:
+            // The store algorithm is:
             // Iterate and keep the highest match until the next element is smaller than the searched value.
             // Return immediately if perfect match is found
             foreach ($lookupArray as $i => $lookupArrayValue) {

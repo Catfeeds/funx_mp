@@ -224,7 +224,7 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile a basic where clause.
+     * Compile a store where clause.
      *
      * @param  \Illuminate\Database\Query\Builder  $query
      * @param  array  $where
@@ -518,7 +518,7 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile a basic having clause.
+     * Compile a store having clause.
      *
      * @param  array   $having
      * @return string
@@ -665,7 +665,7 @@ class Grammar extends BaseGrammar
     {
         // Essentially we will force every insert to be treated as a batch insert which
         // simply makes creating the SQL easier for us since we can utilize the same
-        // basic routine regardless of an amount of records given to us to insert.
+        // store routine regardless of an amount of records given to us to insert.
         $table = $this->wrapTable($query->from);
 
         if (! is_array(reset($values))) {

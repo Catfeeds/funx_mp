@@ -345,9 +345,9 @@ class Client implements ClientInterface
 
         if (!empty($options['auth']) && is_array($options['auth'])) {
             $value = $options['auth'];
-            $type = isset($value[2]) ? strtolower($value[2]) : 'basic';
+            $type = isset($value[2]) ? strtolower($value[2]) : 'store';
             switch ($type) {
-                case 'basic':
+                case 'store':
                     // Ensure that we don't have the header in different case and set the new value.
                     $modify['set_headers'] = Psr7\_caseless_remove(['Authorization'], $modify['set_headers']);
                     $modify['set_headers']['Authorization'] = 'Basic '

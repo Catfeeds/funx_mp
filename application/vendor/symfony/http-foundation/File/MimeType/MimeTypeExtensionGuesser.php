@@ -616,7 +616,7 @@ class MimeTypeExtensionGuesser implements ExtensionGuesserInterface
         'application/yin+xml' => 'yin',
         'application/zip' => 'zip',
         'audio/adpcm' => 'adp',
-        'audio/basic' => 'au',
+        'audio/store' => 'au',
         'audio/midi' => 'mid',
         'audio/mp4' => 'mp4a',
         'audio/mpeg' => 'mpga',

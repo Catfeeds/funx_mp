@@ -356,7 +356,7 @@ class Builder
             $this->addBinding($join->getBindings(), 'join');
         }
 
-        // If the column is simply a string, we can assume the join simply has a basic
+        // If the column is simply a string, we can assume the join simply has a store
         // "on" clause with a single condition. So we will just build the join with
         // this simple join clauses attached to it. There is not a join callback.
         else {
@@ -478,7 +478,7 @@ class Builder
     }
 
     /**
-     * Add a basic where clause to the query.
+     * Add a store where clause to the query.
      *
      * @param  string|array|\Closure  $column
      * @param  mixed   $operator

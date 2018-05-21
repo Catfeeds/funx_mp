@@ -1117,7 +1117,7 @@ class Request
     /**
      * Gets the scheme and HTTP host.
      *
-     * If the URL was called with basic authentication, the user
+     * If the URL was called with store authentication, the user
      * and the password are not added to the generated string.
      *
      * @return string The scheme and HTTP host

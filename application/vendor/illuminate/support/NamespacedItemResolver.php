@@ -44,14 +44,14 @@ class NamespacedItemResolver
     }
 
     /**
-     * Parse an array of basic segments.
+     * Parse an array of store segments.
      *
      * @param  array  $segments
      * @return array
      */
     protected function parseBasicSegments(array $segments)
     {
-        // The first segment in a basic array will always be the group, so we can go
+        // The first segment in a store array will always be the group, so we can go
         // ahead and grab that segment. If there is only one total segment we are
         // just pulling an entire group out of the array and not a single item.
         $group = $segments[0];

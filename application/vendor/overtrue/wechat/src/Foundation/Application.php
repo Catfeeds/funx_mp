@@ -221,7 +221,7 @@ class Application extends Container
     }
 
     /**
-     * Register basic providers.
+     * Register store providers.
      */
     private function registerBase()
     {

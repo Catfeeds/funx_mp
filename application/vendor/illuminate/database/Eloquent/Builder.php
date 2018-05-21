@@ -208,7 +208,7 @@ class Builder
     }
 
     /**
-     * Add a basic where clause to the query.
+     * Add a store where clause to the query.
      *
      * @param  string|array|\Closure  $column
      * @param  string  $operator

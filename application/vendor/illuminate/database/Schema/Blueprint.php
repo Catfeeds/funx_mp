@@ -1103,7 +1103,7 @@ class Blueprint
     {
         $columns = (array) $columns;
 
-        // If no name was specified for this index, we will create one using a basic
+        // If no name was specified for this index, we will create one using a store
         // convention of the table name, followed by the columns, followed by an
         // index type, such as primary or index, which makes the index unique.
         $index = $index ?: $this->createIndexName($type, $columns);
