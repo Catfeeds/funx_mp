@@ -16,22 +16,23 @@ class M_jwt
     }
 
     //生成jwt token 字符串
-    public function generateJwtToken($fxid=0){
-       
-            $key    = config_item('jwt_key');
-            $alg    = config_item('jwt_alg');
+    public function generateJwtToken($uxid=0,$company_id=0){
 
-            //token中各字段含义参见JWT payload的说明
-            $token = array(
-                "iss" => config_item('jwt_iss'),
-                "exp" => config_item('jwt_exp'),
-                "nbf" => config_item('jwt_nbf'),
-                "bxid" => $fxid  //自添加字段，租户ID
-            );
+        $key    = config_item('jwt_key');
+        $alg    = config_item('jwt_alg');
 
-            return JWT::encode($token, $key);
-          
-       
+        //token中各字段含义参见JWT payload的说明
+        $token = array(
+            "iss" => config_item('jwt_iss'),
+            "exp" => config_item('jwt_exp'),
+            "nbf" => config_item('jwt_nbf'),
+            "bxid" => $uxid,  //自添加字段，
+            "company_id"    =>$company_id
+        );
+
+        return JWT::encode($token, $key);
+
+
     }
 
     /**

@@ -24,11 +24,13 @@ class AuthHook {
         //格式2 类/方法
         //注意，所有url统一用小写，不要大写
         $authArr = array(
+            'account/wechat/login',
 
             'common/imageupload',
             'common/fileupload',
 
-            'store/store/show',
+            'store/store/showcity',
+            'store/store/showstore',
             'store/store/liststore',
             'store/store/get',
             'store/roomtype/get',
@@ -73,9 +75,10 @@ class AuthHook {
 
                 $token = $this->CI->input->get_request_header('token');
                 $decoded = $this->CI->m_jwt->decodeJwtToken($token);
-                $d_bxid   = $decoded->bxid;
-                define('CURRENT_ID',$d_bxid);
-
+                $d_uxid   = $decoded->uxid;
+                $d_company_id   = $decoded->company_id;
+                define('CURRENT_ID',$d_uxid);
+                define('COMPANY_ID',$d_company_id);
             } catch (Exception $e) {
                 header("Content-Type:application/json;charset=UTF-8");
                 echo json_encode(array('rescode' => 1001, 'resmsg' => 'token无效', 'data' => []));

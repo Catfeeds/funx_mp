@@ -17,12 +17,24 @@ class Store extends MY_Controller
     /**
      * 城市
      */
-    public function city()
+    public function showCity()
     {
-        $city   = Storemodel::groupBy('city')->get(['city'])->map(function($c){
+        $where  = ['company_id'=>COMPANY_ID];
+        $city   = Storemodel::where($where)->groupBy('city')->get(['city'])->map(function($c){
             return $c->city;
         });
         $this->api_res(0,['city'=>$city]);
+    }
+
+    /**
+     * 获取门店名
+     */
+    public function showStore(){
+        $city   = $this->input->post('city',true);
+        $where  = ['company_id'=>COMPANY_ID];
+        $city?$where['city']=$city:null;
+        $store  = Storemodel::where($where)->get(['id','name','province','city','district']);
+        $this->api_res(0,['stores'=>$store]);
     }
 
     /**
@@ -38,6 +50,7 @@ class Store extends MY_Controller
         $store  = Storemodel::where('name','like',"%$name%")->where($where)->get($field);
         $this->api_res(0,['list'=>$store]);
     }
+
 
     /**
      * 获取门店和门店下房型信息

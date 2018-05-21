@@ -2,17 +2,20 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 /**
  * Author:      zjh<401967974@qq.com>
- * Date:        2018/5/15 0015
- * Time:        19:05
- * Describe:    用户
+ * Date:        2018/5/21 0021
+ * Time:        18:25
+ * Describe:    住户
  */
-class Customer extends MY_Controller
+class Resident extends MY_Controller
 {
     public function __construct()
     {
         parent::__construct();
     }
 
-    //用户
+    //办理入住
+    public function store(){
+
+    }
 
 }
