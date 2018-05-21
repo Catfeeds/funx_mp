@@ -11,7 +11,7 @@ class Reserve extends MY_Controller
     public function __construct()
     {
         parent::__construct();
-        $this->load->model('reservemodel');
+        //$this->load->model();
     }
     /**
      * 预约看房提交订单
