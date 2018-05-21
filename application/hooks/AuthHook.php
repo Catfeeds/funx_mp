@@ -37,6 +37,7 @@ class AuthHook {
             'service/serviceorder/order',
             'service/serviceorder/serviceorder',
             'service/serviceorder/cleanorder',
+            'service/reserve/reserve',
 
             'shop/goodscategory/listgoods',
             'shop/goods/goodsinfo',
