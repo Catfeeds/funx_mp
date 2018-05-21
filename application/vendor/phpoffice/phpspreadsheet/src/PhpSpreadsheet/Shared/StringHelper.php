@@ -712,7 +712,7 @@ class StringHelper
 
     /**
      * Retrieve any leading numeric part of a string, or return the full string if no leading numeric
-     * (handles basic integer or float, but not exponent or non decimal).
+     * (handles store integer or float, but not exponent or non decimal).
      *
      * @param string $value
      *

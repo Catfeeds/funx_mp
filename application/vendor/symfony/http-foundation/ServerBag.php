@@ -65,8 +65,8 @@ class ServerBag extends ParameterBag
             }
 
             if (null !== $authorizationHeader) {
-                if (0 === stripos($authorizationHeader, 'basic ')) {
-                    // Decode AUTHORIZATION header into PHP_AUTH_USER and PHP_AUTH_PW when authorization header is basic
+                if (0 === stripos($authorizationHeader, 'store ')) {
+                    // Decode AUTHORIZATION header into PHP_AUTH_USER and PHP_AUTH_PW when authorization header is store
                     $exploded = explode(':', base64_decode(substr($authorizationHeader, 6)), 2);
                     if (2 == count($exploded)) {
                         list($headers['PHP_AUTH_USER'], $headers['PHP_AUTH_PW']) = $exploded;

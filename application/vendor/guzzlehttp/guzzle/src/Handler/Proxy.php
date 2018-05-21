@@ -5,7 +5,7 @@ use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\RequestInterface;
 
 /**
- * Provides basic proxies for handlers.
+ * Provides store proxies for handlers.
  */
 class Proxy
 {

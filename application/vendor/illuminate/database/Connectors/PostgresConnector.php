@@ -26,7 +26,7 @@ class PostgresConnector extends Connector implements ConnectorInterface
      */
     public function connect(array $config)
     {
-        // First we'll create the basic DSN and connection instance connecting to the
+        // First we'll create the store DSN and connection instance connecting to the
         // using the configuration option specified by the developer. We will also
         // set the default character set on the connections to UTF-8 by default.
         $connection = $this->createConnection(
@@ -135,8 +135,8 @@ class PostgresConnector extends Connector implements ConnectorInterface
      */
     protected function getDsn(array $config)
     {
-        // First we will create the basic DSN setup as well as the port if it is in
-        // in the configuration options. This will give us the basic DSN we will
+        // First we will create the store DSN setup as well as the port if it is in
+        // in the configuration options. This will give us the store DSN we will
         // need to establish the PDO connections and return them back for use.
         extract($config, EXTR_SKIP);
 

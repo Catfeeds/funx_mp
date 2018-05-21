@@ -197,7 +197,7 @@ if ( ! function_exists('random_string'))
 	/**
 	 * Create a "Random" String
 	 *
-	 * @param	string	type of random string.  basic, alpha, alnum, numeric, nozero, unique, md5, encrypt and sha1
+	 * @param	string	type of random string.  store, alpha, alnum, numeric, nozero, unique, md5, encrypt and sha1
 	 * @param	int	number of characters
 	 * @return	string
 	 */
@@ -205,7 +205,7 @@ if ( ! function_exists('random_string'))
 	{
 		switch ($type)
 		{
-			case 'basic':
+			case 'store':
 				return mt_rand();
 			case 'alnum':
 			case 'numeric':
