@@ -24,8 +24,13 @@ class Goodscart extends MY_Controller
         $uxid = intval(strip_tags(trim($post['uxid'])));
         $field = ['id','goods_id','quantity'];
         if(isset($uxid)){
-            $goodscart = Goodscartmodel::with('goods')->where('uxid',$uxid)->get($field);
-            $this->api_res(0,['goodslist'=>$goodscart]);
+            $goodscart = Goodscartmodel::with('goods')->where('uxid',$uxid)->get($field)->toArray();
+
+           foreach ($goodscart as $key=>$value){
+                $qq = &$goodscart[$key]['goods']['goods_thumb'];
+                $qq = $this->fullAliossUrl($qq);
+            }
+            $this->api_res(0,$goodscart);
         }else{
             $this->api_res(1005);
         }
