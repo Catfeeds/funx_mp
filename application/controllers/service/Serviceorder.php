@@ -30,7 +30,6 @@ class Serviceorder extends MY_Controller
             return;
         }
         $room_id = $room->id;
-       // $this->api_res(0, ['room_id' => $room_id]);
         if(!$this->validation())
         {
             $fieldarr   = ['addr_from','addr_to','name','phone','time','remark','paths'];
@@ -56,7 +55,8 @@ class Serviceorder extends MY_Controller
     /**
      * 清洁 - 服务预约
      */
-    public function cleanService(){
+    public function cleanOrder()
+    {
         $this->load->model('roomunionmodel');
         $post = $this->input->post(NULL, true);
         $store_id = intval(strip_tags(trim($post['store_id'])));
@@ -67,7 +67,6 @@ class Serviceorder extends MY_Controller
             return;
         }
         $room_id = $room->id;
-        //$this->api_res(0,['room_id'=>$room_id]);
         if(!$this->validation())
         {
             $fieldarr   = ['name','phone','time','remark'];
@@ -85,6 +84,20 @@ class Serviceorder extends MY_Controller
         }else{
             $this->api_res(1009);
         }
+    }
+
+    /**
+     * 服务订单
+     */
+    public function Order()
+    {
+        $post        = $this->input->post(NULL,true);
+        $uxid        = intval(trim($post['uxid']));
+        $field       = ['id','uxid','number','store_id','room_id','sequence_number','employee_id','service_type_id','name',
+            'phone','addr_from','addr_to','estimate_money','pay_money','money','status','deal','time','remark','paths'];
+        $listorder = Serviceordermodel::where('uxid',$uxid)->orderBy('id','desc')->get($field);
+        $this->api_res(0,['list'=>$listorder]);
+
     }
 
     /**
