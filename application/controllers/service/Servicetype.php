@@ -23,7 +23,7 @@ class Servicetype extends MY_Controller
         $post   = $this->input->post(NULL,TRUE);
         $where  = [];
         isset($post['id'])?$where['id']=intval($post['id']):$where=[];
-        $filed  = ['id','name'];
+        $filed  = ['id','name','image_url'];
         $type   = Servicetypemodel::where($where)->orderBy('id','desc')->get($filed)->toArray();
         $this->api_res(0,['list'=>$type]);
     }
