@@ -43,8 +43,14 @@ class Serviceorder extends MY_Controller
         $id->phone   = trim($post['phone']);
         $id->time    = trim($post['time']);
         $id->remark  = isset($post['remark'])?($post['remark']):null;
-        $id->paths  = isset($post['paths'])?($post['paths']):null;
+        //$id->paths  = isset($post['paths'])?($post['paths']):null;
+
+        $images   = $this->splitAliossUrl($post['paths']);
+        $images   = json_encode($images);
+        $id->paths=isset($images)?($images):null;
+
         $id->room_id   = trim($room_id);
+        $id->store_id   = trim($store_id);
         if($id->save()){
             $this->api_res(0);
         }else{
@@ -96,6 +102,9 @@ class Serviceorder extends MY_Controller
         $field       = ['id','uxid','number','store_id','room_id','sequence_number','employee_id','service_type_id','name',
             'phone','addr_from','addr_to','estimate_money','pay_money','money','status','deal','time','remark','paths'];
         $listorder = Serviceordermodel::where('uxid',$uxid)->orderBy('id','desc')->get($field);
+        foreach ($listorder as $key=>$value){
+            $listorder[$key]['paths'] = $this->fullAliossUrl($value['paths']);
+        }
         $this->api_res(0,['list'=>$listorder]);
 
     }

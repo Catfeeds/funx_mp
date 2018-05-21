@@ -19,10 +19,11 @@ class Servicetype extends MY_Controller
      *服务项目类型
      */
     public function servicetype(){
-
-
+        $post   = $this->input->post(null,true);
+        $where = [];
+        isset($post['id'])?$where['id']=intval($post['id']):$where=[];
         $filed  = ['id','name','image_url'];
-        $type   = Servicetypemodel::orderBy('id','desc')->get($filed)->toArray();
+        $type   = Servicetypemodel::where($where)->orderBy('id','desc')->get($filed)->toArray();
 
         foreach ($type as $key=>$value){
             $type[$key]['image_url'] = $this->fullAliossUrl($value['image_url']);

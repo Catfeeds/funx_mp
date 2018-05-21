@@ -24,6 +24,9 @@ class Goods extends MY_Controller
         $filed = ['id', 'name', 'shop_price', 'description', 'detail', 'goods_thumb'];
         if(isset($goods_id)) {
             $goods = Goodsmodel::where('id',$goods_id)->get($filed);
+            foreach ($goods as $key=>$value){
+                $goods[$key]['goods_thumb'] = $this->fullAliossUrl($value['goods_thumb']);
+            }
             $this->api_res(0,['goodslist'=>$goods]);
         }else{
             $this->api_res(1005);
@@ -39,6 +42,9 @@ class Goods extends MY_Controller
         $field = ['id', 'name', 'shop_price', 'description', 'goods_thumb'];
         if (isset($name)){
             $goods = Goodsmodel::where('name', 'like', "%$name%")->orderBy('id', 'desc')->get($field);
+            foreach ($goods as $key=>$value){
+                $goods[$key]['goods_thumb'] = $this->fullAliossUrl($value['goods_thumb']);
+            }
             $this->api_res(0,['searchgoods'=>$goods]);
         }else{
             $this->api_res(1005);
