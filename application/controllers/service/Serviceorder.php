@@ -22,6 +22,12 @@ class Serviceorder extends MY_Controller
     {
         $this->load->model('roomunionmodel');
         $post = $this->input->post(NULL, true);
+        if(!$this->validation())
+        {
+            $fieldarr   = ['addr_from','addr_to','name','phone','time','remark','paths','store_id','number'];
+            $this->api_res(1002,['ermsg'=>$this->form_first_error($fieldarr)]);
+            return ;
+        }
         $store_id = intval(strip_tags(trim($post['store_id'])));
         $room_number = strip_tags(trim($post['number']));
         $room = Roomunionmodel::where('store_id', $store_id)->where('number', $room_number)->first();
@@ -30,12 +36,7 @@ class Serviceorder extends MY_Controller
             return;
         }
         $room_id = $room->id;
-        if(!$this->validation())
-        {
-            $fieldarr   = ['addr_from','addr_to','name','phone','time','remark','paths'];
-            $this->api_res(1002,['ermsg'=>$this->form_first_error($fieldarr)]);
-            return ;
-        }
+
         $id          = new Serviceordermodel();
         $id->addr_from    = trim($post['addr_from']);
         $id->addr_to   = trim($post['addr_to']);
@@ -43,14 +44,12 @@ class Serviceorder extends MY_Controller
         $id->phone   = trim($post['phone']);
         $id->time    = trim($post['time']);
         $id->remark  = isset($post['remark'])?($post['remark']):null;
-        //$id->paths  = isset($post['paths'])?($post['paths']):null;
-
         $images   = $this->splitAliossUrl($post['paths']);
-        $images   = json_encode($images);
+       // $images   = json_encode($images);
         $id->paths=isset($images)?($images):null;
-
         $id->room_id   = trim($room_id);
         $id->store_id   = trim($store_id);
+
         if($id->save()){
             $this->api_res(0);
         }else{
@@ -65,6 +64,12 @@ class Serviceorder extends MY_Controller
     {
         $this->load->model('roomunionmodel');
         $post = $this->input->post(NULL, true);
+        if(!$this->validation())
+        {
+            $fieldarr   = ['name','phone','time','remark'];
+            $this->api_res(1002,['ermsg'=>$this->form_first_error($fieldarr)]);
+            return ;
+        }
         $store_id = intval(strip_tags(trim($post['store_id'])));
         $room_number = strip_tags(trim($post['number']));
         $room = Roomunionmodel::where('store_id', $store_id)->where('number', $room_number)->first();
@@ -73,18 +78,13 @@ class Serviceorder extends MY_Controller
             return;
         }
         $room_id = $room->id;
-        if(!$this->validation())
-        {
-            $fieldarr   = ['name','phone','time','remark'];
-            $this->api_res(1002,['ermsg'=>$this->form_first_error($fieldarr)]);
-            return ;
-        }
         $id             = new Serviceordermodel();
         $id->name    = trim($post['name']);
         $id->phone   = trim($post['phone']);
         $id->time    = trim($post['time']);
         $id->remark  = isset($post['remark'])?($post['remark']):null;
         $id->room_id   = trim($room_id);
+        $id->store_id   = trim($store_id);
         if($id->save()){
             $this->api_res(0);
         }else{
@@ -106,7 +106,6 @@ class Serviceorder extends MY_Controller
             $listorder[$key]['paths'] = $this->fullAliossUrl($value['paths']);
         }
         $this->api_res(0,['list'=>$listorder]);
-
     }
 
     /**
