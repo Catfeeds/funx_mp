@@ -285,6 +285,50 @@ class Server extends MY_Controller
 
     }
 
+    private function checkInOrBookingEvent($message, $eventKey)
+    {
+        $loginUrl = site_url('login?target_url=');
+
+        //办理入住以及预订房间时的场景值
+        $resident   = Residentmodel::findOrFail($eventKey);
+
+        if (0 == $resident->customer_id) {
+            $customer   = Customermodel::where('openid', $message->FromUserName)->first();
+
+            if (empty($customer)) {
+                $customer           = new Customermodel();
+                $customer->openid   = $message->FromUserName;
+                $customer->save();
+            }
+
+            $resident->customer_id  = $customer->id;
+            $resident->save();
+            $resident->orders()->where('customer_id', 0)->update(['customer_id' => $customer->id]);
+        }
+
+        //根据住户状态分别进行处理
+        //扫码的来源: 1,办理入住; 2,预订房间的支付
+        //如果是办理入住,将用户带到合同信息确认的页面
+        $bookingOrdersCnt   = $resident->orders()
+            ->where('status', Ordermodel::STATE_PENDING)
+            ->where('type', Ordermodel::PAYTYPE_RESERVE)
+            ->count();
+
+        //有未支付的预订订单, 则应该去支付
+        if (0 < $bookingOrdersCnt) {
+            $url    = $loginUrl.site_url(['order', 'status']);
+        } else {
+            $url    = $loginUrl.site_url(['contract', 'preview', $resident->id]);
+        }
+
+        return new News(array(
+            'title'         => $resident->room->apartment->name,
+            'description'   => "您预订的【{$resident->room->number}】",
+            'url'           => $url,
+            'image'         => upyun_url($resident->room->roomtype->images()->first()->url),
+        ));
+    }
+
     /**
      * 客户端微信公众号配置
      */
