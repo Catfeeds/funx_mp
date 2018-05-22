@@ -148,4 +148,22 @@ class M_redis
         return $privilege;
     }
 
+    /**
+     * 存储客户信息
+     */
+    public function storeCustomerInfo($uxid,$info){
+        $key    = CUSTOMERINFO.$uxid;
+        $this->redis->set($key,$info,2*60*60);
+        return;
+    }
+
+    /**
+     * 获取客户信息
+     */
+    public function getCustomerInfo($uxid){
+        $key    = CUSTOMERINFO.$uxid;
+        $info   = $this->redis->get($key);
+        return $info;
+    }
+
 }
