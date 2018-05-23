@@ -12,6 +12,12 @@ class Storemodel extends Basemodel{
 
     protected $table    = 'boss_store';
 
+    /**
+     * 该公寓签署合同的类型
+     */
+    const C_TYPE_FDD    = 'FDD';        //法大大电子合同
+    const C_TYPE_NORMAL = 'NORMAL';     //线下纸质合同
+
     protected $fillable = [];
 
     protected $hidden   = ['updated_at','deleted_at'];
