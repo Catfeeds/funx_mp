@@ -1,28 +1,44 @@
 <?php
+defined('BASEPATH') OR exit('No direct script access allowed');
 /**
  * User: wws
  * Date: 2018-05-23
  * Time: 10:37
  */
-
-
+use Carbon\Carbon;
+use mikehaertl\pdftk\Pdf;
 /**
  * 法大大电子合同相关操作
  */
-class Contract extends Wechat_Controller
+class Contract extends MY_Controller
 {
     public function __construct()
     {
         parent::__construct();
-
         $this->load->library('fadada');
+    }
+
+    public function index()
+    {
+        $customer   = Customermodel::where('openid', $this->auth->id())->firstOrFail();
+        $contracts  = Contractmodel::whereIn('resident_id', $customer->residents()->pluck('id')->toArray())
+            ->orderBy('updated_at', 'DESC')
+            ->get();
+
+        if (1 == count($contracts)) {
+            redirect($contracts->first()->view_url);
+        }
+
+        $this->twig->render('contract/view.html.twig', compact('contracts'));
     }
 
     /**
      * 合同信息确认页面
      */
-    public function preview($residentId)
+    public function preview()
     {
+        $post = $this->input->post(null,true);
+        $residentId =trim($post['id']);
         try {
             //用户扫描二维码后, 发送图文消息, 然后进入的页面
             $resident = Residentmodel::findOrFail($residentId);
@@ -32,16 +48,14 @@ class Contract extends Wechat_Controller
             if ($resident->uxid && $resident->uxid != $customer->id) {
                 throw new Exception('未找到您的订单!');
             }
-
             if ($resident->uxid == 0) {
                 $resident->uxid = $customer->id;
                 $resident->save();
             }
-
             //更新订单
             $resident->orders()->update(['uxid' => $customer->id]);
-           // $resident->coupons()->where('customer_id', 0)->update(['customer_id' => $customer->id]);
-           // $customer->coupons()->where('resident_id', 0)->update(['resident_id' => $residentId]);
+            // $resident->coupons()->where('customer_id', 0)->update(['customer_id' => $customer->id]);
+            // $customer->coupons()->where('resident_id', 0)->update(['resident_id' => $residentId]);
 
             //跳转到合同信息确认页面
             $contract = $resident->contract()->where('status', Contractmodel::STATUS_ARCHIVED);
@@ -52,8 +66,7 @@ class Contract extends Wechat_Controller
             log_message('error', $e->getMessage());
             redirect(site_url(['order', 'status']));
         }
-
-        return $this->api_res->render('contract/confirm.html.twig', compact('resident'));
+        $this->api_res(0,['resident'=>$resident,'contract'=>$contract]);
     }
 
     /**
@@ -61,6 +74,12 @@ class Contract extends Wechat_Controller
      */
     public function confirm()
     {
+        if(!$this->validation())
+        {
+            $field = ['resident_id','name','phone','verify_code','id_card','id_type','alternative','alter_phone','address'];
+            $this->api_res(1002,['errmsg'=>$this->form_first_error($field)]);
+            return ;
+        }
         $residentId     = trim($this->input->post('resident_id', true));
         $name           = trim($this->input->post('name', true));
         $phone          = trim($this->input->post('phone', true));
@@ -71,19 +90,17 @@ class Contract extends Wechat_Controller
         $alterPhone     = trim($this->input->post('alter_phone', true));
         $address        = trim($this->input->post('address', true));
 
-
         try {
             //判断手机号码, 身份证号的合法性, 校验验证码
-            if (!Util::isMobile($phone) || !Util::isMobile($alterPhone)) {
+            if (!isMobile($phone) || !isMobile($alterPhone)) {
                 throw new Exception('请检查手机号码!');
             }
 
-            if (Residentmodel::CARD_ZERO == $cardType AND !Util::isCardno($cardNumber)) {
+            if (Residentmodel::CARD_ZERO == $cardType AND !isCardno($cardNumber)) {
                 throw new Exception('请检查证件号码!');
             }
 
             $this->checkVerifyCode($phone, $verifyCode);
-
             $resident   = Residentmodel::findOrFail($residentId);
 
             if ($resident->customer->openid != $this->auth->id()) {
@@ -127,8 +144,8 @@ class Contract extends Wechat_Controller
                     $customerCA = $this->getCustomerCA(compact('name', 'phone', 'cardNumber', 'cardType'));
                     //生成合同
                     $contract   = $this->generate($resident, [
-                        'type'          => Contractmodel::TYPE_FDD,
-                        'customer_id'   => $customerCA,
+                        'type'   => Contractmodel::TYPE_FDD,
+                        'uxid'   => $customerCA,
                     ]);
                 }
                 //合同没归档就去签署页面
@@ -138,11 +155,306 @@ class Contract extends Wechat_Controller
             }
         } catch (Exception $e) {
             log_message('error', $e->getMessage());
-            Util::error($e->getMessage());
+            throw new $e;
         }
-
-        Util::success('请求成功!', compact('targetUrl'));
+      //  Util::success('请求成功!', compact('targetUrl'));
+        $this->api_res(0,['contract'=>$contract,'targetUrl'=>$targetUrl]);
     }
 
 
+    /**
+     * 生成租房合同, 有两种
+     * 1. 法大大电子合同
+     * 2. 不走法大大流程 生成合同电子版, 便于打印
+     * 这里还要根据实际情况做响应的更改
+     */
+    private function generate($resident, array $data)
+    {
+        $room       = $resident->room;
+        $apartment  = $resident->room->apartment;
+        $rentType   = $resident->rent_type;
+
+        //统计本公寓今年的合同的数量
+        $contractCount  = $apartment->contracts()
+            ->where('created_at', '>=', $resident->begin_time->startOfYear())
+            ->count();
+
+        //生成该合同的编号
+        $contractNumber = $apartment->contract_number_prefix . '-' . $resident->begin_time->year . '-' . sprintf("%03d", ++ $contractCount) . '-' . $resident->name . '-' . $room->number;
+
+        //确定合同结束的时间
+        $now            = Carbon::now();
+
+        //生成电子合同, 这个所有的整数都转换成了字符串类型, 否则调用接口会出错
+        $parameters     = array(
+            'contract_number'     => $contractNumber,
+            'customer_name'       => $resident->name,
+            'id_card'             => $resident->card_number,
+            'phone'               => $resident->phone,
+            'address'             => $resident->address,
+            'alternative_person'  => $resident->alternative,
+            'alternative_phone'   => $resident->alter_phone,
+            'room_number'         => $resident->room->number,
+            'year_start'          => "{$resident->begin_time->year}",
+            'month_start'         => "{$resident->begin_time->month}",
+            'day_start'           => "{$resident->begin_time->day}",
+            'year_end'            => "{$resident->end_time->year}",
+            'month_end'           => "{$resident->end_time->month}",
+            'day_end'             => "{$resident->end_time->day}",
+            'rent_money'          => "{$resident->real_rent_money}",
+            'rent_money_upper'    => num2rmb($resident->real_rent_money),
+            'service_money'       => "{$resident->real_property_costs}",
+            'service_money_upper' => num2rmb($resident->real_property_costs),
+            'deposit_money'       => "{$resident->deposit_money}",
+            'deposit_month'       => (string)$resident->deposit_month,
+            'deposit_money_upper' => num2rmb($resident->deposit_money),
+            'tmp_deposit'         => "{$resident->tmp_deposit}",
+            'tmp_deposit_upper'   => num2rmb($resident->tmp_deposit),
+            'special_term'        => $resident->special_term ? $resident->special_term : '无',
+            'year'                => "{$now->year}",
+            'month'               => "{$now->month}",
+            'day'                 => "{$now->day}",
+            'attachment_2_date'   => $now->format('Y-m-d'),
+        );
+
+        //如果是短租, 单日价格是(房租原价*1.2/30 + 物业费/30)
+        if (Residentmodel::RENTTYPE_SHORT == $rentType) {
+            $shortDayPrice                      = ceil($room->rent_money * 1.2 / 30 + $resident->real_property_costs / 30);
+            $parameters['short_rent_price']     = "{$shortDayPrice}";
+            $parameters['short_price_upper']    = num2rmb($parameters['short_rent_price']);
+        }
+
+        //看是否需要走法大大的流程, 生成不同的合同
+        $contractId             = 'JINDI'.date("YmdHis").mt_rand(10,60);
+        $contract               = new Contractmodel();
+        $contract->doc_title    = $parameters['contract_number'];
+        $contract->contract_id  = $contractId;
+
+        if (Contractmodel::TYPE_FDD == $data['type']) {
+            if (!isset($room->roomtype->fdd_tpl_id[$rentType])) {
+                throw new Exception('未找到相应的合同模板, 请稍后重试!');
+            }
+
+            $docTitle   = $parameters['contract_number'];
+            $templateId = $apartment->fdd_customer_id;
+            $res        = $this->fadada->generateContract(
+                $parameters['contract_number'],
+                $room->roomtype->fdd_tpl_id[$rentType],
+                $contractId,
+                $parameters,
+                12
+            );
+            if (false == $res) {
+                throw new Exception($this->fadada->showError());
+            }
+            $contract->type             = Contractmodel::TYPE_FDD;
+            $contract->customer_id      = $data['customer_id'];
+            $contract->download_url     = $res['download_url'];
+            $contract->view_url         = $res['viewpdf_url'];
+            $contract->status           = Contractmodel::STATUS_GENERATED;
+        } else {
+            if (!isset($room->roomtype->contract_tpl_path[$rentType]['path'])) {
+                throw new Exception('合同模板不存在, 请稍后重试');
+            }
+
+            //用自己的方法生成合同
+            $outputFileName = "{$resident->id}.pdf";
+            $outputDir      = "contract/{$room->roomtype->id}/";
+            $templatePath   = $room->roomtype->contract_tpl_path[$rentType]['path'];
+
+            if (!file_exists($templatePath)) {
+                throw new Exception('合同模板不存在, 请稍后重试!');
+            }
+
+            if (!is_dir($outputDir)) {
+                if (!mkdir(FCPATH.$outputDir, 0777)) {
+                    throw new Exception('无法创建目录, 请稍后重试');
+                }
+            }
+
+            $pdf = new Pdf($templatePath);
+            $pdf->fillForm($parameters)
+                ->needAppearances()
+                ->saveAs(FCPATH . $outputDir . $outputFileName);
+
+            $contract->type         = Contractmodel::TYPE_NORMAL;
+            $contract->download_url = site_url($outputDir.$outputFileName);
+            $contract->view_url     = site_url($outputDir.$outputFileName);
+            $contract->status       = Contractmodel::STATUS_ARCHIVED;
+        }
+
+        $contract->city_id      = $apartment->city->id;
+        $contract->apartment_id = $apartment->id;
+        $contract->resident_id  = $resident->id;
+        $contract->contract_id  = $contractId;
+        $contract->room_id      = $room->id;
+        $contract->save();
+
+        return $contract;
+    }
+
+    /**
+     * 申请用户证书
+     */
+    private function getCustomerCA($data)
+    {
+        $res = $this->fadada->getCustomerCA($data['name'], $data['phone'], $data['cardNumber'], $data['cardType']);
+
+        if ($res == false) {
+            throw new Exception($this->fadada->showError());
+        }
+
+        return $res['customer_id'];
+    }
+
+    /**
+     * 奔向签署合同页面的链接
+     */
+    public function getSignUrl($contract)
+    {
+        //查找用户之前是否有未签署的请求
+        $recordOld = $contract->transactions->where('role', Fddrecordmodel::ROLE_B)
+            ->where('status', Fddrecordmodel::STATUS_INITIATED)->first();
+
+        if (count($recordOld)) {
+            $transactionId = $recordOld->transaction_id;
+        } else {
+            $transactionId  = 'B'.date("YmdHis").mt_rand(10, 60);
+        }
+
+        //生成调用该接口所需要的信息
+        $data = $this->fadada->signARequestData(
+            $contract->customer_id,
+            $contract->contract_id,
+            $transactionId,
+            $contract->doc_title,
+            site_url('contract/signresult'),    //return_url
+            employee_url('contract/notify')     //notify_url
+        );
+
+        if (!$data) {
+            throw new Exception($this->fadada->showError());
+        }
+
+        //手动签署, 只有页面跳转到法大大平台交易才能生效, 因此, 若上一步骤失败, 就不该存储交易记录.
+        if (!$recordOld) {
+            $record = new Fddrecordmodel();
+            $record->role = Fddrecordmodel::ROLE_B;
+            $record->status = Fddrecordmodel::STATUS_INITIATED;
+            $record->remark = '乙方发起了签署动作';
+            $record->contract_id = $contract->id;
+            $record->transaction_id = $transactionId;
+            $record->save();
+        }
+
+        $baseUrl = array_shift($data);
+
+        return $baseUrl . '?' . http_build_query($data);
+    }
+
+    /**
+     * 用户签署之后跳转的页面
+     * 获取签署结果, 更新合同状态为签署中
+     */
+    public function signResult()
+    {
+        $this->load->library('fadada');
+        $this->load->library('form_validation');
+
+        $config = array(
+            array(
+                'field' => 'transaction_id',
+                'label' => 'transaction_id',
+                'rules' => 'required',
+            ),
+            array(
+                'field' => 'result_code',
+                'label' => 'result_code',
+                'rules' => 'required',
+            ),
+            array(
+                'field' => 'result_desc',
+                'label' => 'result_desc',
+                'rules' => 'required',
+            ),
+            array(
+                'field' => 'timestamp',
+                'label' => 'timestamp',
+                'rules' => 'required',
+            ),
+            array(
+                'field' => 'msg_digest',
+                'label' => 'msg_digest',
+                'rules' => 'required',
+            )
+        );
+
+        $input = array(
+            'transaction_id' => trim($this->input->get('transaction_id', true)),
+            'result_code'    => trim($this->input->get('result_code', true)),
+            'result_desc'    => trim($this->input->get('result_desc', true)),
+            'download_url'   => trim($this->input->get('download_url', true)),
+            'viewpdf_url'    => trim($this->input->get('viewpdf_url', true)),
+            'timestamp'      => trim($this->input->get('timestamp', true)),
+            'msg_digest'     => trim($this->input->get('msg_digest', true)),
+        );
+
+        //CI 中的表单验证, 可能是只能验证 form 表单提交的数据, url-query 中携带的数据, 好像无法验证
+        $this->form_validation->set_data($input);
+        $this->form_validation->set_rules($config);
+
+        if ($this->form_validation->run() == FALSE) {
+            redirect(site_url('center'));
+        }
+
+        //获取完参数之后进行校验
+        $msgDigestData = array(
+            'sha1' => [FADADA_API_APP_SECRET, $input['transaction_id']],
+            'md5'  => [$input['timestamp']],
+        );
+
+        try {
+            $msgDigestStr = $this->fadada->getMsgDigest($msgDigestData);
+
+            if ($msgDigestStr != $input['msg_digest']) {
+                throw new Exception('msg_digest 验证失败');
+            }
+
+            //更新合同记录, 将合同状态设置为签署中
+            $contract = Fddrecordmodel::where('transaction_id', $input['transaction_id'])->first()->contract;
+            if ($contract->status == Contractmodel::STATUS_GENERATED) {
+                $contract->status = Contractmodel::STATUS_SIGNING;
+                $contract->save();
+            }
+        } catch (Exception $e) {
+            log_message('error', $e->getMessage());
+            redirect(site_url('center'));
+        }
+
+        //没有问题就跳转支付页面
+        redirect(site_url(['order', 'payment', $contract->resident->id]));
+    }
+
+    /**
+     * 校验验证码
+     */
+    private function checkVerifyCode($phone = '', $verifyCode = '')
+    {
+        $key = config_item('verify_code_prefix').$this->auth->id();
+
+        if (!isset($_SESSION[$key])) {
+            throw new Exception('验证码不正确!');
+        }
+
+        $data = unserialize($_SESSION[$key]);
+
+        if ($data['phone'] != $phone || $data['code'] != $verifyCode) {
+            throw new Exception('手机号码与验证码不匹配!');
+        }
+
+        //验证完成后销毁 session
+        unset($_SESSION[$key]);
+
+        return true;
+    }
 }

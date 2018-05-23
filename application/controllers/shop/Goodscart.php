@@ -82,19 +82,20 @@ class Goodscart extends MY_Controller
     }
 
     /**
-     *购物车商品自增  +
+     *购物车商品自增
      */
-    public function quantityIncre(){
-        $post = $this->input->post(null,true);
+    public function quantityIncre()
+    {
+        $post = $this->input->post(null, true);
         $cart_id = intval(strip_tags(trim($post['id'])));
-        $cart       = Goodscartmodel::find($cart_id);
-        if(!$cart){
+        $cart = Goodscartmodel::find($cart_id);
+        if (!$cart) {
             $this->api_res(1007);
-            return ;
+            return;
         }
-        if($cart->increment('quantity')){
+        if ($cart->increment('quantity')) {
             $this->api_res(0);
-        }else{
+        } else {
             $this->api_res(1009);
         }
     }
@@ -118,6 +119,29 @@ class Goodscart extends MY_Controller
     }
 
     /**
+     * 购物车数量
+     */
+    public function quantityNum()
+    {
+        $post = $this->input->post(null, true);
+        $cart_id = intval(strip_tags(trim($post['id'])));
+        $cart_num = intval(strip_tags(trim($post['quantity'])));
+        if(!$this->validation())
+        {
+            $field = ['id','quantity'];
+            $this->api_res(1002,['errmsg'=>$this->form_first_error($field)]);
+            return ;
+        }
+        $num           = Goodscartmodel::where('id',$cart_id)->first();
+        $num->quantity = $cart_num;
+        if($num->save()){
+            $this->api_res(0);
+        }else{
+            $this->api_res(1009);
+        }
+    }
+    
+    /**
      * 表单验证规则
      */
     private function validation()
@@ -134,6 +158,11 @@ class Goodscart extends MY_Controller
                 'label' => '商品id',
                 'rules' => 'trim|required',
             ),
+            array(
+                'field' => 'quantity',
+                'label' => '商品购物车数量',
+                'rules' => 'trim|required',
+            )
         );
         return $config;
     }
