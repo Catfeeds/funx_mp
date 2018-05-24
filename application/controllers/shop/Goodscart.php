@@ -140,7 +140,7 @@ class Goodscart extends MY_Controller
             $this->api_res(1009);
         }
     }
-    
+
     /**
      * 表单验证规则
      */
@@ -156,6 +156,11 @@ class Goodscart extends MY_Controller
             array(
                 'field' => 'goods_id',
                 'label' => '商品id',
+                'rules' => 'trim|required',
+            ),
+            array(
+                'field' => 'id',
+                'label' => '购物车id',
                 'rules' => 'trim|required',
             ),
             array(

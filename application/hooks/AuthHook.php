@@ -48,18 +48,15 @@ class AuthHook {
             'shop/goodsaddress/addaddress',
             'shop/goodsaddress/deleteaddress',
             'shop/goodsaddress/updateaddress',
-
             'shop/goodscart/cart',
             'shop/goodscart/deletecart',
-
             'shop/goodsaddress/listaddress',
-
             'shop/goodscart/listcart',
             'shop/goodscart/deletecart',
             'shop/goodscart/addcart',
             'shop/goodscart/quantityincre',
             'shop/goodscart/quantitydecre',
-
+            'shop/goodscart/quantitynum',
 
 
 

@@ -99,7 +99,7 @@ class Fadada
      * 合同模板传输接口
      * 用于传输模板, 签署合同的时候, 基于模板生成相应的合同
      */
-    public function uploadTemplate($docUrl, string $templateId)
+    public function uploadTemplate($docUrl,  $templateId)
     {
         try {
             $url        = $this->getApiUrl('uploadtemplate.api');

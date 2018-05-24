@@ -28,7 +28,6 @@ class Contract extends MY_Controller
         if (1 == count($contracts)) {
             redirect($contracts->first()->view_url);
         }
-
         $this->twig->render('contract/view.html.twig', compact('contracts'));
     }
 
@@ -68,6 +67,7 @@ class Contract extends MY_Controller
         }
         $this->api_res(0,['resident'=>$resident,'contract'=>$contract]);
     }
+
 
     /**
      * 信息确认之后，开始签约流程
@@ -456,5 +456,62 @@ class Contract extends MY_Controller
         unset($_SESSION[$key]);
 
         return true;
+    }
+
+    /**
+     * 表单验证规则
+     */
+    private function validation()
+    {
+        $this->load->library('form_validation');
+        $config = array(
+            array(
+                'field' => 'resident_id',
+                'label' => '用户id',
+                'rules' => 'trim|required',
+            ),
+            array(
+                'field' => 'name',
+                'label' => '用户名',
+                'rules' => 'trim|required',
+            ),
+            array(
+                'field' => 'phone',
+                'label' => '手机',
+                'rules' => 'trim|required',
+            ),
+            array(
+                'field' => 'verify_code',
+                'label' => '二维码',
+                'rules' => 'trim|required',
+            ),//id_card
+            array(
+                'field' => 'id_card',
+                'label' => '证件',
+                'rules' => 'trim|required',
+            ),
+            array(
+                'field' => 'id_type',
+                'label' => '类型',
+                'rules' => 'trim|required',
+            ),
+            array(
+                'field' => 'alternative',
+                'label' => '紧急联系人的姓名',
+                'rules' => 'trim|required',
+            ),
+            array(
+                'field' => 'alter_phone',
+                'label' => '紧急联系人电话',
+                'rules' => 'trim|required',
+            ),
+            array(
+                'field' => 'address',
+                'label' => '地址',
+                'rules' => 'trim|required',
+            ),
+
+        );
+        return $config;
     }
 }
