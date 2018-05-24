@@ -24,7 +24,6 @@ class Goodscategory extends MY_Controller
         $goods  = Goodscategorymodel::with('goods')->get($filed)->toArray();
 
         foreach ($goods as $key=>$value){
-            //$goods[$key]['goods'] = $this->fullAliossUrl($value['goods_thumb']);
            $qq = &$goods[$key]['goods'];
             foreach ($qq as $key=>$value){
                 $qq[$key]['goods_thumb'] = $this->fullAliossUrl($value['goods_thumb']);

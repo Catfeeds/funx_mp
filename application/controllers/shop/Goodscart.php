@@ -19,19 +19,19 @@ class Goodscart extends MY_Controller
      */
     public function listCart()
     {
-        $this->load->model('Goodsmodel');
-        $post = $this->input->post(null,true);
+        $this->load->model('goodsmodel');
+        $post = $this->input->post(null, true);
         $uxid = intval(strip_tags(trim($post['uxid'])));
-        $field = ['id','goods_id','quantity'];
-        if(isset($uxid)){
-            $goodscart = Goodscartmodel::with('goods')->where('uxid',$uxid)->get($field)->toArray();
+        $field = ['id', 'goods_id', 'quantity'];
+        if (isset($uxid)) {
+            $goodscart = Goodscartmodel::with('goods')->where('uxid', $uxid)->get($field)->toArray();
 
-           foreach ($goodscart as $key=>$value){
+            foreach ($goodscart as $key => $value) {
                 $qq = &$goodscart[$key]['goods']['goods_thumb'];
                 $qq = $this->fullAliossUrl($qq);
             }
-            $this->api_res(0,$goodscart);
-        }else{
+            $this->api_res(0, $goodscart);
+        } else {
             $this->api_res(1005);
         }
     }
@@ -41,10 +41,10 @@ class Goodscart extends MY_Controller
      */
     public function deleteCart()
     {
-        $id   = $this->input->post('id',true);
-        if(Goodscartmodel::destroy($id)){
+        $id = $this->input->post('id', true);
+        if (Goodscartmodel::destroy($id)) {
             $this->api_res(0);
-        }else{
+        } else {
             $this->api_res(1009);
         }
     }
@@ -54,23 +54,17 @@ class Goodscart extends MY_Controller
      */
     public function addCart()
     {
-        $post = $this->input->post(null,true);
-        $uxid = intval(strip_tags(trim($post['uxid'])));
+        $post = $this->input->post(null, true);
+        //$uxid = intval(strip_tags(trim($post['uxid'])));
         $goods_id = intval(strip_tags(trim($post['goods_id'])));
-        if(!$this->validation())
-        {
-            $field = ['id','goods_id','uxid'];
-            $this->api_res(1002,['errmsg'=>$this->form_first_error($field)]);
-            return ;
-        }
-        $addcart = Goodscartmodel::where('uxid',$uxid)->where('goods_id',$goods_id)->first();
-        if(isset($addcart))
-        {
+
+        $addcart = Goodscartmodel::where('uxid', 7)->where('goods_id', $goods_id)->first();
+        if (isset($addcart)) {
             $addcart->increment("quantity");
             $this->api_res(0);
-        }else{
+        } else {
             $cart = new Goodscartmodel();
-            $cart->uxid = $uxid;
+            $cart->uxid = 7;
             $cart->goods_id = $goods_id;
             $cart->quantity = 1;
             if ($cart->save()) {
@@ -103,17 +97,18 @@ class Goodscart extends MY_Controller
     /**
      * 购物车商品自减  -
      */
-    public function quantityDecre(){
-        $post = $this->input->post(null,true);
+    public function quantityDecre()
+    {
+        $post = $this->input->post(null, true);
         $cart_id = intval(strip_tags(trim($post['id'])));
-        $cart       = Goodscartmodel::find($cart_id);
-        if(!$cart){
+        $cart = Goodscartmodel::find($cart_id);
+        if (!$cart) {
             $this->api_res(1007);
-            return ;
+            return;
         }
-        if($cart->decrement('quantity')){
+        if ($cart->decrement('quantity')) {
             $this->api_res(0);
-        }else{
+        } else {
             $this->api_res(1009);
         }
     }
@@ -124,52 +119,41 @@ class Goodscart extends MY_Controller
     public function quantityNum()
     {
         $post = $this->input->post(null, true);
-        $cart_id = intval(strip_tags(trim($post['id'])));
+        //$uxid = intval(strip_tags(trim($post['uxid'])));
+        $goods_id = intval(strip_tags(trim($post['goods_id'])));
         $cart_num = intval(strip_tags(trim($post['quantity'])));
-        if(!$this->validation())
-        {
-            $field = ['id','quantity'];
-            $this->api_res(1002,['errmsg'=>$this->form_first_error($field)]);
-            return ;
-        }
-        $num           = Goodscartmodel::where('id',$cart_id)->first();
+                                        //CURRENT_ID
+        $num = Goodscartmodel::where('uxid', 7)->where('goods_id', $goods_id)->first();
         $num->quantity = $cart_num;
-        if($num->save()){
+        if ($num->save()) {
             $this->api_res(0);
-        }else{
+        } else {
             $this->api_res(1009);
         }
     }
 
     /**
-     * 表单验证规则
+     * 购物车结算信息
      */
-    private function validation()
+    public function accounts()
     {
-        $this->load->library('form_validation');
-        $config = array(
-            array(
-                'field' => 'uxid',
-                'label' => '客户id',
-                'rules' => 'trim|required',
-            ),
-            array(
-                'field' => 'goods_id',
-                'label' => '商品id',
-                'rules' => 'trim|required',
-            ),
-            array(
-                'field' => 'id',
-                'label' => '购物车id',
-                'rules' => 'trim|required',
-            ),
-            array(
-                'field' => 'quantity',
-                'label' => '商品购物车数量',
-                'rules' => 'trim|required',
-            )
-        );
-        return $config;
-    }
+        $this->load->model('goodsmodel');
+        $post = $this->input->post(null, true);
+        //$uxid = intval(strip_tags(trim($post['uxid']))); //69 70
+        $goods_id = $post['goods_id'];
+        $goodscarts = Goodscartmodel::with('goods')->find($goods_id)->map(function ($cart) {
+            if ($cart->uxid != 7) { //CURRENT_ID
+                log_message('error', '购物车跟当前用户不匹配');
+                throw new Exception();
+            }
+            $cart->sum = $cart->quantity * $cart->goods->shop_price;
+            return $cart;
+        });
+        foreach ($goodscarts as $key => $value) {
+            $goodscarts[$key]['goods']['goods_thumb'] = $this->fullAliossUrl(($goodscarts[$key]['goods']['goods_thumb']));
+        }
+        $sum = $goodscarts->sum('sum');
+        $this->api_res(0, ['goodscarts' => $goodscarts, 'sum' => $sum]);
 
+    }
 }

@@ -14,4 +14,8 @@ class Goodscartmodel extends Basemodel
     public function goods(){
         return $this->belongsTo(Goodsmodel::class,'goods_id')->select('id','name','shop_price','description','goods_thumb');
     }
+    public function goodprice(){
+        return $this->belongsTo(Goodsmodel::class,'goods_id')->select('id','shop_price');
+    }
+
 }

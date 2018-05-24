@@ -20,21 +20,22 @@ class Goodsaddress extends MY_Controller
     public function addAddress()
     {
         $post = $this->input->post(null,true);
-        $uxid = intval(strip_tags(trim($post['uxid'])));
+        //$uxid = intval(strip_tags(trim($post['uxid'])));
         if(!$this->validation())
         {
             $field = ['apartment','building','room_number','name','phone'];
             $this->api_res(1002,['errmsg'=>$this->form_first_error($field)]);
             return ;
         }
+
         $address                = new Goodsaddressmodel();
         $address->apartment     = trim($post['apartment']);
         $address->building      = trim($post['building']);
         $address->room_number   = trim($post['room_number']);
         $address->name          = trim($post['name']);
         $address->phone         = trim($post['phone']);
-        $address->uxid   = trim($uxid);
-
+        $address->uxid   = 35;
+                        //CURRENT_ID;
         if($address->save()){
             $this->api_res(0,['id' => $address->id]);
         }else{
@@ -74,7 +75,6 @@ class Goodsaddress extends MY_Controller
         $address->room_number   = trim($post['room_number']);
         $address->name          = trim($post['name']);
         $address->phone         = trim($post['phone']);
-
         if($address->save()){
             $this->api_res(0);
         }else{
@@ -88,12 +88,11 @@ class Goodsaddress extends MY_Controller
     public function listAddress()
     {
         $post        = $this->input->post(NULL,true);
-        $uxid = intval(trim($post['uxid']));
+       // $uxid = intval(trim($post['uxid']));
         $field       = ['id','uxid','apartment','building','room_number','name','phone'];
-        $listaddress = Goodsaddressmodel::where('uxid',$uxid)->orderBy('id','desc')->get($field);
+        $listaddress = Goodsaddressmodel::where('uxid',35)->orderBy('id','desc')->get($field);//CURRENT_ID;
         $this->api_res(0,['list'=>$listaddress]);
     }
-
 
     /**
      * 表单验证规则
@@ -133,7 +132,8 @@ class Goodsaddress extends MY_Controller
                    'rules' => 'trim|required',
                ),
            );
-           return $config;
+            $this->form_validation->set_rules($config)->set_error_delimiters('','');
+            return $this->form_validation->run();
         }
 
 }

@@ -57,6 +57,7 @@ class AuthHook {
             'shop/goodscart/quantityincre',
             'shop/goodscart/quantitydecre',
             'shop/goodscart/quantitynum',
+            'shop/goodscart/accounts',
 
 
 
