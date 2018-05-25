@@ -11,10 +11,22 @@ class MY_Controller extends CI_Controller {
 
     protected $position;
 
+    protected $customer;
+
     public function __construct()
     {
         parent::__construct();
         $this->output->set_content_type('application/json');
+        //测试使用
+        if(!defined('CURRENT_ID'))
+        {
+            define('CURRENT_ID',1001);
+            $this->load->model('customermodel');
+            $this->customer = Customermodel::find(1001);
+        }else{
+            $this->load->model('customermodel');
+            $this->customer = Customermodel::find(CURRENT_ID);
+        }
     }
 
     //API返回统一方法
