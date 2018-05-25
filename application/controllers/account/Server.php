@@ -28,7 +28,8 @@ class Server extends MY_Controller
     {
         parent::__construct();
 
-        $this->app = new Application($this->getCustomerWechatConfig());
+        $this->app = new Application(getCustomerWechatConfig());
+        $this->load->model('customermodel');
     }
 
     /**
@@ -200,6 +201,57 @@ class Server extends MY_Controller
         $response = $server->serve();
         $response->send();
     }
+
+
+    /**
+     * 处理关注事件
+     */
+    private function subscribe()
+    {
+        try {
+            Customermodel::where('openid', $this->openid)->update(['subscribe' => 1]);
+            if (empty($this->eventKey)) {
+                return $this->goToSweepstakes(config_item('new_customer_activity_id'));
+            }
+
+            return $this->scan();
+
+        } catch (Exception $e) {
+            log_message('error', $e->getMessage());
+            return new Text(['content' => '没有找到该记录!']);
+        }
+    }
+
+
+    /**
+     * 处理取关事件
+     */
+    private function unsubscribe()
+    {
+        Customermodel::where('openid', $this->openid)->update(['subscribe' => 0]);
+
+        return 'success';
+    }
+
+
+    /**
+     * 处理扫描带参数二维码事件
+     */
+    private function scan()
+    {
+        //扫带参数的二维码, 会携带一个场景值, 根据这个场景值展开业务
+        $eventKey   = (int)str_replace('qrscene_', '', $this->eventKey);
+
+        //好友助力的二维码, 场景值是1开头
+        if (10 == strlen($eventKey) && 1 == substr($eventKey, 0, 1)) {
+            return $this->helpFriend($this->app, $this->message, $eventKey);
+        }
+
+        return $this->checkInOrBookingEvent($this->message, $eventKey);
+    }
+
+
+
     /**
      * 生成菜单
      */
@@ -288,9 +340,14 @@ class Server extends MY_Controller
 
     private function checkInOrBookingEvent($message, $eventKey)
     {
-        $loginUrl = site_url('login?target_url=');
+        //$loginUrl = site_url('login?target_url=');
 
         //办理入住以及预订房间时的场景值
+        $this->load->model('residentmodel');  
+        $this->load->model('ordermodel');  
+        $this->load->model('roomunionmodel');  
+        $this->load->model('roomtypemodel');
+
         $resident   = Residentmodel::findOrFail($eventKey);
 
         if (0 == $resident->customer_id) {
@@ -299,12 +356,14 @@ class Server extends MY_Controller
             if (empty($customer)) {
                 $customer           = new Customermodel();
                 $customer->openid   = $message->FromUserName;
+                $customer->uxid         = Customermodel::max('uxid')+1;
                 $customer->save();
             }
 
             $resident->customer_id  = $customer->id;
+            $resident->uxid  = $customer->uxid;
             $resident->save();
-            $resident->orders()->where('customer_id', 0)->update(['customer_id' => $customer->id]);
+            $resident->orders()->where('uxid', 0)->update(['customer_id' => $customer->id,'uxid'=>$customer->uxid]);
         }
 
         //根据住户状态分别进行处理
@@ -317,49 +376,21 @@ class Server extends MY_Controller
 
         //有未支付的预订订单, 则应该去支付
         if (0 < $bookingOrdersCnt) {
-            $url    = $loginUrl.site_url(['order', 'status']);
+//            $url    = $loginUrl.site_url(['order', 'status']);
+            $url    = '预定订单支付页面';
         } else {
-            $url    = $loginUrl.site_url(['contract', 'preview', $resident->id]);
+//            $url    = $loginUrl.site_url(['contract', 'preview', $resident->id]);
+            $url    = '合同展示页面URL';
         }
 
         return new News(array(
             'title'         => $resident->room->apartment->name,
             'description'   => "您预订的【{$resident->room->number}】",
             'url'           => $url,
-            'image'         => upyun_url($resident->room->roomtype->images()->first()->url),
+            'image'         => $this->fullAliossUrl(json_decode($resident->roomunion->roomtype->images,true),true),
         ));
     }
 
-    /**
-     * 客户端微信公众号配置
-     */
-    public static function getCustomerWechatConfig(){
-        $debug  = (ENVIRONMENT!=='development'?false:true);
-        return array(
-            'debug'     => $debug,
-            'app_id'    => config_item('wx_map_appid'),
-            'secret'    => config_item('wx_map_secret'),
-            'token'     => config_item('wx_map_token'),
-            'aes_key'   => config_item('wx_map_aes_key'),
-            'log' => [
-                'level' => 'debug',
-                'file'  => APPPATH.'cache/wechat.log',
-            ],
-            //调用授权
-            'oauth' => [
-                'scopes'   => config_item('wx_customer_oauth_scopes') ,
-                'callback' => config_item('wx_oauth_callback'),
-            ],
-            /*'payment' => [
-                'merchant_id'   => CUSTOMER_WECHAT_PAYMENT_MERCHANT_ID,
-                'key'           => CUSTOMER_WECHAT_PAYMENT_KEY,
-                'cert_path'     => CUSTOMER_WECHAT_PAYMENT_CERT_PATH,
-                'key_path'      => CUSTOMER_WECHAT_PAYMENT_KEY_PATH,
-            ],*/
-            'guzzle' => [
-                'timeout' => 3.0,
-            ]
-        );
-    }
+
 
 }

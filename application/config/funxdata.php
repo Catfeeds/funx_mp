@@ -53,11 +53,12 @@ $config['danbayUserName']   = 'jindihuohua';
 $config['danbayPassword']   = 'a123456';
 $config['danbaymToken']     = '6nQIQ3EOpkaNtRly1M2MDoDjX7jxGjntldYv1JbsQB7srroptaUc3z2QypzDbgzc';
 
-//微信公众号信息
-$config['wx_map_appid']     = '';
-$config['wx_map_secret']    = '';
-$config['wx_map_token']     = '';
-$config['wx_map_aes_key']   = '';
+//微信用户端公众号的信息
+$config['wx_map_appid']     = 'wxd8da84ed2a26aa06';
+$config['wx_map_secret']    = '00e6fd3ce1151e3d2bd0e01c98c925d3';
+$config['wx_map_token']     = 'aJ1B3XhY7qRvTG3DrbxNhCLo90kpsds4';
+$config['wx_map_aes_key']   = 'IwTUFptFaJ1B3XhY7qRvTG3DrbxNhCLo90kpsqP0cNL';
+
 $config['wx_customer_oauth_scopes']   = 'snsapi_userinfo';
 $config['wx_oauth_callback']   = '';
 
