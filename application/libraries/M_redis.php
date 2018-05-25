@@ -126,8 +126,6 @@ class M_redis
     }
 
 
-
-
     /**
      * 存储公司权限
      * @param $company_id
@@ -138,6 +136,7 @@ class M_redis
         $this->redis->set($key,$privilege,2*60*60);
         return;
     }
+
     /**
      * 获取公司权限
      * @param $company_id
@@ -165,5 +164,82 @@ class M_redis
         $info   = $this->redis->get($key);
         return $info;
     }
+
+    /*
+     * 住户端 个人中心绑定手机号时存储验证码
+     */
+    public function storeCustomerPhoneCode($phone,$code){
+        $key    = CUSTOMERPHONECODE.$phone;
+        $val    = $code;
+        $this->redis->set($key,$val,600);
+        return;
+    }
+
+    /**
+     * 住户端 绑定手机号验证个人手机号
+     */
+    public function verifyCustomerPhoneCode($phone,$code){
+        $key    = CUSTOMERPHONECODE.$phone;
+        if($code != $this->redis->get($key)){
+            return false;
+        }
+        $this->redis->expire($key,-1);
+        return true;
+    }
+
+    /**
+     * 住户端 个人中心绑定手机号 刷新短信验证码
+     * @param $phone
+     * return bool
+     */
+    public function ttlCustomerPhoneCode($phone){
+        $key    = CUSTOMERPHONECODE.$phone;
+        if( $this->redis->exists($key) ){
+            if( ($this->redis->ttl($key))>540) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 住户端 住户确认订单时存储手机验证码
+     */
+    public function storeResidentPhoneCode($phone,$code){
+        $key    = RESIDENTPHONECODE.$phone;
+        $val    = $code;
+        $this->redis->set($key,$val,600);
+        return;
+    }
+
+    /**
+     * 住户端 验证个人手机号
+     */
+    public function verifyResidentPhoneCode($phone,$code){
+        $key    = RESIDENTPHONECODE.$phone;
+        if($code != $this->redis->get($key)){
+            return false;
+        }
+        $this->redis->expire($key,-1);
+        return true;
+    }
+
+    /**
+     * 住户端 个人中心绑定手机号 刷新短信验证码
+     * @param $phone
+     * return bool
+     */
+    public function ttlResidentPhoneCode($phone){
+        $key    = RESIDENTPHONECODE.$phone;
+        if( $this->redis->exists($key) ){
+            if( ($this->redis->ttl($key))>540) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+
 
 }

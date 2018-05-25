@@ -75,7 +75,7 @@ class Roomunionmodel extends Basemodel{
     public function roomtype(){
 
         return $this->belongsTo(Roomtypemodel::class,'room_type_id')->select(
-            ['id','name','room_number','hall_number','toilet_number','toward','provides','description']);
+            ['id','name','room_number','hall_number','toilet_number','toward','provides','description','images']);
     }
 
     //房屋公共智能设备

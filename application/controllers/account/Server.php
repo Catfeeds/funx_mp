@@ -337,8 +337,8 @@ class Server extends MY_Controller
 
     }
 
-    //private function checkInOrBookingEvent($message, $eventKey)
-    public function checkInOrBookingEvent($message='', $eventKey='')
+    private function checkInOrBookingEvent($message, $eventKey)
+    //public function checkInOrBookingEvent($message='', $eventKey='')
     {
         //$loginUrl = site_url('login?target_url=');
 
@@ -347,20 +347,20 @@ class Server extends MY_Controller
         $this->load->model('ordermodel');  
         $this->load->model('roomunionmodel');  
         $this->load->model('roomtypemodel');
+        $this->load->model('storemodel');
         $eventKey=182;
         $resident   = Residentmodel::findOrFail($eventKey);
         if (0 == $resident->uxid) {
-            //$customer   = Customermodel::where('openid', $message->FromUserName)->first();
-            $customer   = Customermodel::where('openid', 1)->first();
+            $customer   = Customermodel::where('openid', $message->FromUserName)->first();
+            //$customer   = Customermodel::where('openid', 1)->first();
 
             if (empty($customer)) {
                 $customer           = new Customermodel();
-                //$customer->openid   = $message->FromUserName;
-                $customer->openid   =1;
+                $customer->openid   = $message->FromUserName;
+                //$customer->openid   =1;
                 $customer->uxid         = Customermodel::max('uxid')+1;
                 $customer->save();
             }
-
 
             $resident->customer_id  = $customer->id;
             $resident->uxid  = $customer->uxid;
@@ -384,7 +384,6 @@ class Server extends MY_Controller
 //            $url    = $loginUrl.site_url(['contract', 'preview', $resident->id]);
             $url    = '合同展示页面URL';
         }
-
         return new News(array(
             'title'         => $resident->room->apartment->name,
             'description'   => "您预订的【{$resident->room->number}】",
