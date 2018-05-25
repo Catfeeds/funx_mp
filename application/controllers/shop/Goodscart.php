@@ -140,8 +140,9 @@ class Goodscart extends MY_Controller
         $this->load->model('goodsmodel');
         $post = $this->input->post(null, true);
         //$uxid = intval(strip_tags(trim($post['uxid']))); //69 70
-        $goods_id = $post['goods_id'];
-        $goodscarts = Goodscartmodel::with('goods')->find($goods_id)->map(function ($cart) {
+        $cart_id = $post['cart_id'];
+        $id         = isset($cart_id)?explode(',',$cart_id):NULL;
+        $goodscarts = Goodscartmodel::with('goods')->find($id)->map(function ($cart) {
             if ($cart->uxid != 7) { //CURRENT_ID
                 log_message('error', '购物车跟当前用户不匹配');
                 throw new Exception();
