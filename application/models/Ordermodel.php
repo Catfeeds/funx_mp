@@ -60,7 +60,7 @@ class Ordermodel extends Basemodel{
     const DEAL_DONE         = 'DONE';       // 处理
     const DEAL_UNDONE       = 'UNDONE';     // 未处理
 
-    protected $table        = 'orders';
+    protected $table        = 'web_order';
 
     protected $fillable     = [
         'deal',

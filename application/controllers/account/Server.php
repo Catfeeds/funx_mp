@@ -1,6 +1,5 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-require_once __DIR__.'Wechat.php';
 use EasyWeChat\Foundation\Application;
 use EasyWeChat\Message\News;
 use EasyWeChat\Message\Text;
@@ -27,7 +26,7 @@ class Server extends MY_Controller
     public function __construct()
     {
         parent::__construct();
-
+        $this->load->helper('wechat');
         $this->app = new Application(getCustomerWechatConfig());
         $this->load->model('customermodel');
     }
@@ -338,7 +337,8 @@ class Server extends MY_Controller
 
     }
 
-    private function checkInOrBookingEvent($message, $eventKey)
+    //private function checkInOrBookingEvent($message, $eventKey)
+    public function checkInOrBookingEvent($message='', $eventKey='')
     {
         //$loginUrl = site_url('login?target_url=');
 
@@ -347,18 +347,20 @@ class Server extends MY_Controller
         $this->load->model('ordermodel');  
         $this->load->model('roomunionmodel');  
         $this->load->model('roomtypemodel');
-
+        $eventKey=182;
         $resident   = Residentmodel::findOrFail($eventKey);
-
-        if (0 == $resident->customer_id) {
-            $customer   = Customermodel::where('openid', $message->FromUserName)->first();
+        if (0 == $resident->uxid) {
+            //$customer   = Customermodel::where('openid', $message->FromUserName)->first();
+            $customer   = Customermodel::where('openid', 1)->first();
 
             if (empty($customer)) {
                 $customer           = new Customermodel();
-                $customer->openid   = $message->FromUserName;
+                //$customer->openid   = $message->FromUserName;
+                $customer->openid   =1;
                 $customer->uxid         = Customermodel::max('uxid')+1;
                 $customer->save();
             }
+
 
             $resident->customer_id  = $customer->id;
             $resident->uxid  = $customer->uxid;
