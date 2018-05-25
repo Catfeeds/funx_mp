@@ -146,14 +146,15 @@ class Goodscart extends MY_Controller
                 log_message('error', '购物车跟当前用户不匹配');
                 throw new Exception();
             }
-            $cart->sum = $cart->quantity * $cart->goods->shop_price;
+            $cart->price= $cart->quantity * $cart->goods->shop_price;
+            $cart->sum = $cart->quantity++ ;
             return $cart;
         });
         foreach ($goodscarts as $key => $value) {
             $goodscarts[$key]['goods']['goods_thumb'] = $this->fullAliossUrl(($goodscarts[$key]['goods']['goods_thumb']));
         }
+        $price = $goodscarts->sum('price');
         $sum = $goodscarts->sum('sum');
-        $this->api_res(0, ['goodscarts' => $goodscarts, 'sum' => $sum]);
-
+        $this->api_res(0, ['goodscarts' => $goodscarts, 'price' => $price ,'sum' =>$sum]);
     }
 }
