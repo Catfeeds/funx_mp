@@ -13,6 +13,7 @@ class Center extends MY_Controller
     {
         parent::__construct();
         $this->load->model('customermodel');
+        $this->load->library('m_redis');
     }
 
     /**
@@ -32,6 +33,23 @@ class Center extends MY_Controller
             }
         } else {
             $this->api_res(1002);
+        }
+    }
+
+    /**
+     * 显示昵称
+     */
+    public function showNickname()
+    {
+        $post = $this->input->post(null,true);
+        if (isset($post['id']) && !empty($post['id'])) {
+            $id = trim($post['id']);
+            $customer = Customermodel::where('id', $id)->get(['nickname']);
+            if ($customer) {
+                $this->api_res(0, $customer);
+            } else {
+                $this->api_res(1009);
+            }
         }
     }
 
@@ -60,15 +78,52 @@ class Center extends MY_Controller
     }
 
     /**
-     * 设置手机验证
+     * 发送手机验证码
      */
-    public function setPhonenum()
+    public function setPhone()
     {
         $post = $this->input->post(null,true);
         if (isset($post['id']) && !empty($post['id'])) {
-            $id = trim($post['id']);
             if (isset($post['phone']) && !empty($post['phone'])) {
+                $phone = trim($post['phone']);
+                if(!$this->m_redis->ttlCustomerPhoneCode($phone))
+                {
+                    $this->api_res(10007);
+                    return false;
+                }
+                $this->load->library('sms');
+                $code   = str_pad(rand(1,9999),4,0,STR_PAD_LEFT);
+                $str    = SMSTEXT.$code;
+                $this->m_redis->storeCustomerPhoneCode($phone,$code);
+                $this->sms->send($str,$phone);
+                $this->api_res(0);
+            } else {
+                $this->api_res(1002);
+            }
+        } else {
+            $this->api_res(1002);
+        }
+    }
 
+    /**
+     * 验证手机验证码
+     */
+    public function verifyPhone()
+    {
+        $post = $this->input->post(null,true);
+
+        if (isset($post['id']) && !empty($post['id'])) {
+            $id = trim($post['id']);
+            $phone = isset($post['phone']) ? trim($post['phone']) : null;
+            $code = isset($post['code']) ? trim($post['code']) : null;
+            if ($this->m_redis->verifyCustomerPhoneCode($phone, $code)) {
+                $customer = Customermodel::find($id);
+                $customer->phone = $phone;
+                if ($customer->save()) {
+                    $this->api_res(0);
+                }else{
+                    $this->api_res(1009);
+                }
             } else {
                 $this->api_res(1002);
             }

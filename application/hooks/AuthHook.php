@@ -43,8 +43,10 @@ class AuthHook {
             'service/reserve/reserve',
 
             'customer/center/showinfo',
+            'customer/center/shownickname',
             'customer/center/setnickname',
-            'customer/center/setphonenum',
+            'customer/center/setphone',
+            'customer/center/verifyphone',
 
             'shop/goodscategory/listgoods',
             'shop/goods/goodsinfo',
