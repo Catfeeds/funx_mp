@@ -340,9 +340,14 @@ class Server extends MY_Controller
 
     private function checkInOrBookingEvent($message, $eventKey)
     {
-        $loginUrl = site_url('login?target_url=');
+        //$loginUrl = site_url('login?target_url=');
 
         //办理入住以及预订房间时的场景值
+        $this->load->model('residentmodel');  
+        $this->load->model('ordermodel');  
+        $this->load->model('roomunionmodel');  
+        $this->load->model('roomtypemodel');
+
         $resident   = Residentmodel::findOrFail($eventKey);
 
         if (0 == $resident->customer_id) {
@@ -351,12 +356,14 @@ class Server extends MY_Controller
             if (empty($customer)) {
                 $customer           = new Customermodel();
                 $customer->openid   = $message->FromUserName;
+                $customer->uxid         = Customermodel::max('uxid')+1;
                 $customer->save();
             }
 
             $resident->customer_id  = $customer->id;
+            $resident->uxid  = $customer->uxid;
             $resident->save();
-            $resident->orders()->where('customer_id', 0)->update(['customer_id' => $customer->id]);
+            $resident->orders()->where('uxid', 0)->update(['customer_id' => $customer->id,'uxid'=>$customer->uxid]);
         }
 
         //根据住户状态分别进行处理
@@ -369,16 +376,18 @@ class Server extends MY_Controller
 
         //有未支付的预订订单, 则应该去支付
         if (0 < $bookingOrdersCnt) {
-            $url    = $loginUrl.site_url(['order', 'status']);
+//            $url    = $loginUrl.site_url(['order', 'status']);
+            $url    = '预定订单支付页面';
         } else {
-            $url    = $loginUrl.site_url(['contract', 'preview', $resident->id]);
+//            $url    = $loginUrl.site_url(['contract', 'preview', $resident->id]);
+            $url    = '合同展示页面URL';
         }
 
         return new News(array(
             'title'         => $resident->room->apartment->name,
             'description'   => "您预订的【{$resident->room->number}】",
             'url'           => $url,
-            'image'         => upyun_url($resident->room->roomtype->images()->first()->url),
+            'image'         => $this->fullAliossUrl(json_decode($resident->roomunion->roomtype->images,true),true),
         ));
     }
 

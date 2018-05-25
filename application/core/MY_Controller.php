@@ -22,10 +22,10 @@ class MY_Controller extends CI_Controller {
         {
             define('CURRENT_ID',1001);
             $this->load->model('customermodel');
-            $this->customer = Customermodel::find(1001);
+            $this->customer = Customermodel::where('uxid',1001)->firstOrFial();
         }else{
             $this->load->model('customermodel');
-            $this->customer = Customermodel::find(CURRENT_ID);
+            $this->customer = Customermodel::where('uxid',CURRENT_ID)->firstOrFial();
         }
     }
 
