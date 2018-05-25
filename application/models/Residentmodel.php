@@ -77,6 +77,17 @@ class Residentmodel extends Basemodel{
         return $this->hasMany(Ordermodel::class,'resident_id');
     }
 
+    //住户的优惠券
+    public function  coupons(){
+
+        return $this->hasMany(Couponmodel::class,'resident_id');
+    }
+
+    public function discount()
+    {
+        return $this->belongsTo(Activitymodel::class, 'discount_id');
+    }
+
 
 
 

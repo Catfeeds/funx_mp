@@ -348,7 +348,7 @@ class Server extends MY_Controller
         $this->load->model('roomunionmodel');  
         $this->load->model('roomtypemodel');
         $this->load->model('storemodel');
-        $eventKey=182;
+        //$eventKey=182;
         $resident   = Residentmodel::findOrFail($eventKey);
         if (0 == $resident->uxid) {
             $customer   = Customermodel::where('openid', $message->FromUserName)->first();
