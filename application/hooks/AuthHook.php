@@ -42,6 +42,15 @@ class AuthHook {
             'service/serviceorder/cleanorder',
             'service/reserve/reserve',
 
+            'customer/center/showinfo',
+            'customer/center/shownickname',
+            'customer/center/setnickname',
+            'customer/center/setphone',
+            'customer/center/verifyphone',
+
+            'customer/contract/checksign',
+            'customer/contract/generate',
+
             'shop/goodscategory/listgoods',
             'shop/goods/goodsinfo',
             'shop/goods/searchgoods',
