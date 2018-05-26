@@ -15,8 +15,6 @@ class Contract extends MY_Controller
     public function __construct()
     {
         parent::__construct();
-
-        $this->load->library('fadada');
     }
 
     /**
