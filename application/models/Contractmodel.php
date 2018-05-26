@@ -11,6 +11,13 @@ class Contractmodel extends Basemodel {
 
     protected $table    = 'boss_contract';
 
+    protected $fillable = [
+        'status',
+        'view_url',
+        'contract_id',
+        'resident_id',
+        'download_url',
+    ];
     /**
      * 合同的状态
      */

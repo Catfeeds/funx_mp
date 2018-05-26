@@ -14,11 +14,6 @@ class Resident extends MY_Controller
         parent::__construct();
     }
 
-    //办理入住
-    public function store(){
-
-    }
-
     /**
      * 获取住户信息
      */
@@ -32,11 +27,7 @@ class Resident extends MY_Controller
             return;
         }
         //验证住户的uxid是不是当前ID
-//        if($resident_id->uxid!=CURRENT_ID){
-//            $this->api_res(10013);
-//            return;
-//        }
-
+//        $this->checkUser($resident->uxid);
         $this->load->model('roomunionmodel');
         $this->load->model('activitymodel');
         $this->load->model('coupontypemodel');

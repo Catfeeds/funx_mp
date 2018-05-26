@@ -169,4 +169,16 @@ class MY_Controller extends CI_Controller {
         return $alioss_path;
     }
 
+    /**
+     * 核对当前操作用户
+     */
+    public function checkUser($uxid){
+        if($uxid!=CURRENT_ID){
+            //return FALSE;
+            throw new Exception();
+        }else{
+            return true;
+        }
+    }
+
 }

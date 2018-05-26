@@ -1,12 +1,13 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
+use Carbon\Carbon;
+use Illuminate\Database\Capsule\Manager as DB;
+//use mikehaertl\pdftk\Pdf;
 /**
  * User: wws
  * Date: 2018-05-23
  * Time: 10:37
  */
-use Carbon\Carbon;
-//use mikehaertl\pdftk\Pdf;
 /**
  * 法大大电子合同相关操作
  */
@@ -153,130 +154,130 @@ class Contract extends MY_Controller
      * 2. 不走法大大流程 生成合同电子版, 便于打印
      * 这里还要根据实际情况做响应的更改
      */
-    private function generate($resident, array $data)
-    {
-        $room       = $resident->room;
-        $apartment  = $resident->room->apartment;
-        $rentType   = $resident->rent_type;
-
-        //统计本公寓今年的合同的数量
-        $contractCount  = $apartment->contracts()
-            ->where('created_at', '>=', $resident->begin_time->startOfYear())
-            ->count();
-
-        //生成该合同的编号
-        $contractNumber = $apartment->contract_number_prefix . '-' . $resident->begin_time->year . '-' . sprintf("%03d", ++ $contractCount) . '-' . $resident->name . '-' . $room->number;
-
-        //确定合同结束的时间
-        $now            = Carbon::now();
-
-        //生成电子合同, 这个所有的整数都转换成了字符串类型, 否则调用接口会出错
-        $parameters     = array(
-            'contract_number'     => $contractNumber,
-            'customer_name'       => $resident->name,
-            'id_card'             => $resident->card_number,
-            'phone'               => $resident->phone,
-            'address'             => $resident->address,
-            'alternative_person'  => $resident->alternative,
-            'alternative_phone'   => $resident->alter_phone,
-            'room_number'         => $resident->room->number,
-            'year_start'          => "{$resident->begin_time->year}",
-            'month_start'         => "{$resident->begin_time->month}",
-            'day_start'           => "{$resident->begin_time->day}",
-            'year_end'            => "{$resident->end_time->year}",
-            'month_end'           => "{$resident->end_time->month}",
-            'day_end'             => "{$resident->end_time->day}",
-            'rent_money'          => "{$resident->real_rent_money}",
-            'rent_money_upper'    => num2rmb($resident->real_rent_money),
-            'service_money'       => "{$resident->real_property_costs}",
-            'service_money_upper' => num2rmb($resident->real_property_costs),
-            'deposit_money'       => "{$resident->deposit_money}",
-            'deposit_month'       => (string)$resident->deposit_month,
-            'deposit_money_upper' => num2rmb($resident->deposit_money),
-            'tmp_deposit'         => "{$resident->tmp_deposit}",
-            'tmp_deposit_upper'   => num2rmb($resident->tmp_deposit),
-            'special_term'        => $resident->special_term ? $resident->special_term : '无',
-            'year'                => "{$now->year}",
-            'month'               => "{$now->month}",
-            'day'                 => "{$now->day}",
-            'attachment_2_date'   => $now->format('Y-m-d'),
-        );
-
-        //如果是短租, 单日价格是(房租原价*1.2/30 + 物业费/30)
-        if (Residentmodel::RENTTYPE_SHORT == $rentType) {
-            $shortDayPrice                      = ceil($room->rent_money * 1.2 / 30 + $resident->real_property_costs / 30);
-            $parameters['short_rent_price']     = "{$shortDayPrice}";
-            $parameters['short_price_upper']    = num2rmb($parameters['short_rent_price']);
-        }
-
-        //看是否需要走法大大的流程, 生成不同的合同
-        $contractId             = 'JINDI'.date("YmdHis").mt_rand(10,60);
-        $contract               = new Contractmodel();
-        $contract->doc_title    = $parameters['contract_number'];
-        $contract->contract_id  = $contractId;
-
-        if (Contractmodel::TYPE_FDD == $data['type']) {
-            if (!isset($room->roomtype->fdd_tpl_id[$rentType])) {
-                throw new Exception('未找到相应的合同模板, 请稍后重试!');
-            }
-
-            $docTitle   = $parameters['contract_number'];
-            $templateId = $apartment->fdd_customer_id;
-            $res        = $this->fadada->generateContract(
-                $parameters['contract_number'],
-                $room->roomtype->fdd_tpl_id[$rentType],
-                $contractId,
-                $parameters,
-                12
-            );
-            if (false == $res) {
-                throw new Exception($this->fadada->showError());
-            }
-            $contract->type             = Contractmodel::TYPE_FDD;
-            $contract->customer_id      = $data['customer_id'];
-            $contract->download_url     = $res['download_url'];
-            $contract->view_url         = $res['viewpdf_url'];
-            $contract->status           = Contractmodel::STATUS_GENERATED;
-        } else {
-            if (!isset($room->roomtype->contract_tpl_path[$rentType]['path'])) {
-                throw new Exception('合同模板不存在, 请稍后重试');
-            }
-
-            //用自己的方法生成合同
-            $outputFileName = "{$resident->id}.pdf";
-            $outputDir      = "contract/{$room->roomtype->id}/";
-            $templatePath   = $room->roomtype->contract_tpl_path[$rentType]['path'];
-
-            if (!file_exists($templatePath)) {
-                throw new Exception('合同模板不存在, 请稍后重试!');
-            }
-
-            if (!is_dir($outputDir)) {
-                if (!mkdir(FCPATH.$outputDir, 0777)) {
-                    throw new Exception('无法创建目录, 请稍后重试');
-                }
-            }
-
-            $pdf = new Pdf($templatePath);
-            $pdf->fillForm($parameters)
-                ->needAppearances()
-                ->saveAs(FCPATH . $outputDir . $outputFileName);
-
-            $contract->type         = Contractmodel::TYPE_NORMAL;
-            $contract->download_url = site_url($outputDir.$outputFileName);
-            $contract->view_url     = site_url($outputDir.$outputFileName);
-            $contract->status       = Contractmodel::STATUS_ARCHIVED;
-        }
-
-        $contract->city_id      = $apartment->city->id;
-        $contract->apartment_id = $apartment->id;
-        $contract->resident_id  = $resident->id;
-        $contract->contract_id  = $contractId;
-        $contract->room_id      = $room->id;
-        $contract->save();
-
-        return $contract;
-    }
+//    private function generate($resident, array $data)
+//    {
+//        $room       = $resident->room;
+//        $apartment  = $resident->room->apartment;
+//        $rentType   = $resident->rent_type;
+//
+//        //统计本公寓今年的合同的数量
+//        $contractCount  = $apartment->contracts()
+//            ->where('created_at', '>=', $resident->begin_time->startOfYear())
+//            ->count();
+//
+//        //生成该合同的编号
+//        $contractNumber = $apartment->contract_number_prefix . '-' . $resident->begin_time->year . '-' . sprintf("%03d", ++ $contractCount) . '-' . $resident->name . '-' . $room->number;
+//
+//        //确定合同结束的时间
+//        $now            = Carbon::now();
+//
+//        //生成电子合同, 这个所有的整数都转换成了字符串类型, 否则调用接口会出错
+//        $parameters     = array(
+//            'contract_number'     => $contractNumber,
+//            'customer_name'       => $resident->name,
+//            'id_card'             => $resident->card_number,
+//            'phone'               => $resident->phone,
+//            'address'             => $resident->address,
+//            'alternative_person'  => $resident->alternative,
+//            'alternative_phone'   => $resident->alter_phone,
+//            'room_number'         => $resident->room->number,
+//            'year_start'          => "{$resident->begin_time->year}",
+//            'month_start'         => "{$resident->begin_time->month}",
+//            'day_start'           => "{$resident->begin_time->day}",
+//            'year_end'            => "{$resident->end_time->year}",
+//            'month_end'           => "{$resident->end_time->month}",
+//            'day_end'             => "{$resident->end_time->day}",
+//            'rent_money'          => "{$resident->real_rent_money}",
+//            'rent_money_upper'    => num2rmb($resident->real_rent_money),
+//            'service_money'       => "{$resident->real_property_costs}",
+//            'service_money_upper' => num2rmb($resident->real_property_costs),
+//            'deposit_money'       => "{$resident->deposit_money}",
+//            'deposit_month'       => (string)$resident->deposit_month,
+//            'deposit_money_upper' => num2rmb($resident->deposit_money),
+//            'tmp_deposit'         => "{$resident->tmp_deposit}",
+//            'tmp_deposit_upper'   => num2rmb($resident->tmp_deposit),
+//            'special_term'        => $resident->special_term ? $resident->special_term : '无',
+//            'year'                => "{$now->year}",
+//            'month'               => "{$now->month}",
+//            'day'                 => "{$now->day}",
+//            'attachment_2_date'   => $now->format('Y-m-d'),
+//        );
+//
+//        //如果是短租, 单日价格是(房租原价*1.2/30 + 物业费/30)
+//        if (Residentmodel::RENTTYPE_SHORT == $rentType) {
+//            $shortDayPrice                      = ceil($room->rent_money * 1.2 / 30 + $resident->real_property_costs / 30);
+//            $parameters['short_rent_price']     = "{$shortDayPrice}";
+//            $parameters['short_price_upper']    = num2rmb($parameters['short_rent_price']);
+//        }
+//
+//        //看是否需要走法大大的流程, 生成不同的合同
+//        $contractId             = 'JINDI'.date("YmdHis").mt_rand(10,60);
+//        $contract               = new Contractmodel();
+//        $contract->doc_title    = $parameters['contract_number'];
+//        $contract->contract_id  = $contractId;
+//
+//        if (Contractmodel::TYPE_FDD == $data['type']) {
+//            if (!isset($room->roomtype->fdd_tpl_id[$rentType])) {
+//                throw new Exception('未找到相应的合同模板, 请稍后重试!');
+//            }
+//
+//            $docTitle   = $parameters['contract_number'];
+//            $templateId = $apartment->fdd_customer_id;
+//            $res        = $this->fadada->generateContract(
+//                $parameters['contract_number'],
+//                $room->roomtype->fdd_tpl_id[$rentType],
+//                $contractId,
+//                $parameters,
+//                12
+//            );
+//            if (false == $res) {
+//                throw new Exception($this->fadada->showError());
+//            }
+//            $contract->type             = Contractmodel::TYPE_FDD;
+//            $contract->customer_id      = $data['customer_id'];
+//            $contract->download_url     = $res['download_url'];
+//            $contract->view_url         = $res['viewpdf_url'];
+//            $contract->status           = Contractmodel::STATUS_GENERATED;
+//        } else {
+//            if (!isset($room->roomtype->contract_tpl_path[$rentType]['path'])) {
+//                throw new Exception('合同模板不存在, 请稍后重试');
+//            }
+//
+//            //用自己的方法生成合同
+//            $outputFileName = "{$resident->id}.pdf";
+//            $outputDir      = "contract/{$room->roomtype->id}/";
+//            $templatePath   = $room->roomtype->contract_tpl_path[$rentType]['path'];
+//
+//            if (!file_exists($templatePath)) {
+//                throw new Exception('合同模板不存在, 请稍后重试!');
+//            }
+//
+//            if (!is_dir($outputDir)) {
+//                if (!mkdir(FCPATH.$outputDir, 0777)) {
+//                    throw new Exception('无法创建目录, 请稍后重试');
+//                }
+//            }
+//
+//            $pdf = new Pdf($templatePath);
+//            $pdf->fillForm($parameters)
+//                ->needAppearances()
+//                ->saveAs(FCPATH . $outputDir . $outputFileName);
+//
+//            $contract->type         = Contractmodel::TYPE_NORMAL;
+//            $contract->download_url = site_url($outputDir.$outputFileName);
+//            $contract->view_url     = site_url($outputDir.$outputFileName);
+//            $contract->status       = Contractmodel::STATUS_ARCHIVED;
+//        }
+//
+//        $contract->city_id      = $apartment->city->id;
+//        $contract->apartment_id = $apartment->id;
+//        $contract->resident_id  = $resident->id;
+//        $contract->contract_id  = $contractId;
+//        $contract->room_id      = $room->id;
+//        $contract->save();
+//
+//        return $contract;
+//    }
 
     /**
      * 申请用户证书
@@ -502,13 +503,13 @@ class Contract extends MY_Controller
     }
 
 
-    /*************************************************************************/
+    /*********************************以下为重写的内容，上面是原来的内容****************************************/
     /**
      * 合同确认页面-发送短信验证码
      */
     public function sendSms(){
 
-        $phone        = intval(strip_tags($this->input->post('phone')));
+        $phone        = trim(strip_tags($this->input->post('phone')));
         $resident_id  = intval(strip_tags($this->input->post('resident_id')));
         $this->load->model('residentmodel');
         $resident   = Residentmodel::find($resident_id);
@@ -521,10 +522,7 @@ class Contract extends MY_Controller
             return;
         }
         //验证住户的uxid是不是当前ID
-//        if($resident->uxid!=CURRENT_ID){
-//            $this->api_res(10013);
-//            return;
-//        }
+//        $this->checkUser($resident->uxid);
         $this->load->model('roomunionmodel');
         $room   = $resident->roomunion;
         if($room->status!=Roomunionmodel::STATE_OCCUPIED){
@@ -549,15 +547,99 @@ class Contract extends MY_Controller
      * 合同确认页面-确认签约
      */
     public  function confirm(){
+
         $input  = $this->input->post(null,true);
+        //验证短信验证码
         $this->load->library('m_redis');
+        $resident_id    = intval(strip_tags($input['resident_id']));
+        $phone    = trim(strip_tags($input['phone']));
         if(!$this->m_redis->verifyResidentPhoneCode($input['phone'],$input['code'])){
             $this->api_res(10007);
             return;
         }
-        $this->api_res(0);
+        $this->load->model('residentmodel');
+        $resident   = Residentmodel::find($resident_id);
+        if(!$resident){
+            $this->api_res(1007);
+            return;
+        }
+        if($resident->phone!=$phone){
+            $this->api_res(10010);
+            return;
+        }
+        //验证住户的uxid是不是当前ID
+//        $this->checkUser($resident->uxid);
+        $this->load->model('roomunionmodel');
+        $room   = $resident->roomunion;
+        if($room->status!=Roomunionmodel::STATE_OCCUPIED){
+            $this->api_res(10014);
+            return;
+        }
+        $this->load->model('contractmodel');
+        $has_contract = $resident->contract()->where('status', Contractmodel::STATUS_ARCHIVED);
+        if ($has_contract->exists()) {
+            $this->api_res(10015);
+            return;
+        }
+        $contract   = new Contractmodel();
+        //开始签约
+        try{
+            DB::beginTransaction();
+            //1,生成合同
+            $data   = $this->generate($resident);
+
+            $contract->store_id = $data['store_id'];
+            $contract->room_id  = $resident->room_id;
+            $contract->resident_id  = $resident->id;
+            $contract->uxid  = $resident->uxid;
+            $contract->customer_id  = $resident->customer_id;
+            $contract->type = $data['type'];
+            $contract->contract_id = $data['contract_id'];
+            $contract->doc_title = $data['doc_title'];
+            $contract->download_url = $data['download_url'];
+            $contract->view_url = $data['view_url'];
+            $contract->status = $data['status'];
+            $a  = $contract->save();
+            //生成订单
+            $this->load->model('ordermodel');
+            $b  = $this->ordermodel->firstCheckInOrders($resident, $room);
+
+            if($a && $b){
+                DB::commit();
+            }else{
+                DB::rollBack();
+                $this->api_res(1009);
+                return;
+            }
+            $this->api_res(0,['resident_id'=>$resident->id]);
+        }catch (Exception $e){
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+
+    /**
+     * @param $resident
+     * @return array
+     * 生成合同
+     */
+    private function generate($resident){
+
+        //生成合同之后 返回这些数据 data
+        return array(
+//            'resident_id'=>'1',
+            'type'      =>'FDD',
+            'store_id'  => '1',
+            'contract_id'=>'JINDI123456789',
+            'doc_title' =>"title",
+            'download_url'=>'url_download',
+            'view_url'  => 'url_view',
+            'status'        => Contractmodel::STATUS_GENERATED,
+        );
 
     }
+
 
 
 

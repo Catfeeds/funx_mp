@@ -28,6 +28,7 @@ class AuthHook {
             'account/server/checkinorbookingevent',
             'resident/resident/getresident',
             'resident/contract/sendsms',
+            'resident/contract/confirm',
 
             'common/imageupload',
             'common/fileupload',
