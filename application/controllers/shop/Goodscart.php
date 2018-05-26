@@ -148,9 +148,10 @@ class Goodscart extends MY_Controller
                 throw new Exception();
             }
             $cart->price= $cart->quantity * $cart->goods->shop_price;
-            $cart->sum = $cart->quantity++ ;
+            $cart->sum  = $cart->quantity++ ;
             return $cart;
         });
+
         foreach ($goodscarts as $key => $value) {
             $goodscarts[$key]['goods']['goods_thumb'] = $this->fullAliossUrl(($goodscarts[$key]['goods']['goods_thumb']));
         }

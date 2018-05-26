@@ -18,19 +18,6 @@ class Contract extends MY_Controller
         $this->load->library('fadada');
     }
 
-    public function index()
-    {
-        $customer   = Customermodel::where('openid', $this->auth->id())->firstOrFail();
-        $contracts  = Contractmodel::whereIn('resident_id', $customer->residents()->pluck('id')->toArray())
-            ->orderBy('updated_at', 'DESC')
-            ->get();
-
-        if (1 == count($contracts)) {
-            redirect($contracts->first()->view_url);
-        }
-        $this->twig->render('contract/view.html.twig', compact('contracts'));
-    }
-
     /**
      * 合同信息确认页面
      */
@@ -65,9 +52,8 @@ class Contract extends MY_Controller
             log_message('error', $e->getMessage());
             redirect(site_url(['order', 'status']));
         }
-        $this->api_res(0,['resident'=>$resident,'contract'=>$contract]);
+        $this->api_res(0,['contract'=>$contract]);
     }
-
 
     /**
      * 信息确认之后，开始签约流程
@@ -153,14 +139,13 @@ class Contract extends MY_Controller
                     $targetUrl = $this->getSignUrl($contract);
                 }
             }
-        } catch (Exception $e) {
+        } catch (Exception $e){
             log_message('error', $e->getMessage());
             throw new $e;
         }
       //  Util::success('请求成功!', compact('targetUrl'));
-        $this->api_res(0,['contract'=>$contract,'targetUrl'=>$targetUrl]);
+        $this->api_res(0,['targetUrl'=>$targetUrl]);
     }
-
 
     /**
      * 生成租房合同, 有两种
@@ -512,6 +497,7 @@ class Contract extends MY_Controller
             ),
 
         );
-        return $config;
+        $this->form_validation->set_rules($config)->set_error_delimiters('','');
+        return $this->form_validation->run();
     }
 }

@@ -48,6 +48,9 @@ class AuthHook {
             'customer/center/setphone',
             'customer/center/verifyphone',
 
+            'customer/contract/checksign',
+            'customer/contract/generate',
+
             'shop/goodscategory/listgoods',
             'shop/goods/goodsinfo',
             'shop/goods/searchgoods',
