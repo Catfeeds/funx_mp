@@ -26,12 +26,12 @@ function getCustomerWechatConfig(){
             'scopes'   => config_item('wx_customer_oauth_scopes') ,
             'callback' => config_item('wx_oauth_callback'),
         ],
-        /*'payment' => [
-            'merchant_id'   => CUSTOMER_WECHAT_PAYMENT_MERCHANT_ID,
-            'key'           => CUSTOMER_WECHAT_PAYMENT_KEY,
-            'cert_path'     => CUSTOMER_WECHAT_PAYMENT_CERT_PATH,
-            'key_path'      => CUSTOMER_WECHAT_PAYMENT_KEY_PATH,
-        ],*/
+        'payment' => [
+            'merchant_id'   => config_item('customer_wechat_payment_merchant_id'),
+            'key'           => config_item(''),
+            'cert_path'     => config_item('customer_wechat_payment_cert_path'),
+            'key_path'      => config_item(''),
+        ],
         'guzzle' => [
             'timeout' => 3.0,
         ]
