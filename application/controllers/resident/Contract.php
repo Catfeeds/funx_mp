@@ -575,6 +575,7 @@ class Contract extends MY_Controller
             $this->api_res(10014);
             return;
         }
+        //判断住户合同是否已经归档，有已经归档的合同 就结束
         $this->load->model('contractmodel');
         $has_contract = $resident->contract()->where('status', Contractmodel::STATUS_ARCHIVED);
         if ($has_contract->exists()) {
@@ -625,10 +626,11 @@ class Contract extends MY_Controller
      * 生成合同
      */
     private function generate($resident){
-
-        //生成合同之后 返回这些数据 data
+        //合同里的一个公共调用的方法
+        //生成合同之后 返回这些数据 data 只返回这些数据，不保存数据库
+        //生成合同的时候 需要注意该住户有没有已经生成的合同 ，如果有已经归档的合同是不允许生成合同的。
+        //参考旧版本的逻辑
         return array(
-//            'resident_id'=>'1',
             'type'      =>'FDD',
             'store_id'  => '1',
             'contract_id'=>'JINDI123456789',
