@@ -30,10 +30,10 @@ class Resident extends MY_Controller
             $this->api_res(1007);
             return;
         }
-        if($resident_id->uxid!=CURRENT_ID){
-            $this->api_res(10013);
-            return;
-        }
+//        if($resident_id->uxid!=CURRENT_ID){
+//            $this->api_res(10013);
+//            return;
+//        }
 
         $this->load->model('roomunionmodel');
         $this->load->model('activitymodel');
