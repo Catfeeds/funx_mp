@@ -279,19 +279,19 @@ class Contract extends MY_Controller
 //        return $contract;
 //    }
 
-    /**
-     * 申请用户证书
-     */
-    private function getCustomerCA($data)
-    {
-        $res = $this->fadada->getCustomerCA($data['name'], $data['phone'], $data['cardNumber'], $data['cardType']);
-
-        if ($res == false) {
-            throw new Exception($this->fadada->showError());
-        }
-
-        return $res['customer_id'];
-    }
+//    /**
+//     * 申请用户证书
+//     */
+//    private function getCustomerCA($data)
+//    {
+//        $res = $this->fadada->getCustomerCA($data['name'], $data['phone'], $data['cardNumber'], $data['cardType']);
+//
+//        if ($res == false) {
+//            throw new Exception($this->fadada->showError());
+//        }
+//
+//        return $res['customer_id'];
+//    }
 
     /**
      * 奔向签署合同页面的链接
@@ -582,12 +582,60 @@ class Contract extends MY_Controller
             $this->api_res(10015);
             return;
         }
+
+        //判断门店的合同类型选择调用哪个合同流程
+        $this->load->model('storemodel');
+        $contract   = $resident->contract;
+        $contract_type  = $room->store->contract_type;
+        if(Storemodel::C_TYPE_NORMAL==$contract_type){
+            if(empty($contract)){
+                //生成纸质版合同
+                $data=$this->generate($resident, ['type' => Contractmodel::TYPE_NORMAL]);
+//                $orderUnpaidCount   = $resident->orders()
+//                    ->whereIn('status', [Ordermodel::STATE_AUDITED, Ordermodel::STATE_PENDING, Ordermodel::STATE_CONFIRM])
+//                    ->count();
+//
+//                if (0 == $orderUnpaidCount) {
+//                    $resident->update(['status' => Residentmodel::STATE_NORMAL]);
+//                    $resident->room->update(['status' => Roommodel::STATE_RENT]);
+//                    $this->api_res(0);
+//                    return;
+//                }
+            }else{
+                $this->api_res(10016);
+                return;
+            }
+        }else{
+            if(empty($contract)){
+                //申请证书
+                $name       = $resident->name;
+                $phone      = $resident->phone;
+                $cardNumber = $resident->card_number;
+                $cardType   = $resident->card_type;
+                $customerCA = $this->getCustomerCA(compact('name', 'phone', 'cardNumber', 'cardType'));
+                //生成法大大合同
+                $data=$this->generate($resident, [
+                    'type' => Contractmodel::TYPE_FDD,
+                    'customer_id'   => $customerCA,
+                    ]);
+            }else{
+                $this->api_res(10016);
+                return;
+            }
+            //合同没归档就去签署页面
+//            if (Contractmodel::STATUS_ARCHIVED != $contract->status) {
+//                //$targetUrl = $this->getSignUrl($contract);
+//                $this->api_res(10016);
+//                return;
+//            }
+        }
+
         $contract   = new Contractmodel();
         //开始签约
         try{
             DB::beginTransaction();
             //1,生成合同
-            $data   = $this->generate($resident);
+
 
             $contract->store_id = $data['store_id'];
             $contract->room_id  = $resident->room_id;
@@ -619,13 +667,12 @@ class Contract extends MY_Controller
         }
     }
 
-
     /**
      * @param $resident
      * @return array
      * 生成合同
      */
-    private function generate($resident){
+    private function generate($resident,$type){
         //合同里的一个公共调用的方法
         //生成合同之后 返回这些数据 data 只返回这些数据，不保存数据库
         //生成合同的时候 需要注意该住户有没有已经生成的合同 ，如果有已经归档的合同是不允许生成合同的。
@@ -640,6 +687,20 @@ class Contract extends MY_Controller
             'status'        => Contractmodel::STATUS_GENERATED,
         );
 
+    }
+
+    /**
+     * 申请用户证书
+     */
+    private function getCustomerCA($data)
+    {
+        $res = $this->fadada->getCustomerCA($data['name'], $data['phone'], $data['cardNumber'], $data['cardType']);
+
+        if ($res == false) {
+            throw new Exception($this->fadada->showError());
+        }
+
+        return $res['customer_id'];
     }
 
 
