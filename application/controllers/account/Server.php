@@ -382,7 +382,7 @@ class Server extends MY_Controller
             $url    = '预定订单支付页面';
         } else {
 //            $url    = $loginUrl.site_url(['contract', 'preview', $resident->id]);
-            $url    = '合同展示页面URL';
+            $url    = 'a10001.tweb.funxdata.com/#/generate?resident_id='.$resident->id;
         }
         return new News(array(
             'title'         => $resident->room->apartment->name,

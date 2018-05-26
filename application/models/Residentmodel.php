@@ -1,6 +1,6 @@
-
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
+use Carbon\Carbon;
 /**
  * Author:      zjh<401967974@qq.com>
  * Date:        2018/4/20 0020
@@ -39,11 +39,45 @@ class Residentmodel extends Basemodel{
 
     protected $table   = 'web_resident';
 
+
     protected $fillable    = [
-        'room_id','begin_time','people_count','contract_time','discount_id','first_pay_money',
-        'deposit_money','deposit_month','tmp_deposit',
-        'name','phone','card_type','card_number','card_one','card_two','card_three',
-        'name_two','phone_two','card_type_two','card_number_two','address','alternative','alter_phone'
+        'store_id',
+        'book_money',
+        'book_time',
+        'room_id',
+        'employee_id',
+        'name',
+        'phone',
+        'card_type',
+        'card_number',
+        'address',
+        'name_two',
+        'phone_two',
+        'card_type_two',
+        'card_number_two',
+        'begin_time',
+        'end_time',
+        'people_count',
+        'alternative',
+        'alter_phone',
+        'special_term',
+        'card_one',
+        'card_two',
+        'card_three',
+        'pay_frequency',
+        'real_rent_money',
+        'real_property_costs',
+        'discount_id',
+        'first_pay_money',
+        'contract_time',
+        'rent_type',
+        'discount_money',
+        'remark',
+        'deposit_month',
+        'deposit_money',
+        'tmp_deposit',
+        'status',
+        'data',
     ];
 
     protected $hidden  = [];
@@ -52,6 +86,12 @@ class Residentmodel extends Basemodel{
     public function roomunion(){
 
         return $this->belongsTo(Roomunionmodel::class,'room_id');
+    }
+
+    //住户的订单
+    public function orders(){
+
+        return $this->hasMany(Ordermodel::class,'resident_id');
     }
 
     //住户的合同信息
@@ -72,20 +112,159 @@ class Residentmodel extends Basemodel{
         return $this->hasMany(Commonresidentmodel::class,'resident_id');
     }
 
-    public function orders(){
-
-        return $this->hasMany(Ordermodel::class,'resident_id');
-    }
-
     //住户的优惠券
-    public function  coupons(){
-
+    public function  coupons()
+    {
         return $this->hasMany(Couponmodel::class,'resident_id');
     }
 
+    //活动折扣
     public function discount()
     {
         return $this->belongsTo(Activitymodel::class, 'discount_id');
+    }
+
+    /**
+     * 计算用户的合同结束时间
+     * 主要是考虑到, 租房合同开始日期是某个月的月底而结束月份是2月份的情况
+     */
+    public function contractEndDate($checkInDateStr, $contractTime)
+    {
+        $checkInDate    = Carbon::parse($checkInDateStr);
+
+        return $this->addMonths($checkInDate, $contractTime);
+    }
+
+    /**
+     * 计算指定个月后的今天的日期
+     * 比如, 1月31日的一个月后可能是2月28号也可能是2月29号
+     */
+    public function addMonths(Carbon $date, $months = 1)
+    {
+        $endMonth       = $date
+            ->copy()
+            ->startOfMonth()
+            ->addMonths($months)
+            ->endOfMonth();
+
+        if ($endMonth->day >= $date->day - 1) {
+            $endTime = $endMonth->startOfMonth()->addDays($date->day - 2);
+        }
+
+        return isset($endTime) ? $endTime : $endMonth;
+    }
+    /**
+     * @param Resident $resident
+     * @return array
+     */
+    public function transform($resident)
+    {
+        $data   = [
+            'id'                    => $resident->id,
+            'name'                  => $resident->name,
+            'card_type'             => $resident->card_type,
+            'card_number'           => $resident->card_number,
+            'phone'                 => $resident->phone,
+            'address'               => $resident->address,
+            'emergency_name'        => $resident->alternative,
+            'emergency_phone'       => $resident->alter_phone,
+            'card_one_url'          => $resident->card_one,
+            'card_two_url'          => $resident->card_two,
+            'card_three_url'        => $resident->card_three,
+            'rent_price'            => $resident->real_rent_money,
+            'management_price'      => $resident->real_property_costs,
+            'deposit_money_rent'    => $resident->deposit_money,
+            'deposit_money_other'   => $resident->tmp_deposit,
+            'deposit_month'         => $resident->deposit_month,
+            'contract_time'         => $resident->contract_time,
+            'rent_type'             => $resident->rent_type,
+            'pay_type'              => $resident->pay_frequency,
+            'first_pay'             => $resident->first_pay_money,
+            'status'                => $resident->status,
+            'remark'                => $resident->remark,
+            'created_at'            => Carbon::parse($resident->created_at)->toDateTimeString(),
+            'updated_at'            => Carbon::parse($resident->updated_at)->toDateTimeString(),
+        ];
+
+        if (0 < $resident->contract_time) {
+            $data['begin_time']     = Carbon::parse($resident->begin_time)->toDateString();
+            $data['end_time']       = Carbon::parse($resident->end_time)->toDateString();
+        }
+
+        if (self::STATE_NORMAL == $resident->status) {
+            $data['days_left']  = Carbon::now()->startOfDay()->diffIndays($resident->end_time, false);
+        }
+
+        if (!empty($resident->name_two)) {
+            $data   = array_merge($data, [
+                'mate'  => [
+                    'name'         => $resident->name_two,
+                    'phone'        => $resident->phone_two,
+                    'card_type'    => $resident->card_type_two,
+                    'card_number'  => $resident->card_number_two,
+                ],
+            ]);
+        }
+        //订单详情
+//         if($resident->orders){
+//             $data   = array_merge($data, [
+//                 'orders'  => $resident->orders,
+//             ]);
+//         }
+
+        if (0 < $resident->discount_id) {
+            $activity   = $resident->discount;
+            $data       = array_merge($data, [
+                'rent_discount'     => [
+                    'id'        => $activity->id,
+                    'name'      => $activity->name,
+                    'discount'  => $activity->coupontypes()->first()->discount,
+                ]
+            ]);
+        }
+
+        $data['avatar']     = null;
+        if (0 < $resident->customer_id) {
+            $data['avatar'] = $resident->customer->avatar;
+        }
+
+        if (0 < $resident->room_id) {
+            $room   = $resident->roomunion;
+            $data   = array_merge($data, [
+                'room'      => [
+                    'id'                => $room->id,
+                    'number'            => $room->number,
+                    'status'            => $room->status,
+                    //'status_name'       => config('strongberry.room.status')[$room->status],
+                    'people_count'      => $room->people_count,
+                    'rent_price'        => $room->rent_price,
+                    'property_price'    => $room->property_price,
+                    'area'              => $room->area,
+                ]
+            ]);
+        }
+
+        if (0 < $resident->book_money) {
+            $data['booking'] = [
+                'money' => $resident->book_money,
+                'time'  => $resident->book_time->format('Y-m-d'),
+            ];
+            $data['money'] = $resident->book_money;
+            $data['time']  = $resident->book_time->format('Y-m-d');
+        }
+
+        if ($contract = $resident->contract) {
+            $data   = array_merge($data, [
+                'contract'  => [
+                    'id'        => $contract->id,
+                    'status'    => $contract->status,
+                    'type'      => $contract->type,
+                    'view_url'  => $contract->view_url,
+                ],
+            ]);
+        }
+
+        return $data;
     }
 
 

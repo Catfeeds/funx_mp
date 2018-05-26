@@ -39,6 +39,8 @@ class Contract extends MY_Controller
         //签署的是电子合同：
         //1电子合同，跳转至合同签署页面
         //2纸质合同，跳转至账单页面
+
+        $this->createBill();
         $result['sign_type']=2;
         $result['sign_url']='';
 
@@ -94,4 +96,7 @@ class Contract extends MY_Controller
     private function signPaper(){
 
     }
+
+
+
 }
