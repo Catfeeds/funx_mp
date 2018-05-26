@@ -6,7 +6,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * Time: 10:37
  */
 use Carbon\Carbon;
-use mikehaertl\pdftk\Pdf;
+//use mikehaertl\pdftk\Pdf;
 /**
  * 法大大电子合同相关操作
  */
@@ -507,6 +507,7 @@ class Contract extends MY_Controller
      * 合同确认页面-发送短信验证码
      */
     public function sendSms(){
+
         $phone        = intval(strip_tags($this->input->post('phone')));
         $resident_id  = intval(strip_tags($this->input->post('resident_id')));
         $this->load->model('residentmodel');
@@ -519,6 +520,11 @@ class Contract extends MY_Controller
             $this->api_res(10010);
             return;
         }
+        //验证住户的uxid是不是当前ID
+//        if($resident->uxid!=CURRENT_ID){
+//            $this->api_res(10013);
+//            return;
+//        }
         $this->load->model('roomunionmodel');
         $room   = $resident->roomunion;
         if($room->status!=Roomunionmodel::STATE_OCCUPIED){
@@ -544,6 +550,7 @@ class Contract extends MY_Controller
      */
     public  function confirm(){
         $input  = $this->input->post(null,true);
+        $this->load->library('m_redis');
         if(!$this->m_redis->verifyResidentPhoneCode($input['phone'],$input['code'])){
             $this->api_res(10007);
             return;

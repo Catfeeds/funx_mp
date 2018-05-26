@@ -1,5 +1,6 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
+use Carbon\Carbon;
 /**
  * Author:      zjh<401967974@qq.com>
  * Date:        2018/5/21 0021
@@ -30,6 +31,7 @@ class Resident extends MY_Controller
             $this->api_res(1007);
             return;
         }
+        //验证住户的uxid是不是当前ID
 //        if($resident_id->uxid!=CURRENT_ID){
 //            $this->api_res(10013);
 //            return;
