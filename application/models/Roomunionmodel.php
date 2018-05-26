@@ -120,6 +120,9 @@ class Roomunionmodel extends Basemodel{
         //$this->status   = self::OCCUPIED;
         return $this->update(['status'=>self::STATE_OCCUPIED]);
     }
+
+
+
     /**
      * 把房间状态更新为空闲
      */
@@ -127,6 +130,8 @@ class Roomunionmodel extends Basemodel{
         //$this->status   = self::BLANK;
         return $this->update(['status'=>self::STATE_BLANK]);
     }
+
+
 
 
 }

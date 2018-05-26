@@ -203,7 +203,7 @@ class M_redis
     }
 
     /**
-     * 住户端 住户确认订单时存储手机验证码
+     * 住户端 住户确认合同时存储手机验证码
      */
     public function storeResidentPhoneCode($phone,$code){
         $key    = RESIDENTPHONECODE.$phone;
@@ -213,7 +213,7 @@ class M_redis
     }
 
     /**
-     * 住户端 验证个人手机号
+     * 住户端 住户确认合同时验证手机验证码
      */
     public function verifyResidentPhoneCode($phone,$code){
         $key    = RESIDENTPHONECODE.$phone;
@@ -225,7 +225,7 @@ class M_redis
     }
 
     /**
-     * 住户端 个人中心绑定手机号 刷新短信验证码
+     * 住户端 住户确认合同时刷新短信验证码
      * @param $phone
      * return bool
      */

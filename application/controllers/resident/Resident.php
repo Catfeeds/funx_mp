@@ -24,11 +24,17 @@ class Resident extends MY_Controller
     public function getResident(){
         $resident_id   = $this->input->post('resident_id',true);
         $this->load->model('residentmodel');
+        //$resident   = Residentmodel::where('uxid',CURRENT_ID)->find($resident_id);
         $resident   = Residentmodel::find($resident_id);
         if(!$resident){
             $this->api_res(1007);
             return;
         }
+        if($resident_id->uxid!=CURRENT_ID){
+            $this->api_res(10013);
+            return;
+        }
+
         $this->load->model('roomunionmodel');
         $this->load->model('activitymodel');
         $this->load->model('coupontypemodel');
@@ -41,5 +47,4 @@ class Resident extends MY_Controller
         $data['card_three_url']   = $this->fullAliossUrl($data['card_three_url'] );
         $this->api_res(0,['data'=>$data]);
     }
-
 }

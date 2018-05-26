@@ -58,94 +58,94 @@ class Contract extends MY_Controller
     /**
      * 信息确认之后，开始签约流程
      */
-    public function confirm()
-    {
-        if(!$this->validation())
-        {
-            $field = ['resident_id','name','phone','verify_code','id_card','id_type','alternative','alter_phone','address'];
-            $this->api_res(1002,['errmsg'=>$this->form_first_error($field)]);
-            return ;
-        }
-        $residentId     = trim($this->input->post('resident_id', true));
-        $name           = trim($this->input->post('name', true));
-        $phone          = trim($this->input->post('phone', true));
-        $verifyCode     = trim($this->input->post('verify_code', true));
-        $cardNumber     = trim($this->input->post('id_card', true));
-        $cardType       = trim($this->input->post('id_type', true));
-        $alternative    = trim($this->input->post('alternative', true));
-        $alterPhone     = trim($this->input->post('alter_phone', true));
-        $address        = trim($this->input->post('address', true));
-
-        try {
-            //判断手机号码, 身份证号的合法性, 校验验证码
-            if (!isMobile($phone) || !isMobile($alterPhone)) {
-                throw new Exception('请检查手机号码!');
-            }
-
-            if (Residentmodel::CARD_ZERO == $cardType AND !isCardno($cardNumber)) {
-                throw new Exception('请检查证件号码!');
-            }
-
-            $this->checkVerifyCode($phone, $verifyCode);
-            $resident   = Residentmodel::findOrFail($residentId);
-
-            if ($resident->customer->openid != $this->auth->id()) {
-                throw new Exception('没有操作权限');
-            }
-
-            //更新一下住户的信息
-            $resident->update([
-                'name'        => $name,
-                'phone'       => $phone,
-                'card_type'   => $cardType,
-                'card_number' => $cardNumber,
-                'address'     => $address,
-                'alternative' => $alternative,
-                'alter_phone' => $alterPhone,
-            ]);
-
-            $targetUrl      = site_url(['order', 'payment', $residentId]);
-            $contract       = $resident->contract;
-            $contractType   = $resident->room->apartment->contract_type;
-
-            //如果纸质合同, 就走纸质合同流程
-            if (Storemodel::C_TYPE_NORMAL == $contractType) {
-                if (empty($contract)) {
-                    //生成纸质版合同的东东
-                    $this->generate($resident, ['type' => Contractmodel::TYPE_NORMAL]);
-
-                    $orderUnpaidCount   = $resident->orders()
-                        ->whereIn('status', [Ordermodel::STATE_AUDITED, Ordermodel::STATE_PENDING, Ordermodel::STATE_CONFIRM])
-                        ->count();
-
-                    if (0 == $orderUnpaidCount) {
-                        $resident->update(['status' => Residentmodel::STATE_NORMAL]);
-                        $resident->room->update(['status' => Roommodel::STATE_RENT]);
-                    }
-                }
-            } else {
-                //没有合同, 就先申请证书, 然后生成合同
-                if (empty($contract)) {
-                    //申请证书
-                    $customerCA = $this->getCustomerCA(compact('name', 'phone', 'cardNumber', 'cardType'));
-                    //生成合同
-                    $contract   = $this->generate($resident, [
-                        'type'   => Contractmodel::TYPE_FDD,
-                        'uxid'   => $customerCA,
-                    ]);
-                }
-                //合同没归档就去签署页面
-                if (Contractmodel::STATUS_ARCHIVED != $contract->status) {
-                    $targetUrl = $this->getSignUrl($contract);
-                }
-            }
-        } catch (Exception $e){
-            log_message('error', $e->getMessage());
-            throw new $e;
-        }
-      //  Util::success('请求成功!', compact('targetUrl'));
-        $this->api_res(0,['targetUrl'=>$targetUrl]);
-    }
+//    public function confirm()
+//    {
+//        if(!$this->validation())
+//        {
+//            $field = ['resident_id','name','phone','verify_code','id_card','id_type','alternative','alter_phone','address'];
+//            $this->api_res(1002,['errmsg'=>$this->form_first_error($field)]);
+//            return ;
+//        }
+//        $residentId     = trim($this->input->post('resident_id', true));
+//        $name           = trim($this->input->post('name', true));
+//        $phone          = trim($this->input->post('phone', true));
+//        $verifyCode     = trim($this->input->post('verify_code', true));
+//        $cardNumber     = trim($this->input->post('id_card', true));
+//        $cardType       = trim($this->input->post('id_type', true));
+//        $alternative    = trim($this->input->post('alternative', true));
+//        $alterPhone     = trim($this->input->post('alter_phone', true));
+//        $address        = trim($this->input->post('address', true));
+//
+//        try {
+//            //判断手机号码, 身份证号的合法性, 校验验证码
+//            if (!isMobile($phone) || !isMobile($alterPhone)) {
+//                throw new Exception('请检查手机号码!');
+//            }
+//
+//            if (Residentmodel::CARD_ZERO == $cardType AND !isCardno($cardNumber)) {
+//                throw new Exception('请检查证件号码!');
+//            }
+//
+//            $this->checkVerifyCode($phone, $verifyCode);
+//            $resident   = Residentmodel::findOrFail($residentId);
+//
+//            if ($resident->customer->openid != $this->auth->id()) {
+//                throw new Exception('没有操作权限');
+//            }
+//
+//            //更新一下住户的信息
+//            $resident->update([
+//                'name'        => $name,
+//                'phone'       => $phone,
+//                'card_type'   => $cardType,
+//                'card_number' => $cardNumber,
+//                'address'     => $address,
+//                'alternative' => $alternative,
+//                'alter_phone' => $alterPhone,
+//            ]);
+//
+//            $targetUrl      = site_url(['order', 'payment', $residentId]);
+//            $contract       = $resident->contract;
+//            $contractType   = $resident->room->apartment->contract_type;
+//
+//            //如果纸质合同, 就走纸质合同流程
+//            if (Storemodel::C_TYPE_NORMAL == $contractType) {
+//                if (empty($contract)) {
+//                    //生成纸质版合同的东东
+//                    $this->generate($resident, ['type' => Contractmodel::TYPE_NORMAL]);
+//
+//                    $orderUnpaidCount   = $resident->orders()
+//                        ->whereIn('status', [Ordermodel::STATE_AUDITED, Ordermodel::STATE_PENDING, Ordermodel::STATE_CONFIRM])
+//                        ->count();
+//
+//                    if (0 == $orderUnpaidCount) {
+//                        $resident->update(['status' => Residentmodel::STATE_NORMAL]);
+//                        $resident->room->update(['status' => Roommodel::STATE_RENT]);
+//                    }
+//                }
+//            } else {
+//                //没有合同, 就先申请证书, 然后生成合同
+//                if (empty($contract)) {
+//                    //申请证书
+//                    $customerCA = $this->getCustomerCA(compact('name', 'phone', 'cardNumber', 'cardType'));
+//                    //生成合同
+//                    $contract   = $this->generate($resident, [
+//                        'type'   => Contractmodel::TYPE_FDD,
+//                        'uxid'   => $customerCA,
+//                    ]);
+//                }
+//                //合同没归档就去签署页面
+//                if (Contractmodel::STATUS_ARCHIVED != $contract->status) {
+//                    $targetUrl = $this->getSignUrl($contract);
+//                }
+//            }
+//        } catch (Exception $e){
+//            log_message('error', $e->getMessage());
+//            throw new $e;
+//        }
+//      //  Util::success('请求成功!', compact('targetUrl'));
+//        $this->api_res(0,['targetUrl'=>$targetUrl]);
+//    }
 
     /**
      * 生成租房合同, 有两种
@@ -500,4 +500,60 @@ class Contract extends MY_Controller
         $this->form_validation->set_rules($config)->set_error_delimiters('','');
         return $this->form_validation->run();
     }
+
+
+    /*************************************************************************/
+    /**
+     * 合同确认页面-发送短信验证码
+     */
+    public function sendSms(){
+        $phone        = intval(strip_tags($this->input->post('phone')));
+        $resident_id  = intval(strip_tags($this->input->post('resident_id')));
+        $this->load->model('residentmodel');
+        $resident   = Residentmodel::find($resident_id);
+        if(!$resident){
+            $this->api_res(1007);
+            return;
+        }
+        if($resident->phone!=$phone){
+            $this->api_res(10010);
+            return;
+        }
+        $this->load->model('roomunionmodel');
+        $room   = $resident->roomunion;
+        if($room->status!=Roomunionmodel::STATE_OCCUPIED){
+            $this->api_res(10014);
+            return;
+        }
+        $this->load->library('m_redis');
+        if(!$this->m_redis->ttlResidentPhoneCode($phone))
+        {
+            $this->api_res(10007);
+            return;
+        }
+        $this->load->library('sms');
+        $code   = str_pad(rand(1,9999),4,0,STR_PAD_LEFT);
+        $str    = SMSTEXT.$code;
+        $this->m_redis->storeResidentPhoneCode($phone,$code);
+        $this->sms->send($str,$phone);
+        $this->api_res(0);
+    }
+
+    /**
+     * 合同确认页面-确认签约
+     */
+    public  function confirm(){
+        $input  = $this->input->post(null,true);
+        if(!$this->m_redis->verifyResidentPhoneCode($input['phone'],$input['code'])){
+            $this->api_res(10007);
+            return;
+        }
+        $this->api_res(0);
+
+    }
+
+
+
+
+
 }

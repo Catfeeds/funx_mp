@@ -11,7 +11,7 @@ class MY_Controller extends CI_Controller {
 
     protected $position;
 
-    protected $customer;
+    protected $user;
 
     public function __construct()
     {
@@ -22,10 +22,10 @@ class MY_Controller extends CI_Controller {
         {
             define('CURRENT_ID',1001);
             $this->load->model('customermodel');
-            $this->customer = Customermodel::where('uxid',1001)->first();
+            $this->user = Customermodel::where('uxid',1001)->first();
         }else{
             $this->load->model('customermodel');
-            $this->customer = Customermodel::where('uxid',CURRENT_ID)->first();
+            $this->user = Customermodel::where('uxid',CURRENT_ID)->first();
         }
     }
 
