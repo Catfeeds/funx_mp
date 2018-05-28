@@ -21,18 +21,12 @@ class Center extends MY_Controller
      */
     public function showInfo()
     {
-        $post = $this->input->post(null,true);
         $filed = ['id', 'name', 'avatar', 'nickname', 'phone'];
-        if (isset($post['id']) && !empty($post['id'])) {
-            $id = trim($post['id']);
-            $customer = Customermodel::where('id',$id)->get($filed);
-            if ($customer) {
-                $this->api_res(0, $customer);
-            } else {
-                $this->api_res(1009);
-            }
+        $customer = Customermodel::where('uxid', CURRENT_ID)->get($filed);
+        if ($customer) {
+            $this->api_res(0, $customer);
         } else {
-            $this->api_res(1002);
+            $this->api_res(1009);
         }
     }
 
@@ -41,15 +35,11 @@ class Center extends MY_Controller
      */
     public function showNickname()
     {
-        $post = $this->input->post(null,true);
-        if (isset($post['id']) && !empty($post['id'])) {
-            $id = trim($post['id']);
-            $customer = Customermodel::where('id', $id)->get(['nickname']);
-            if ($customer) {
-                $this->api_res(0, $customer);
-            } else {
-                $this->api_res(1009);
-            }
+        $customer = Customermodel::where('uxid', CURRENT_ID)->get(['nickname']);
+        if ($customer) {
+            $this->api_res(0, $customer);
+        } else {
+            $this->api_res(1009);
         }
     }
 
@@ -59,21 +49,19 @@ class Center extends MY_Controller
     public function setNickname()
     {
         $post = $this->input->post(null,true);
-        if(!$this->validation())
-        {
-            $fieldarr = ['id', 'nickname'];
-            $this->api_res(1002,['errmsg'=>$this->form_first_error($fieldarr)]);
+        $config = [['field' => 'nickname', 'label' => '昵称', 'rules' => 'trim|required|max_length[32]']];
+        if (!$this->validationText($config)) {
+            $this->api_res(1002,['error'=>$this->form_first_error(['nickname'])]);
             return false;
-        }
-        $id = trim($post['id']);
-        $nickname = trim($post['nickname']);
-        $customer = Customermodel::find($id);
-        $customer->nickname = $nickname;
-        if ($customer->save())
-        {
-            $this->api_res(0);
         } else {
-            $this->api_res(1009);
+            $nickname = $post['nickname'];
+            $customer = Customermodel::where('uxid', CURRENT_ID)->first();
+            $customer->nickname = $nickname;
+            if ($customer->save()) {
+                $this->api_res(0);
+            } else {
+                $this->api_res(1009);
+            }
         }
     }
 
@@ -82,26 +70,23 @@ class Center extends MY_Controller
      */
     public function setPhone()
     {
-        $post = $this->input->post(null,true);
-        if (isset($post['id']) && !empty($post['id'])) {
-            if (isset($post['phone']) && !empty($post['phone'])) {
-                $phone = trim($post['phone']);
-                if(!$this->m_redis->ttlCustomerPhoneCode($phone))
-                {
-                    $this->api_res(10007);
-                    return false;
-                }
-                $this->load->library('sms');
-                $code   = str_pad(rand(1,9999),4,0,STR_PAD_LEFT);
-                $str    = SMSTEXT.$code;
-                $this->m_redis->storeCustomerPhoneCode($phone,$code);
-                $this->sms->send($str,$phone);
-                $this->api_res(0);
-            } else {
-                $this->api_res(1002);
-            }
+        $post = $this->input->post(null, true);
+        $config = [['field' => 'phone', 'label' => '手机号', 'rules' => 'trim|required|max_length[11]|numeric']];
+        if (!$this->validationText($config)) {
+            $this->api_res(1002, ['error' => $this->form_first_error(['phone'])]);
+            return false;
         } else {
-            $this->api_res(1002);
+            $phone = $post['phone'];
+            if (!$this->m_redis->ttlCustomerPhoneCode($phone)) {
+                $this->api_res(10007);
+                return false;
+            }
+            $this->load->library('sms');
+            $code = str_pad(rand(1, 9999), 4, 0, STR_PAD_LEFT);
+            $str = SMSTEXT . $code;
+            $this->m_redis->storeCustomerPhoneCode($phone, $code);
+            $this->sms->send($str, $phone);
+            $this->api_res(0);
         }
     }
 
@@ -111,24 +96,24 @@ class Center extends MY_Controller
     public function verifyPhone()
     {
         $post = $this->input->post(null,true);
-
-        if (isset($post['id']) && !empty($post['id'])) {
-            $id = trim($post['id']);
-            $phone = isset($post['phone']) ? trim($post['phone']) : null;
-            $code = isset($post['code']) ? trim($post['code']) : null;
+        $config = $this->validation();
+        if (!$this->validationText($config)) {
+            $this->api_res(1002, ['error' => $this->form_first_error(['phone', 'code'])]);
+            return false;
+        } else {
+            $phone = $post['phone'];
+            $code = $post['code'];
             if ($this->m_redis->verifyCustomerPhoneCode($phone, $code)) {
-                $customer = Customermodel::find($id);
+                $customer = Customermodel::where('uxid', CURRENT_ID)->first();
                 $customer->phone = $phone;
                 if ($customer->save()) {
                     $this->api_res(0);
-                }else{
+                } else {
                     $this->api_res(1009);
                 }
             } else {
                 $this->api_res(1002);
             }
-        } else {
-            $this->api_res(1002);
         }
     }
 
@@ -137,21 +122,18 @@ class Center extends MY_Controller
      */
     public function validation()
     {
-        $this->load->library('form_validation');
         $config = array(
             array(
-                'field' => 'id',
-                'label' => '用户id',
-                'rules' => 'trim|required',
+                'field' => 'phone',
+                'label' => '手机号',
+                'rules' => 'trim|required|max_length[11]|numeric',
             ),
             array(
-                'field' => 'nickname',
-                'label' => '用户昵称',
-                'rules' => 'trim|required|max_length[32]',
+                'field' => 'code',
+                'label' => '验证码',
+                'rules' => 'trim|required|max_length[4]|numeric',
             ),
         );
-
-        $this->form_validation->set_rules($config)->set_error_delimiters('','');
-        return $this->form_validation->run();
+        return $config;
     }
 }
