@@ -39,7 +39,7 @@ class Payment extends MY_Controller
         //订单编号
         $number     = trim($this->input->post('number', true));
         //使用的优惠券
-        $couponIds  = $this->input->post('coupons[]', true);
+        $couponIds  = $this->input->post('coupons[]', true)?$this->input->post('coupons[]', true):[];
 
         $this->load->model('residentmodel');
         $this->load->model('ordermodel');
@@ -50,6 +50,7 @@ class Payment extends MY_Controller
         //$this->checkUser($this->resident->uxid);
 
         $orders         = $this->resident->orders()->where('number', $number)->get();
+
         $coupons        = $this->resident->coupons()->whereIn('id', $couponIds)->get();
 
         if (0 == count($orders)) {
