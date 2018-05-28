@@ -170,7 +170,8 @@ class Server extends MY_Controller
                     switch ($msgContent) {
                         case '1':
                             return new Text([
-                                'content' => wechat_url(),
+                                //'content' => wechat_url(),
+                                'content' => '欢迎',
                             ]);
                             break;
                         case '2':
