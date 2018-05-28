@@ -590,7 +590,7 @@ class Contract extends MY_Controller
         if(Storemodel::C_TYPE_NORMAL==$contract_type){
             if(empty($contract)){
                 //生成纸质版合同
-                $data=$this->generate($resident, ['type' => Contractmodel::TYPE_NORMAL]);
+                $data   = $this->generate($resident, ['type' => Contractmodel::TYPE_NORMAL]);
 //                $orderUnpaidCount   = $resident->orders()
 //                    ->whereIn('status', [Ordermodel::STATE_AUDITED, Ordermodel::STATE_PENDING, Ordermodel::STATE_CONFIRM])
 //                    ->count();
@@ -635,8 +635,6 @@ class Contract extends MY_Controller
         try{
             DB::beginTransaction();
             //1,生成合同
-
-
             $contract->store_id = $data['store_id'];
             $contract->room_id  = $resident->room_id;
             $contract->resident_id  = $resident->id;
@@ -649,7 +647,7 @@ class Contract extends MY_Controller
             $contract->view_url = $data['view_url'];
             $contract->status = $data['status'];
             $a  = $contract->save();
-            //生成订单
+            //2.生成订单
             $this->load->model('ordermodel');
             $b  = $this->ordermodel->firstCheckInOrders($resident, $room);
 
@@ -675,7 +673,6 @@ class Contract extends MY_Controller
     private function generate($resident,$type){
         //合同里的一个公共调用的方法
         //生成合同之后 返回这些数据 data 只返回这些数据，不保存数据库
-        //生成合同的时候 需要注意该住户有没有已经生成的合同 ，如果有已经归档的合同是不允许生成合同的。
         //参考旧版本的逻辑
         return array(
             'type'      =>'FDD',

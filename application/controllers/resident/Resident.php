@@ -18,7 +18,13 @@ class Resident extends MY_Controller
      * 获取住户信息
      */
     public function getResident(){
+        $input  = $this->input->post(null,true);
         $resident_id   = $this->input->post('resident_id',true);
+        if(isset($input['has_contract'])){
+            //如果有已经归档的合同,跳转到订单状态页面
+
+        }
+
         $this->load->model('residentmodel');
         //$resident   = Residentmodel::where('uxid',CURRENT_ID)->find($resident_id);
         $resident   = Residentmodel::find($resident_id);
