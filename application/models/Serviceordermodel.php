@@ -10,7 +10,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Serviceordermodel extends Basemodel
 {
     protected $table    = 'boss_service_order';
-    protected $hidden   = ['created_at','updated_at','deleted_at'];
+    protected $hidden   = ['deleted_at'];
 
    /* public function roomunion(){
         return $this->hasMany(Roomunionmodel::class,'room_id')->select('id','number');

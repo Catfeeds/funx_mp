@@ -575,10 +575,10 @@ class Contract extends MY_Controller
             $this->api_res(10014);
             return;
         }
-        //判断住户合同是否已经归档，有已经归档的合同 就结束
+//      判断住户合同是否已经归档，有已经归档的合同 就结束
         $this->load->model('contractmodel');
         $has_contract = $resident->contract()->where('status', Contractmodel::STATUS_ARCHIVED);
-//        $has_contract = $resident->contract();
+//      $has_contract = $resident->contract();
         if ($has_contract->exists()) {
             $this->api_res(10015);
             return;
@@ -674,19 +674,116 @@ class Contract extends MY_Controller
      * @return array
      * 生成合同
      */
-    private function generate($resident,$type){
+    private function generate($resident,$type)
+    {
         //合同里的一个公共调用的方法
         //生成合同之后 返回这些数据 data 只返回这些数据，不保存数据库
         //参考旧版本的逻辑
-        return array(
-            'type'      =>'FDD',
-            'contract_id'=>'JINDI123456789',
-            'doc_title' =>"title",
-            'download_url'=>'url_download',
-            'view_url'  => 'url_view',
-            'status'        => Contractmodel::STATUS_GENERATED,
-        );
 
+        //生成该合同的编号
+        $room = $resident->room;
+        $apartment = $resident->room->apartment;
+        $rentType = $resident->rent_type;
+
+        //统计本公寓今年的合同的数量
+        $contractCount = $apartment->contracts()
+            ->where('created_at', '>=', $resident->begin_time->startOfYear())
+            ->count();
+
+        $contractNumber = $apartment->contract_number_prefix . '-' . $resident->begin_time->year . '-' .
+            sprintf("%03d", ++$contractCount) . '-' . $resident->name . '-' . $room->number;
+
+        $parameters = array(
+            'contract_number' => $contractNumber,
+
+
+        );
+        //如果是短租, 单日价格是(房租原价*1.2/30 + 物业费/30)
+
+        if (Residentmodel::RENTTYPE_SHORT == $rentType) {
+            $shortDayPrice = ceil($room->rent_money * 1.2 / 30 + $resident->real_property_costs / 30);
+            $parameters['short_rent_price'] = "{$shortDayPrice}";
+            $parameters['short_price_upper'] = num2rmb($parameters['short_rent_price']);
+        }
+
+        $contractId = 'JINDI' . date("YmdHis") . mt_rand(10, 60);
+
+        $contract = new Contractmodel();
+        $contract->doc_title = $parameters['contract_number'];
+
+//        $contract->contract_id = $contractId;
+
+        if (Contractmodel::TYPE_FDD == $type['type']) {
+
+            $docTitle = $parameters['contract_number'];
+
+            $res = $this->fadada->generateContract(
+                $parameters['contract_number'],
+                $room->roomtype->fdd_tpl_id[$rentType],
+                $contractId,
+                $parameters,
+                12
+            );
+
+            if (false == $res) {
+                throw new Exception($this->fadada->showError());
+            }
+
+            $contract->type = Contractmodel::TYPE_FDD;
+            //$contract->customer_id = $type['customer_id'];
+            $contract->doctitle  = $docTitle;
+            $contract->download_url = $res['download_url'];
+            $contract->view_url = $res['viewpdf_url'];
+            $contract->status = Contractmodel::STATUS_GENERATED;
+
+//            return array(
+//                'type' => 'FDD',
+//                'contract_id' => 'JINDI123456789',
+//                'doc_title' => "title",
+//                'download_url' => 'url_download',
+//                'view_url' => 'url_view',
+//                'status' => Contractmodel::STATUS_GENERATED,
+//            );
+
+        }else{
+            if (!isset($room->roomtype->contract_tpl_path[$rentType]['path'])) {
+                throw new Exception('合同模板不存在, 请稍后重试');
+            }
+
+            //用自己的方法生成合同
+            $outputFileName = "{$resident->id}.pdf";
+            $outputDir      = "contract/{$room->roomtype->id}/";
+            $templatePath   = $room->roomtype->contract_tpl_path[$rentType]['path'];
+
+            if (!file_exists($templatePath)) {
+                throw new Exception('合同模板不存在, 请稍后重试!');
+            }
+
+            if (!is_dir($outputDir)) {
+                if (!mkdir(FCPATH.$outputDir, 0777)) {
+                    throw new Exception('无法创建目录, 请稍后重试');
+                }
+            }
+
+            $pdf = new Pdf($templatePath);
+            $pdf->fillForm($parameters)
+                ->needAppearances()
+                ->saveAs(FCPATH . $outputDir . $outputFileName);
+
+            $contract->type         = Contractmodel::TYPE_NORMAL;
+            $contract->download_url = site_url($outputDir.$outputFileName);
+            $contract->view_url     = site_url($outputDir.$outputFileName);
+            $contract->status       = Contractmodel::STATUS_ARCHIVED;
+        }
+//
+//        $contract->city_id      = $apartment->city->id;
+//        $contract->apartment_id = $apartment->id;
+//        $contract->resident_id  = $resident->id;
+//        $contract->contract_id  = $contractId;
+//        $contract->room_id      = $room->id;
+        $contract->save();
+
+        return $contract;
     }
 
     /**

@@ -98,10 +98,10 @@ class Serviceorder extends MY_Controller
     public function Order()
     {
         $post        = $this->input->post(NULL,true);
-        $uxid        = intval(trim($post['uxid']));
+        //$uxid        = intval(trim($post['uxid']));4
         $field       = ['id','uxid','number','store_id','room_id','sequence_number','employee_id','service_type_id','name',
-            'phone','addr_from','addr_to','estimate_money','pay_money','money','status','deal','time','remark','paths'];
-        $listorder = Serviceordermodel::where('uxid',$uxid)->orderBy('id','desc')->get($field);
+            'phone','addr_from','addr_to','estimate_money','pay_money','money','status','deal','time','remark','paths','created_at','updated_at'];
+        $listorder = Serviceordermodel::where('uxid',4)->orderBy('id','desc')->get($field);
         foreach ($listorder as $key=>$value){
             $listorder[$key]['paths'] = $this->fullAliossUrl($value['paths']);
         }
