@@ -550,13 +550,13 @@ class Contract extends MY_Controller
 
         $input  = $this->input->post(null,true);
         //验证短信验证码
-        $this->load->library('m_redis');
+        //$this->load->library('m_redis');
         $resident_id    = intval(strip_tags($input['resident_id']));
         $phone    = trim(strip_tags($input['phone']));
-        if(!$this->m_redis->verifyResidentPhoneCode($input['phone'],$input['code'])){
-            $this->api_res(10007);
-            return;
-        }
+//        if(!$this->m_redis->verifyResidentPhoneCode($input['phone'],$input['code'])){
+//            $this->api_res(10007);
+//            return;
+//        }
         $this->load->model('residentmodel');
         $resident   = Residentmodel::find($resident_id);
         if(!$resident){
@@ -578,6 +578,7 @@ class Contract extends MY_Controller
         //判断住户合同是否已经归档，有已经归档的合同 就结束
         $this->load->model('contractmodel');
         $has_contract = $resident->contract()->where('status', Contractmodel::STATUS_ARCHIVED);
+//        $has_contract = $resident->contract();
         if ($has_contract->exists()) {
             $this->api_res(10015);
             return;
@@ -587,6 +588,9 @@ class Contract extends MY_Controller
         $this->load->model('storemodel');
         $contract   = $resident->contract;
         $contract_type  = $room->store->contract_type;
+
+        //测试使用
+//        $data   = $this->generate($resident,$contract_type);
         if(Storemodel::C_TYPE_NORMAL==$contract_type){
             if(empty($contract)){
                 //生成纸质版合同
@@ -635,7 +639,7 @@ class Contract extends MY_Controller
         try{
             DB::beginTransaction();
             //1,生成合同
-            $contract->store_id = $data['store_id'];
+            $contract->store_id = $resident->store_id;
             $contract->room_id  = $resident->room_id;
             $contract->resident_id  = $resident->id;
             $contract->uxid  = $resident->uxid;
@@ -676,7 +680,6 @@ class Contract extends MY_Controller
         //参考旧版本的逻辑
         return array(
             'type'      =>'FDD',
-            'store_id'  => '1',
             'contract_id'=>'JINDI123456789',
             'doc_title' =>"title",
             'download_url'=>'url_download',

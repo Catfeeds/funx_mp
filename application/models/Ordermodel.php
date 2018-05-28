@@ -85,6 +85,36 @@ class Ordermodel extends Basemodel{
         'pay_status',
     ];
 
+    public function customer()
+    {
+        return $this->belongsTo(Customermodel::class, 'customer_id');
+    }
+
+    public function roomunion()
+    {
+        return $this->belongsTo(Roomunionmodel::class, 'room_id');
+    }
+
+    public function store()
+    {
+        return $this->belongsTo(Storemodel::class, 'store_id');
+    }
+
+    public function resident()
+    {
+        return $this->belongsTo(Residentmodel::class, 'resident_id');
+    }
+
+    public function employee()
+    {
+        return $this->belongsTo(Employeemodel::class, 'employee_id');
+    }
+
+    public function roomtype()
+    {
+        return $this->belongsTo(Roomtypemodel::class, 'room_type_id');
+    }
+
     /**
      * 生成随机数作为订单编号
      */
@@ -92,6 +122,7 @@ class Ordermodel extends Basemodel{
     {
 
         return date('YmdHis').mt_rand(1000000000, 9999999999);
+        //return date('YmdHis').mt_rand(1, 100000);
     }
 
     /**
