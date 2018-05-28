@@ -64,6 +64,7 @@ class Payment extends MY_Controller
             $this->api_res(10018);
             return;
         }
+
         try {
             DB::beginTransaction();
             //更新订单的付款方式和支付金额
@@ -93,8 +94,8 @@ class Payment extends MY_Controller
                 'attach'        => serialize($attach),
             ];
             $wechatConfig   = getCustomerWechatConfig();
-            $wechatConfig['payment']['merchant_id'] = $store->payment_merchant_id;
-            $wechatConfig['payment']['key']         = $store->payment_key;
+//            $wechatConfig['payment']['merchant_id'] = $store->payment_merchant_id;
+//            $wechatConfig['payment']['key']         = $store->payment_key;
 
             $app            = new Application($wechatConfig);
             $wechatOrder    = new Order($attributes);
@@ -112,6 +113,8 @@ class Payment extends MY_Controller
             log_message('error', $e->getMessage());
             throw $e;
         }
+
+
         $this->api_res(0,['json'=>$json]);
     }
 
