@@ -34,85 +34,84 @@ class Payment extends MY_Controller
      */
     public function config()
     {
-        $this->api_res(0);
-//        //住户id
-//        $residentId = trim($this->input->post('resident_id', true));
-//        //订单编号
-//        $number     = trim($this->input->post('number', true));
-//        //使用的优惠券
-//        $couponIds  = $this->input->post('coupons[]', true);
-//
-//        $this->load->model('residentmodel');
-//        $this->load->model('ordermodel');
-//        $this->load->model('couponmodel');
-//        $this->load->helper('wechat');
-//
-//        $this->resident = Residentmodel::with('orders', 'coupons')->findOrFail($residentId);
-//        //$this->checkUser($this->resident->uxid);
-//
-//        $orders         = $this->resident->orders()->where('number', $number)->get();
-//        $coupons        = $this->resident->coupons()->whereIn('id', $couponIds)->get();
-//
-//        if (0 == count($orders)) {
-//            $this->api_res(10017);
-//            return;
-//        }
-//        //计算总金额
-//        $amount = $orders->sum('money');
-//
-//        if (0 == $amount) {
-//            $this->api_res(10018);
-//            return;
-//        }
-//        try {
-//            DB::beginTransaction();
-//            //更新订单的付款方式和支付金额
-//            $this->updatePayWayAndPaid($orders);
-//
-//            if (count($coupons)) {
-//                $discount   = $this->amountOfDiscount($orders, $coupons);
-//                $amount     = $amount - $discount;
-//            }
-//
-//            $this->load->model('roomunionmodel');
-//            $this->load->model('storemodel');
-//            $this->load->model('roomtypemodel');
-//            $this->load->helper('url');
-//            $roomunion       = $this->resident->roomunion;
-//            $store      = $roomunion->store;
-//            $roomtype   = $roomunion->roomtype;
-//            $attach     = ['resident_id' => $residentId];
-//            $attributes = [
-//                'trade_type'    => Ordermodel::PAYWAY_JSAPI,
-//                'body'          => $store->name . '-' . $roomtype->name,
-//                'detail'        => $store->name . '-' . $roomtype->name,
-//                'out_trade_no'  => $number.'_'.mt_rand(10, 99),
-//                'total_fee'     => $amount * 100,
-//                'notify_url'    => site_url("payment/notify/?store_id=".$store->id),
-//                'openid'        => $this->user->openid,
-//                'attach'        => serialize($attach),
-//            ];
-//            $wechatConfig   = getCustomerWechatConfig();
-//            $wechatConfig['payment']['merchant_id'] = $store->payment_merchant_id;
-//            $wechatConfig['payment']['key']         = $store->payment_key;
-//
-//            $app            = new Application($wechatConfig);
-//            $wechatOrder    = new Order($attributes);
-//            $payment        = $app->payment;
-//            $result         = $payment->prepare($wechatOrder);
-//
-//            if (!($result->return_code == 'SUCCESS' && $result->result_code == 'SUCCESS')) {
-//                throw new Exception($result->return_msg);
-//            }
-//            //生成js配置
-//            $json = $payment->configForPayment($result->prepay_id, false);
-//            DB::commit();
-//        } catch (Exception $e) {
-//            DB::rollBack();
-//            log_message('error', $e->getMessage());
-//            throw $e;
-//        }
-//        $this->api_res(0,['json'=>$json]);
+        //住户id
+        $residentId = trim($this->input->post('resident_id', true));
+        //订单编号
+        $number     = trim($this->input->post('number', true));
+        //使用的优惠券
+        $couponIds  = $this->input->post('coupons[]', true);
+
+        $this->load->model('residentmodel');
+        $this->load->model('ordermodel');
+        $this->load->model('couponmodel');
+        $this->load->helper('wechat');
+
+        $this->resident = Residentmodel::with('orders', 'coupons')->findOrFail($residentId);
+        //$this->checkUser($this->resident->uxid);
+
+        $orders         = $this->resident->orders()->where('number', $number)->get();
+        $coupons        = $this->resident->coupons()->whereIn('id', $couponIds)->get();
+
+        if (0 == count($orders)) {
+            $this->api_res(10017);
+            return;
+        }
+        //计算总金额
+        $amount = $orders->sum('money');
+
+        if (0 == $amount) {
+            $this->api_res(10018);
+            return;
+        }
+        try {
+            DB::beginTransaction();
+            //更新订单的付款方式和支付金额
+            $this->updatePayWayAndPaid($orders);
+
+            if (count($coupons)) {
+                $discount   = $this->amountOfDiscount($orders, $coupons);
+                $amount     = $amount - $discount;
+            }
+
+            $this->load->model('roomunionmodel');
+            $this->load->model('storemodel');
+            $this->load->model('roomtypemodel');
+            $this->load->helper('url');
+            $roomunion       = $this->resident->roomunion;
+            $store      = $roomunion->store;
+            $roomtype   = $roomunion->roomtype;
+            $attach     = ['resident_id' => $residentId];
+            $attributes = [
+                'trade_type'    => Ordermodel::PAYWAY_JSAPI,
+                'body'          => $store->name . '-' . $roomtype->name,
+                'detail'        => $store->name . '-' . $roomtype->name,
+                'out_trade_no'  => $number.'_'.mt_rand(10, 99),
+                'total_fee'     => $amount * 100,
+                'notify_url'    => site_url("payment/notify/?store_id=".$store->id),
+                'openid'        => $this->user->openid,
+                'attach'        => serialize($attach),
+            ];
+            $wechatConfig   = getCustomerWechatConfig();
+            $wechatConfig['payment']['merchant_id'] = $store->payment_merchant_id;
+            $wechatConfig['payment']['key']         = $store->payment_key;
+
+            $app            = new Application($wechatConfig);
+            $wechatOrder    = new Order($attributes);
+            $payment        = $app->payment;
+            $result         = $payment->prepare($wechatOrder);
+
+            if (!($result->return_code == 'SUCCESS' && $result->result_code == 'SUCCESS')) {
+                throw new Exception($result->return_msg);
+            }
+            //生成js配置
+            $json = $payment->configForPayment($result->prepay_id, false);
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            log_message('error', $e->getMessage());
+            throw $e;
+        }
+        $this->api_res(0,['json'=>$json]);
     }
 
 
