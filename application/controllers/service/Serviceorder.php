@@ -97,16 +97,17 @@ class Serviceorder extends MY_Controller
      */
     public function Order()
     {
+        $this->load->model('roomunionmodel');
         $post        = $this->input->post(NULL,true);
         //$uxid        = intval(trim($post['uxid']));4
         $field       = ['id','uxid','number','store_id','room_id','sequence_number','employee_id','service_type_id','name',
             'phone','addr_from','addr_to','estimate_money','pay_money','money','status','deal','time','remark','paths','created_at','updated_at'];
 
-        $listorder = Serviceordermodel::where('uxid',4)->whereIn('status',["SUBMITTED","PENDING","PAID","SERVING"])->orderBy('id','desc')->get($field);
+        $listorder = Serviceordermodel::with('roomunion')->where('uxid',4)->whereIn('status',["SUBMITTED","PENDING","PAID","SERVING"])->orderBy('id','desc')->get($field);
         foreach ($listorder as $key=>$value){
             $listorder[$key]['paths'] = $this->fullAliossUrl($value['paths']);
         }
-        $listordered = Serviceordermodel::where('uxid',4)->whereIn('status',["COMPLETED","CANCELED"])->orderBy('id','desc')->get($field);
+        $listordered = Serviceordermodel::with('roomunion')->where('uxid',4)->whereIn('status',["COMPLETED","CANCELED"])->orderBy('id','desc')->get($field);
         foreach ($listordered as $key=>$value){
             $listordered[$key]['paths'] = $this->fullAliossUrl($value['paths']);
         }
