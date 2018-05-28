@@ -16,6 +16,12 @@ class Serviceordermodel extends Basemodel
         return $this->hasMany(Roomunionmodel::class,'room_id')->select('id','number');
     }*/
 
+    const SUBMITTED     = 'SUBMITTED';    //已提交
+    const PENDING       = 'PENDING';      //待支付
+    const PAID          = 'PAID';         //已支付
+    const SERVING       = 'SERVING';      //处理中
+    const COMPLETED     = 'COMPLETED';    //完成
+    const CANCELED      = 'CANCELED';     //取消
 }
 
 

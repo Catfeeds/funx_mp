@@ -93,7 +93,7 @@ class Serviceorder extends MY_Controller
     }
 
     /**
-     * 服务订单
+     * 服务订单 /进行中/历史订单
      */
     public function Order()
     {
@@ -101,12 +101,18 @@ class Serviceorder extends MY_Controller
         //$uxid        = intval(trim($post['uxid']));4
         $field       = ['id','uxid','number','store_id','room_id','sequence_number','employee_id','service_type_id','name',
             'phone','addr_from','addr_to','estimate_money','pay_money','money','status','deal','time','remark','paths','created_at','updated_at'];
-        $listorder = Serviceordermodel::where('uxid',4)->orderBy('id','desc')->get($field);
+
+        $listorder = Serviceordermodel::where('uxid',4)->whereIn('status',["SUBMITTED","PENDING","PAID","SERVING"])->orderBy('id','desc')->get($field);
         foreach ($listorder as $key=>$value){
             $listorder[$key]['paths'] = $this->fullAliossUrl($value['paths']);
         }
-        $this->api_res(0,['list'=>$listorder]);
+        $listordered = Serviceordermodel::where('uxid',4)->whereIn('status',["COMPLETED","CANCELED"])->orderBy('id','desc')->get($field);
+        foreach ($listordered as $key=>$value){
+            $listordered[$key]['paths'] = $this->fullAliossUrl($value['paths']);
+        }
+        $this->api_res(0,['listing'=>$listorder,'listed'=>$listordered]);
     }
+
 
     /**
      * 表单验证规则
@@ -161,7 +167,8 @@ class Serviceorder extends MY_Controller
                  'rules' => 'trim',
              ),
         );
-        return $config;
+        $this->form_validation->set_rules($config)->set_error_delimiters('','');
+        return $this->form_validation->run();
     }
 
 }
