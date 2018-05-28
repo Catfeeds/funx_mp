@@ -122,7 +122,7 @@ class Ordermodel extends Basemodel{
     {
 
         return date('YmdHis').mt_rand(1000000000, 9999999999);
-        //return date('YmdHis').mt_rand(1, 100000);
+//        return date('YmdHis').mt_rand(1, 100000);
     }
 
     /**
@@ -228,7 +228,7 @@ class Ordermodel extends Basemodel{
                 // Order::create($info);
             }
         }
-        return true;
+        return $info['number'];
     }
 
     /**

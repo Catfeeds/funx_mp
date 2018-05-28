@@ -62,9 +62,9 @@ $config['wx_map_aes_key']   = 'IwTUFptFaJ1B3XhY7qRvTG3DrbxNhCLo90kpsqP0cNL';
 $config['wx_customer_oauth_scopes']   = 'snsapi_userinfo';
 $config['wx_oauth_callback']          = '';
 
-//
-$config['customer_wechat_payment_merchant_id']  = '1283267801';
+//微信商户
+$config['customer_wechat_payment_merchant_id']  = '1402576502';
 $config['customer_wechat_payment_key']          = 'EYM0HeyR6XxJplf9SrpuK1btYpvQyQom';
-$config['customer_wechat_payment_cert_path']    = 'IwTUFptFaJ1B3XhY7qRvTG3DrbxNhCLo90kpsqP0cNL';
-$config['customer_wechat_payment_key_path']     = 'IwTUFptFaJ1B3XhY7qRvTG3DrbxNhCLo90kpsqP0cNL';
+$config['customer_wechat_payment_cert_path']    = '';
+$config['customer_wechat_payment_key_path']     = '';
 

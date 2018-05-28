@@ -30,8 +30,12 @@ class Order extends MY_Controller
 //        $orders = $resident->orders;
 
         $uxid   = CURRENT_ID;
-
-
+        $this->load->model('ordermodel');
+        $this->load->model('residentmodel');
+        $residents  = Residentmodel::with('orders')->where('uxid',$uxid)->get();
+        //$orders = Ordermodel::where('uxid',$uxid)->get();
     }
+
+
 
 }

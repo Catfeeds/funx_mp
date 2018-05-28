@@ -590,7 +590,7 @@ class Contract extends MY_Controller
         $contract_type  = $room->store->contract_type;
 
         //测试使用
-//        $data   = $this->generate($resident,$contract_type);
+        //$data   = $this->generate($resident,$contract_type);
         if(Storemodel::C_TYPE_NORMAL==$contract_type){
             if(empty($contract)){
                 //生成纸质版合同
@@ -662,7 +662,7 @@ class Contract extends MY_Controller
                 $this->api_res(1009);
                 return;
             }
-            $this->api_res(0,['resident_id'=>$resident->id]);
+            $this->api_res(0,['resident_id'=>$resident->id,'order_number'=>$b]);
         }catch (Exception $e){
             DB::rollBack();
             throw $e;

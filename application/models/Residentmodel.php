@@ -124,6 +124,11 @@ class Residentmodel extends Basemodel{
         return $this->belongsTo(Activitymodel::class, 'discount_id');
     }
 
+    public function employee()
+    {
+        return $this->belongsTo(Employeemodel::class, 'employee_id');
+    }
+
     /**
      * 计算用户的合同结束时间
      * 主要是考虑到, 租房合同开始日期是某个月的月底而结束月份是2月份的情况
@@ -206,11 +211,11 @@ class Residentmodel extends Basemodel{
             ]);
         }
         //订单详情
-//         if($resident->orders){
-//             $data   = array_merge($data, [
-//                 'orders'  => $resident->orders,
-//             ]);
-//         }
+         if($resident->orders){
+             $data   = array_merge($data, [
+                 'orders'  => $resident->orders,
+             ]);
+         }
 
         if (0 < $resident->discount_id) {
             $activity   = $resident->discount;

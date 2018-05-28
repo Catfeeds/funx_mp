@@ -45,8 +45,9 @@ class Roomunionmodel extends Basemodel{
     //房间所属门店信息
     public function store(){
 
-        return $this->belongsTo(Storemodel::class,'store_id')->select(
-            ['id','name','province','city','district','address','describe']);
+//        return $this->belongsTo(Storemodel::class,'store_id')->select(
+//            ['id','name','province','city','district','address','describe']);
+        return $this->belongsTo(Storemodel::class,'store_id');
     }
 
     //房间所属楼栋信息
@@ -74,8 +75,9 @@ class Roomunionmodel extends Basemodel{
     //房间所属房型信息
     public function roomtype(){
 
-        return $this->belongsTo(Roomtypemodel::class,'room_type_id')->select(
-            ['id','name','room_number','hall_number','toilet_number','toward','provides','description','images']);
+//        return $this->belongsTo(Roomtypemodel::class,'room_type_id')->select(
+//            ['id','name','room_number','hall_number','toilet_number','toward','provides','description','images']);
+        return $this->belongsTo(Roomtypemodel::class,'room_type_id');
     }
 
     //房屋公共智能设备

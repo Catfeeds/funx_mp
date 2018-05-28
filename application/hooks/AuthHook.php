@@ -25,7 +25,12 @@ class AuthHook {
         //注意，所有url统一用小写，不要大写
         $authArr = array(
             'account/wechat/login',
+            'account/server/menu',
             'account/server/checkinorbookingevent',
+            'account/server/index',
+
+//            'pay/payment/config',
+
             'resident/resident/getresident',
             'resident/contract/sendsms',
             'resident/contract/confirm',
