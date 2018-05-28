@@ -260,8 +260,9 @@ class Server extends MY_Controller
 
         $this->load->helper('wechat');
         $app    = new Application(getCustomerWechatConfig());
+        echo $app->getToken();exit;
         $menu   = $app->menu;
-        //var_dump($menu->current());exit;
+        var_dump($menu->current());exit;
 
         $url_resident_guide = 'https://mp.weixin.qq.com/s?__biz=MzI3MTMwODIyNw==&mid=2247484131&idx=2&sn=aed494e10935d13e9af15a73060df69e&chksm=eac2864fddb50f593a5787021f64f4dd668f2fb745d876d7698e835460e177478bbd88c2f444#rd';
 
