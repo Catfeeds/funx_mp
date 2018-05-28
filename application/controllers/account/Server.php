@@ -28,7 +28,7 @@ class Server extends MY_Controller
         parent::__construct();
         $this->load->helper('wechat');
         $this->app = new Application(getCustomerWechatConfig());
-        $this->load->model('customermodel');
+        //$this->load->model('customermodel');
     }
 
     /**
@@ -87,6 +87,8 @@ class Server extends MY_Controller
             switch ($message->MsgType){
                 case 'text':
                     return '收到文本消息';
+                    break;
+                default:
                     break;
             }
 
@@ -201,6 +203,7 @@ class Server extends MY_Controller
 //                default:
 //                    break;
 //            }
+
         });
 
         $response = $server->serve();
