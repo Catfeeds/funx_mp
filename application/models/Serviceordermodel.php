@@ -12,9 +12,9 @@ class Serviceordermodel extends Basemodel
     protected $table    = 'boss_service_order';
     protected $hidden   = ['deleted_at'];
 
-   /* public function roomunion(){
-        return $this->hasMany(Roomunionmodel::class,'room_id')->select('id','number');
-    }*/
+    public function roomunion(){
+        return $this->belongsTo(Roomunionmodel::class,'room_id')->select('id','number');
+    }
 
     const SUBMITTED     = 'SUBMITTED';    //已提交
     const PENDING       = 'PENDING';      //待支付

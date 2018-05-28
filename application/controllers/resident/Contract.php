@@ -681,8 +681,8 @@ class Contract extends MY_Controller
         //参考旧版本的逻辑
 
         //生成该合同的编号
-        $room = $resident->room;
-        $apartment = $resident->room->apartment;
+        $room = $resident->roomunion;
+        $apartment = $resident->roomunion->apartment;
         $rentType = $resident->rent_type;
 
         //统计本公寓今年的合同的数量
@@ -691,32 +691,25 @@ class Contract extends MY_Controller
             ->count();
 
         $contractNumber = $apartment->contract_number_prefix . '-' . $resident->begin_time->year . '-' .
-            sprintf("%03d", ++$contractCount) . '-' . $resident->name . '-' . $room->number;
+            sprintf("%03d", ++$contractCount) . '-' . $resident->roomunion . '-' . $room->number;
 
         $parameters = array(
             'contract_number' => $contractNumber,
 
-
         );
         //如果是短租, 单日价格是(房租原价*1.2/30 + 物业费/30)
-
-        if (Residentmodel::RENTTYPE_SHORT == $rentType) {
-            $shortDayPrice = ceil($room->rent_money * 1.2 / 30 + $resident->real_property_costs / 30);
-            $parameters['short_rent_price'] = "{$shortDayPrice}";
-            $parameters['short_price_upper'] = num2rmb($parameters['short_rent_price']);
-        }
-
+//        if (Residentmodel::RENTTYPE_SHORT == $rentType) {
+//            $shortDayPrice = ceil($room->rent_money * 1.2 / 30 + $resident->real_property_costs / 30);
+//            $parameters['short_rent_price'] = "{$shortDayPrice}";
+//            $parameters['short_price_upper'] = num2rmb($parameters['short_rent_price']);
+//        }
         $contractId = 'JINDI' . date("YmdHis") . mt_rand(10, 60);
 
         $contract = new Contractmodel();
         $contract->doc_title = $parameters['contract_number'];
-
-//        $contract->contract_id = $contractId;
-
+//      $contract->contract_id = $contractId;
         if (Contractmodel::TYPE_FDD == $type['type']) {
-
             $docTitle = $parameters['contract_number'];
-
             $res = $this->fadada->generateContract(
                 $parameters['contract_number'],
                 $room->roomtype->fdd_tpl_id[$rentType],
@@ -724,17 +717,16 @@ class Contract extends MY_Controller
                 $parameters,
                 12
             );
-
-            if (false == $res) {
+            if (false == $res){
                 throw new Exception($this->fadada->showError());
             }
 
             $contract->type = Contractmodel::TYPE_FDD;
             //$contract->customer_id = $type['customer_id'];
-            $contract->doctitle  = $docTitle;
-            $contract->download_url = $res['download_url'];
-            $contract->view_url = $res['viewpdf_url'];
-            $contract->status = Contractmodel::STATUS_GENERATED;
+            $contract->doctitle      = $docTitle;
+            $contract->download_url  = $res['download_url'];
+            $contract->view_url      = $res['viewpdf_url'];
+            $contract->status        = Contractmodel::STATUS_GENERATED;
 
 //            return array(
 //                'type' => 'FDD',
@@ -775,7 +767,6 @@ class Contract extends MY_Controller
             $contract->view_url     = site_url($outputDir.$outputFileName);
             $contract->status       = Contractmodel::STATUS_ARCHIVED;
         }
-//
 //        $contract->city_id      = $apartment->city->id;
 //        $contract->apartment_id = $apartment->id;
 //        $contract->resident_id  = $resident->id;
