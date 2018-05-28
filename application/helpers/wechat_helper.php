@@ -28,9 +28,40 @@ function getCustomerWechatConfig(){
         ],
         'payment' => [
             'merchant_id'   => config_item('customer_wechat_payment_merchant_id'),
-            'key'           => config_item(''),
+            'key'           => config_item('customer_wechat_payment_key'),
             'cert_path'     => config_item('customer_wechat_payment_cert_path'),
-            'key_path'      => config_item(''),
+            'key_path'      => config_item('customer_wechat_payment_key_path'),
+        ],
+        'guzzle' => [
+            'timeout' => 3.0,
+        ]
+    );
+}
+
+/**
+ * 获取员工端微信的配置
+ */
+function getEmployeeWechatConfig($debug = true)
+{
+    return array(
+        'debug'     => $debug,
+        'app_id'    => EMPLOYEE_WECHAT_APPID,
+        'secret'    => EMPLOYEE_WECHAT_SECRET,
+        'token'     => EMPLOYEE_WECHAT_TOKEN,
+        'aes_key'   => EMPLOYEE_WECHAT_AES_KEY,
+        'log' => [
+            'level' => 'debug',
+            'file'  => APPPATH.'cache/wechat.log',
+        ],
+        'oauth' => [
+            'scopes'   => [EMPLOYEE_WECHAT_OAUTH_SCOPES],
+            'callback' => site_url('callback'),
+        ],
+        'payment' => [
+            'merchant_id'        => '',
+            'key'                => '',
+            'cert_path'          => '',
+            'key_path'           => '',
         ],
         'guzzle' => [
             'timeout' => 3.0,

@@ -8,4 +8,5 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  */
 class Activity extends MY_Controller{
 
+
 }

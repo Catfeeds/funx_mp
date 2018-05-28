@@ -22,7 +22,8 @@ class Resident extends MY_Controller
         $resident_id   = $this->input->post('resident_id',true);
         if(isset($input['has_contract'])){
             //如果有已经归档的合同,跳转到订单状态页面
-
+            $this->api_res(10016);
+            return;
         }
 
         $this->load->model('residentmodel');

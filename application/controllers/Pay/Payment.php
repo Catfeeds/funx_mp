@@ -3,6 +3,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 use EasyWeChat\Foundation\Application;
 use EasyWeChat\Payment\Order;
+use Carbon\Carbon;
+use Illuminate\Database\Capsule\Manager as DB;
 /**
  * Author:      zjh<401967974@qq.com>
  * Date:        2018/5/25 0025
@@ -13,6 +15,8 @@ use EasyWeChat\Payment\Order;
 class Payment extends MY_Controller
 {
     protected $resident;
+
+    protected $user;
 
     /**
      * 构造方法
@@ -26,29 +30,41 @@ class Payment extends MY_Controller
 
     /**
      * 接收微信支付的配置请求
+     * 获取微信支付的js配置
      */
     public function config()
     {
+        //住户id
         $residentId = trim($this->input->post('resident_id', true));
+        //订单编号
         $number     = trim($this->input->post('number', true));
+        //使用的优惠券
         $couponIds  = $this->input->post('coupons[]', true);
 
+        $this->load->model('residentmodel');
+        $this->load->model('ordermodel');
+        $this->load->helper('wechat');
+
+        $this->resident = Residentmodel::with('orders', 'coupons')->findOrFail($residentId);
+        //$this->checkUser($this->resident->uxid);
+
+        $orders         = $this->resident->orders()->where('number', $number)->get();
+        $coupons        = $this->resident->coupons()->whereIn('id', $couponIds)->get();
+
+        if (0 == count($orders)) {
+            $this->api_res(10017);
+            return;
+        }
+        //计算总金额
+        $amount = $orders->sum('money');
+
+        if (0 == $amount) {
+            $this->api_res(10018);
+            return;
+        }
         try {
-            $this->resident = Residentmodel::with('orders', 'coupons')->findOrFail($residentId);
-
-            $orders         = $this->resident->orders()->where('number', $number)->get();
-            $coupons        = $this->resident->coupons()->whereIn('id', $couponIds)->get();
-
-            if (0 == count($orders)) {
-                throw new Exception('未找到订单!');
-            }
-
-            $amount = $orders->sum('money');
-
-            if (0 == $amount) {
-                throw new Exception('订单金额为零,无法发起支付!');
-            }
-
+            DB::beginTransaction();
+            //更新订单的付款方式和支付金额
             $this->updatePayWayAndPaid($orders);
 
             if (count($coupons)) {
@@ -56,23 +72,24 @@ class Payment extends MY_Controller
                 $amount     = $amount - $discount;
             }
 
-            $room       = $this->resident->room;
-            $apartment  = $room->apartment;
+            $roomunion       = $this->resident->roomunion;
+            $store      = $roomunion->store;
+            $roomtype   = $roomunion->roomtype;
             $attach     = ['resident_id' => $residentId];
             $attributes = [
                 'trade_type'    => Ordermodel::PAYWAY_JSAPI,
-                'body'          => $room->apartment->name . '-' . $room->roomtype->name,
-                'detail'        => $room->apartment->name . '-' . $room->roomtype->name,
+                'body'          => $store->name . '-' . $roomtype->name,
+                'detail'        => $store->name . '-' . $roomtype->name,
                 'out_trade_no'  => $number.'_'.mt_rand(10, 99),
                 'total_fee'     => $amount * 100,
-                'notify_url'    => site_url("payment/notify/{$apartment->id}"),
-                'openid'        => $this->auth->id(),
+                'notify_url'    => site_url("payment/notify/?store_id=".$store->id),
+                'openid'        => $this->user->openid,
                 'attach'        => serialize($attach),
             ];
 
             $wechatConfig   = getCustomerWechatConfig();
-            $wechatConfig['payment']['merchant_id'] = $apartment->payment_merchant_id;
-            $wechatConfig['payment']['key']         = $apartment->payment_key;
+            $wechatConfig['payment']['merchant_id'] = $store->payment_merchant_id;
+            $wechatConfig['payment']['key']         = $store->payment_key;
 
             $app            = new Application($wechatConfig);
             $wechatOrder    = new Order($attributes);
@@ -82,15 +99,18 @@ class Payment extends MY_Controller
             if (!($result->return_code == 'SUCCESS' && $result->result_code == 'SUCCESS')) {
                 throw new Exception($result->return_msg);
             }
-
+            //生成js配置
             $json = $payment->configForPayment($result->prepay_id, false);
+            DB::commit();
         } catch (Exception $e) {
+            DB::rollBack();
             log_message('error', $e->getMessage());
-            Util::error($e->getMessage());
+            throw $e;
         }
-
-        Util::success('获取支付配置成功!', $json);
+        $this->api_res(0,['json'=>$json]);
     }
+
+
 
     /**
      * 使用优惠券支付时计算金额
@@ -202,21 +222,26 @@ class Payment extends MY_Controller
      */
     public function notify()
     {
-        $apartmentId    = $this->uri->segment(3);
-        $apartment      = Apartmentmodel::findOrFail($apartmentId);
+        $this->load->model('storemodel');
+        $apartmentId    = $this->input->get('store_id',true);
+        $this->load->model('storemodel');
+        $apartment      = Storemodel::findOrFail($apartmentId);
 
+        $this->load->helper('wechat');
         $customerWechatConfig   = getCustomerWechatConfig();
         $customerWechatConfig['payment']['merchant_id'] = $apartment->payment_merchant_id;
         $customerWechatConfig['payment']['key']         = $apartment->payment_key;
 
         $app    = new Application($customerWechatConfig);
-        $eApp   = new Application(getEmployeeWechatConfig());
+//        $eApp   = new Application(getEmployeeWechatConfig());
 
-        $response   = $app->payment->handleNotify(function($notify, $successful) use ($app, $eApp) {
+//        $response   = $app->payment->handleNotify(function($notify, $successful) use ($app, $eApp) {
+        $response   = $app->payment->handleNotify(function($notify, $successful) use ($app) {
             try {
                 $data       = explode('_', $notify->out_trade_no);
                 $number     = $data[0];
                 $attach     = unserialize($notify->attach);
+                $this->load->model('residentmodel');
                 $resident   = Residentmodel::with('orders')->find($attach['resident_id']);
 
                 log_message('error', 'notify-arrived' . $number);
@@ -224,7 +249,7 @@ class Payment extends MY_Controller
                 if (!count($resident)) {
                     return true;
                 }
-
+                $this->load->model('ordermodel');
                 $orders     = $resident->orders()->where('number', $number)->get();
 
                 if (!count($orders)) {
@@ -237,6 +262,7 @@ class Payment extends MY_Controller
                     $order->save();
 
                     if ($order->type == 'DEIVCE') {
+                        $this->load->model('devicemodel');
                         $temp = Devicemodel::find($order->other_id);
                         if (!empty($temp)) {
                             $temp->status = Devicemodel::STATE_CONFIRM;
@@ -245,6 +271,7 @@ class Payment extends MY_Controller
                     }
 
                     if ($order->type == 'UTILITY') {
+                        $this->load->model('utilitymodel');
                         $temp = Utilitymodel::find($order->other_id);
                         if (!empty($temp)) {
                             $temp->status = Utilitymodel::STATE_CONFIRM;
@@ -252,18 +279,20 @@ class Payment extends MY_Controller
                         }
                     }
                 }
-
+                $this->load->model('couponmodel');
                 Couponmodel::whereIn('order_id', $orderIds)->update(['status' => Couponmodel::STATUS_USED]);
 
                 try {
                     $this->sendTemplateMessages($resident, $number, Ordermodel::PAYWAY_JSAPI, $notify->total_fee / 100);
                 } catch (Exception $e) {
                     log_message('error', '微信支付-模板消息通知失败：' . $e->getMessage());
+                    throw $e;
                 }
 
             } catch (Exception $e) {
                 log_message('error', $e->getMessage());
-                return false;
+                throw $e;
+               // return false;
             }
 
             return true;
@@ -279,7 +308,7 @@ class Payment extends MY_Controller
     {
         $room       = $resident->room;
         $app        = new Application(getCustomerWechatConfig());
-        $eApp       = new Application(getEmployeeWechatConfig());
+//        $eApp       = new Application(getEmployeeWechatConfig());
         $payType    = ($payWay == Ordermodel::PAYWAY_BANK) ? "银行卡" : "微信";
         $payInfo    = ($payWay == Ordermodel::PAYWAY_BANK) ? "提单提交成功,请到前台刷卡!" : "微信支付成功!";
 
@@ -295,21 +324,21 @@ class Payment extends MY_Controller
             ->andReceiver($resident->customer->openid)
             ->send();
 
-        if ($resident->employee) {
-            $eData  = [
-                'first'     => "{$room->resident->name}通过-{$payType}-支付订单成功!",
-                'keyword1'  => "{$room->apartment->name}-{$room->roomtype->name}-{$room->number}",
-                'keyword2'  => $number,
-                'keyword3'  => date('Y-m-d H:i:s'),
-                'keyword4'  => "用户支付成功!",
-                'remark'    => '请尽快确认用户支付!',
-            ];
-            $eApp->notice->uses(TMPLMSG_EMPLOYEE_CHECK)
-                ->withUrl(employee_url('order/detaillist/'.$number))
-                ->andData($eData)
-                ->andReceiver($resident->employee->openid)
-                ->send();
-        }
+//        if ($resident->employee) {
+//            $eData  = [
+//                'first'     => "{$room->resident->name}通过-{$payType}-支付订单成功!",
+//                'keyword1'  => "{$room->apartment->name}-{$room->roomtype->name}-{$room->number}",
+//                'keyword2'  => $number,
+//                'keyword3'  => date('Y-m-d H:i:s'),
+//                'keyword4'  => "用户支付成功!",
+//                'remark'    => '请尽快确认用户支付!',
+//            ];
+//            $eApp->notice->uses(TMPLMSG_EMPLOYEE_CHECK)
+//                ->withUrl(employee_url('order/detaillist/'.$number))
+//                ->andData($eData)
+//                ->andReceiver($resident->employee->openid)
+//                ->send();
+//        }
     }
 
     /**
