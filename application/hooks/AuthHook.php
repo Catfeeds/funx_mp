@@ -29,7 +29,7 @@ class AuthHook {
             'account/server/checkinorbookingevent',
             'account/server/index',
 
-//            'pay/payment/config',
+            'pay/payment/config',
 
             'resident/resident/getresident',
             'resident/contract/sendsms',
