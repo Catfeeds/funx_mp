@@ -75,8 +75,8 @@ Objects are the most basic data units on the OSS. You can simply consider object
 
 ```php
 <?php
-$bucket= "<Name of the bucket in use. Pay attention to naming conventions>";
-$object = "<Name of the object in use. Pay attention to naming conventions>";
+$bucket= "pay";
+$object = "pay";
 $content = "Hello, OSS!"; // Content of the uploaded file
 try {
     $ossClient->putObject($bucket, $object, $content);
@@ -91,7 +91,7 @@ Buckets are the space that you use to manage the stored objects. It is an object
 
 ```php
 <?php
-$bucket= "<Name of the bucket in use. Pay attention to naming conventions>";
+$bucket= "pay";
 try {
     $ossClient->createBucket($bucket);
 } catch (OssException $e) {
