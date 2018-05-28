@@ -255,11 +255,12 @@ class Server extends MY_Controller
      * 生成菜单
      */
     public function menu(){
-        exit('Hello-Baby');
+        //exit('Hello-Baby');
 
-        $app    = new Application($this->getCustomerWechatConfig());
+        $this->load->helper('wechat');
+        $app    = new Application(getCustomerWechatConfig());
         $menu   = $app->menu;
-        var_dump($menu->current());exit;
+        //var_dump($menu->current());exit;
 
         $url_resident_guide = 'https://mp.weixin.qq.com/s?__biz=MzI3MTMwODIyNw==&mid=2247484131&idx=2&sn=aed494e10935d13e9af15a73060df69e&chksm=eac2864fddb50f593a5787021f64f4dd668f2fb745d876d7698e835460e177478bbd88c2f444#rd';
 
@@ -296,41 +297,41 @@ class Server extends MY_Controller
                     ],
                 ],
             ],
-            [
-                'name'       => '预约看房',
-                'sub_button' => [
-                    [
-                        'name' => '找房源',
-                        'type' => 'view',
-                        'url'  => wechat_url(),
-                    ],
-                    [
-                        'name' => '近期活动',
-                        'type' => 'click',
-                        'key'  => 'RECENT_ACTIVITIES',
-                    ],
-                ],
-            ],
-            [
-                'name'       => '我是草莓',
-                'sub_button' => [
-                    [
-                        'name' => '个人中心',
-                        'type' => 'view',
-                        'url'  => wechat_url('center'),
-                    ],
-                    [
-                        'name' => '生活服务',
-                        'type' => 'view',
-                        'url'  => wechat_url('service'),
-                    ],
-                    [
-                        'name' => '金地商城',
-                        'type' => 'view',
-                        'url'  => wechat_url('shop'),
-                    ],
-                ],
-            ],
+//            [
+//                'name'       => '预约看房',
+//                'sub_button' => [
+//                    [
+//                        'name' => '找房源',
+//                        'type' => 'view',
+//                        'url'  => wechat_url(),
+//                    ],
+//                    [
+//                        'name' => '近期活动',
+//                        'type' => 'click',
+//                        'key'  => 'RECENT_ACTIVITIES',
+//                    ],
+//                ],
+//            ],
+//            [
+//                'name'       => '我是草莓',
+//                'sub_button' => [
+//                    [
+//                        'name' => '个人中心',
+//                        'type' => 'view',
+//                        'url'  => wechat_url('center'),
+//                    ],
+//                    [
+//                        'name' => '生活服务',
+//                        'type' => 'view',
+//                        'url'  => wechat_url('service'),
+//                    ],
+//                    [
+//                        'name' => '金地商城',
+//                        'type' => 'view',
+//                        'url'  => wechat_url('shop'),
+//                    ],
+//                ],
+//            ],
         ];
 
         var_dump($menu->add($buttons));

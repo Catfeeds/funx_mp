@@ -91,7 +91,6 @@ class Payment extends MY_Controller
                 'openid'        => $this->user->openid,
                 'attach'        => serialize($attach),
             ];
-
             $wechatConfig   = getCustomerWechatConfig();
             $wechatConfig['payment']['merchant_id'] = $store->payment_merchant_id;
             $wechatConfig['payment']['key']         = $store->payment_key;
