@@ -27,6 +27,9 @@ class AuthHook {
             'account/wechat/login',
             'account/server/checkinorbookingevent',
             'account/server/index',
+
+            'pay/payment/config',
+
             'resident/resident/getresident',
             'resident/contract/sendsms',
             'resident/contract/confirm',
