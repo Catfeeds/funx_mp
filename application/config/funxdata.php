@@ -28,9 +28,9 @@ $config['yunpian_api_url']  = 'http://sms.yunpian.com/v2/sms/single_send.json';
 $config['yunpian_api_key']  = 'a91819aaea5b684dfb571442c279a9a3';
 
 //jwt相关
-$config['jwt_key'] = 'jfo1jf02jfoijf02klbm9&@Fklwfwef';
+$config['jwt_key'] = 'jfo1jf02jfoijf02klbm9&@Fklwfwefweb';
 $config['jwt_alg'] = 'HS256';
-$config['jwt_iss'] = 'http://example.org';
+$config['jwt_iss'] = 'http://funxdata.com';
 $config['jwt_exp'] = (time()+7200); //过期时间
 //$config['jwt_nbf'] = 1357000000;
 
@@ -63,8 +63,8 @@ $config['wx_customer_oauth_scopes']   = 'snsapi_userinfo';
 $config['wx_oauth_callback']          = '';
 
 //微信商户
-$config['customer_wechat_payment_merchant_id']  = '1402576502';
-$config['customer_wechat_payment_key']          = 'EYM0HeyR6XxJplf9SrpuK1btYpvQyQom';
-$config['customer_wechat_payment_cert_path']    = '';
-$config['customer_wechat_payment_key_path']     = '';
+$config['customer_wechat_payment_merchant_id']  = '1283267801';
+$config['customer_wechat_payment_key']          = 'c26cde6c73f3db135556f9cbed016fae';
+$config['customer_wechat_payment_cert_path']    = '/data/wwwroot/fxpms_web/cert/apiclient_cert.pem';
+$config['customer_wechat_payment_key_path']     = '/data/wwwroot/fxpms_web/cert/apiclient_key.pem';
 

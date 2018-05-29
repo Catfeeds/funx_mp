@@ -11,14 +11,17 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class PreHook {
   
      public function proc(){
+            //跨域
             header("Access-Control-Allow-Origin: * ");
             header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Token");
             header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
-                
-             if(IS_OPTIONS){
+            
+            //允许所有的options请求
+            if(IS_OPTIONS){
                 header('HTTP/1.1 200 OK');
                 exit;
             }
+
              //对于非post请求进行拦截报错
              else if(!IS_POST){
                  // header('HTTP/1.1 403 Forbidden');
@@ -26,15 +29,17 @@ class PreHook {
                  // exit;
              }
 
+
              // 对token参数进行校验
              //$token=$_SERVER['token'];
-
-             $token=isset($_SERVER['HTTP_TOKEN'])?$_SERVER['HTTP_TOKEN']:null;
-             if (empty($token)){
+            //  $token=isset($_SERVER['HTTP_TOKEN'])?$_SERVER['HTTP_TOKEN']:null;
+            //  if (empty($token)){
                  //  header("Content-Type:application/json;charset=UTF-8");
                  //  echo json_encode(array('rescode' => 1001, 'resmsg' => '无效token,请重新登录', 'data' => []));
                  //  exit;
-             }
+            //  }
+
+            
              //添加应用防火墙waf，提升安全性
              $referer=empty($_SERVER['HTTP_REFERER']) ? array() : array($_SERVER['HTTP_REFERER']);
              $query_string=empty($_SERVER["QUERY_STRING"]) ? array() : array($_SERVER["QUERY_STRING"]);

@@ -19,7 +19,7 @@ function getCustomerWechatConfig(){
         'aes_key'   => config_item('wx_map_aes_key'),
         'log' => [
             'level' => 'debug',
-            'file'  => APPPATH.'cache/wechat.log',
+            'file'  => APPPATH.'cache/wechatCustomer.log',
         ],
         //调用授权
         'oauth' => [
@@ -51,7 +51,7 @@ function getEmployeeWechatConfig($debug = true)
         'aes_key'   => EMPLOYEE_WECHAT_AES_KEY,
         'log' => [
             'level' => 'debug',
-            'file'  => APPPATH.'cache/wechat.log',
+            'file'  => APPPATH.'cache/wechatEmployee.log',
         ],
         'oauth' => [
             'scopes'   => [EMPLOYEE_WECHAT_OAUTH_SCOPES],

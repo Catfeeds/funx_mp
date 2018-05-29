@@ -41,6 +41,7 @@ class Resident extends MY_Controller
         $this->load->model('contractmodel');
         $this->load->model('ordermodel');
         $this->load->model('customermodel');
+        $this->load->model('storemodel');
         $data=$resident->transform($resident);
         $data['card_one_url']   = $this->fullAliossUrl($data['card_one_url'] );
         $data['card_two_url']   = $this->fullAliossUrl($data['card_two_url'] );

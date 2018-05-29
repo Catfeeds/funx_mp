@@ -104,7 +104,7 @@ class API extends AbstractAPI
     }
 
     /**
-     * Pay the order.
+     * pay the order.
      *
      * @param Order $order
      *
