@@ -446,23 +446,12 @@ class Contract extends MY_Controller
      */
     private function generate($resident,$type)
     {
-    }
 
-    /**
-     * 申请用户证书
-     */
-    private function getCustomerCA($data)
+    }
+    
+
+    private function test()
     {
-        $res = $this->fadada->getCustomerCA($data['name'], $data['phone'], $data['cardNumber'], $data['cardType']);
-
-        if ($res == false) {
-            throw new Exception($this->fadada->showError());
-        }
-
-        return $res['customer_id'];
-    }
-
-    private function test(){
                     return array(
                 'type' => 'FDD',
                 'contract_id' => 'JINDI123456789',
