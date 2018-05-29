@@ -397,8 +397,8 @@ class Server extends MY_Controller
             $url    = 'a10001.tweb.funxdata.com/#/generate?resident_id='.$resident->id;
         }
         return new News(array(
-            'title'         => $resident->room->apartment->name,
-            'description'   => "您预订的【{$resident->room->number}】",
+            'title'         => $resident->roomunion->store->name,
+            'description'   => "您预订的【{$resident->roomunion->number}】",
             'url'           => $url,
             'image'         => $this->fullAliossUrl(json_decode($resident->roomunion->roomtype->images,true),true),
         ));
