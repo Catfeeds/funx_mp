@@ -63,7 +63,7 @@ $config['wx_customer_oauth_scopes']   = 'snsapi_userinfo';
 $config['wx_oauth_callback']          = '';
 
 //微信商户
-$config['customer_wechat_payment_merchant_id']  = '1402576502';
+$config['customer_wechat_payment_merchant_id']  = '1283267801';
 $config['customer_wechat_payment_key']          = 'c26cde6c73f3db135556f9cbed016fae';
 $config['customer_wechat_payment_cert_path']    = '/data/wwwroot/fxpms_web/cert/apiclient_cert.pem';
 $config['customer_wechat_payment_key_path']     = '/data/wwwroot/fxpms_web/cert/apiclient_key.pem';

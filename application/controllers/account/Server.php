@@ -8,6 +8,7 @@ use EasyWeChat\Message\Image;
 
 use Carbon\Carbon;
 use GuzzleHttp\Client;
+use Illuminate\Database\Capsule\Manager as DB;
 /**
  * Author:      zjh<401967974@qq.com>
  * Date:        2018/5/16 0016
@@ -353,22 +354,30 @@ class Server extends MY_Controller
         $this->load->model('storemodel');
         //$eventKey=182;
         $resident   = Residentmodel::findOrFail($eventKey);
+
         if (0 == $resident->uxid) {
-            $customer   = Customermodel::where('openid', $message->FromUserName)->first();
-            //$customer   = Customermodel::where('openid', 1)->first();
+            try{
+                DB::beginTransaction();
+                $customer   = Customermodel::where('openid', $message->FromUserName)->first();
+                //$customer   = Customermodel::where('openid', 1)->first();
 
-            if (empty($customer)) {
-                $customer           = new Customermodel();
-                $customer->openid   = $message->FromUserName;
-                //$customer->openid   =1;
-                $customer->uxid         = Customermodel::max('uxid')+1;
-                $customer->save();
+                if (empty($customer)) {
+                    $customer           = new Customermodel();
+                    $customer->openid   = $message->FromUserName;
+                    //$customer->openid   =1;
+                    $customer->uxid         = Customermodel::max('uxid')+1;
+                    $customer->save();
+                }
+
+                $resident->customer_id  = $customer->id;
+                $resident->uxid  = $customer->uxid;
+                $resident->save();
+                $resident->orders()->where('uxid', 0)->update(['customer_id' => $customer->id,'uxid'=>$customer->uxid]);
+                DB::commit();
+            }catch (Exception $e){
+                DB::rollBack();
+                throw  $e;
             }
-
-            $resident->customer_id  = $customer->id;
-            $resident->uxid  = $customer->uxid;
-            $resident->save();
-            $resident->orders()->where('uxid', 0)->update(['customer_id' => $customer->id,'uxid'=>$customer->uxid]);
         }
 
         //根据住户状态分别进行处理

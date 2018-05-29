@@ -642,14 +642,15 @@ class Contract extends MY_Controller
             $contract->store_id = $resident->store_id;
             $contract->room_id  = $resident->room_id;
             $contract->resident_id  = $resident->id;
-            $contract->uxid  = $resident->uxid;
+            $contract->uxid         = $resident->uxid;
             $contract->customer_id  = $resident->customer_id;
-            $contract->type = $data['type'];
-            $contract->contract_id = $data['contract_id'];
-            $contract->doc_title = $data['doc_title'];
+            $contract->type         = $data['type'];
+            $contract->employee_id  = $resident->employee_id;
+            $contract->contract_id  = $data['contract_id'];
+            $contract->doc_title    = $data['doc_title'];
             $contract->download_url = $data['download_url'];
-            $contract->view_url = $data['view_url'];
-            $contract->status = $data['status'];
+            $contract->view_url     = $data['view_url'];
+            $contract->status       = $data['status'];
             $a  = $contract->save();
             //2.生成订单
             $this->load->model('ordermodel');
