@@ -130,7 +130,7 @@ class Fadada
     public function generateContract($docTitle, $templateId, $contractId, array $parameters, $fontSize = 9)
     {
         try {
-            $url          = $this->getApiUrl('generate_contract.api');
+            $url          = $this->getApiUrl('generate_contract.api');         // 生成各个接口的具体URL
             $parameterMap = json_encode($parameters);
             $reqData      = array(
                 'doc_title'     => $docTitle,
@@ -146,7 +146,7 @@ class Fadada
                 'other' => $parameterMap,
             );
 
-            $res = $this->requestFdd($url, $reqData, $msgDigest);
+            $res = $this->requestFdd($url, $reqData, $msgDigest);           //向法大大系统发送请求
         } catch (Exception $e) {
             $this->error = $e->getMessage();
             return false;
