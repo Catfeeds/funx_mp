@@ -29,11 +29,11 @@ class AuthHook {
             'account/server/checkinorbookingevent',
             'account/server/index',
 
-            'pay/payment/config',
+            //'pay/payment/config',
 
             'resident/resident/getresident',
-            'resident/contract/sendsms',
-            'resident/contract/confirm',
+            //'resident/contract/sendsms',
+            //'resident/contract/confirm',
 
             'common/imageupload',
             'common/fileupload',
