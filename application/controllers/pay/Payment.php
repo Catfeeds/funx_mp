@@ -122,7 +122,7 @@ class Payment extends MY_Controller
             throw $e;
         }
 
-        $this->api_res(0,['json'=>$json,'amount'=>$amount*100]);
+        $this->api_res(0,['json'=>$json]);
     }
 
 
