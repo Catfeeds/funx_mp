@@ -549,6 +549,7 @@ class Contract extends MY_Controller
     public  function confirm(){
 
         $input  = $this->input->post(null,true);
+        var_dump($input);die();
         $resident_id    = intval(strip_tags($input['resident_id']));
         $phone          = trim(strip_tags($input['phone']));
         $code           = trim(strip_tags($input['code']));
