@@ -34,6 +34,19 @@ class Contractmodel extends Basemodel {
 
     protected $hidden   = [];
 
+    //社区名
+    public function store(){
+
+        return $this->belongsTo(Storemodel::class,'store_id')->select('id','name');
+    }
+
+    //房间号
+    public function roomnum(){
+
+        return $this->belongsTo(Roomunionmodel::class,'room_id')->select('id','number');
+    }
+
+
     //房间信息
     public function room(){
 

@@ -20,11 +20,12 @@ class Goodscart extends MY_Controller
     public function listCart()
     {
         $this->load->model('goodsmodel');
-        $post = $this->input->post(null, true);
+       // $post = $this->input->post(null, true);
         //$uxid = intval(strip_tags(trim($post['uxid'])));
+        $uxid  = 7;
         $field = ['id', 'goods_id', 'quantity'];
         if (isset($uxid)) {
-            $goodscart = Goodscartmodel::with('goods')->where('uxid', 7)->get($field)->toArray();
+                $goodscart = Goodscartmodel::with('goods')->where('uxid',$uxid)->get($field)->toArray();
 
             foreach ($goodscart as $key => $value) {
                 $qq = &$goodscart[$key]['goods']['goods_thumb'];
