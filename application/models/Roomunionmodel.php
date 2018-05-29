@@ -35,7 +35,7 @@ class Roomunionmodel extends Basemodel{
         'rent_money',
         'resident_id',
         'people_count',
-        'apartment_id',
+        'store_id',
         'room_type_id',
         'property_costs',
     ];
