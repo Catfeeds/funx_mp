@@ -245,6 +245,8 @@ class Residentmodel extends Basemodel{
                     'rent_price'        => $room->rent_price,
                     'property_price'    => $room->property_price,
                     'area'              => $room->area,
+                    'store_id'          => $room->store->id,
+                    'store_name'        => $room->store->name,
                 ]
             ]);
         }
