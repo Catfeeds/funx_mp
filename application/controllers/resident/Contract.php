@@ -571,7 +571,7 @@ class Contract extends MY_Controller
         }
 
         //验证住户的uxid是不是当前ID
-        $this->checkUser($resident->uxid);
+//        $this->checkUser($resident->uxid);
         $this->load->model('roomunionmodel');
         $room   = $resident->roomunion;
         if($room->status!=Roomunionmodel::STATE_OCCUPIED){
