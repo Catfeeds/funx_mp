@@ -549,10 +549,11 @@ class Contract extends MY_Controller
     public  function confirm(){
 
         $input  = $this->input->post(null,true);
-        //验证短信验证码
-        //$this->load->library('m_redis');
         $resident_id    = intval(strip_tags($input['resident_id']));
-        $phone    = trim(strip_tags($input['phone']));
+        $phone          = trim(strip_tags($input['phone']));
+        $code           = trim(strip_tags($input['code']));
+        //验证短信验证码
+//        $this->load->library('m_redis');
 //        if(!$this->m_redis->verifyResidentPhoneCode($input['phone'],$input['code'])){
 //            $this->api_res(10007);
 //            return;
@@ -567,6 +568,7 @@ class Contract extends MY_Controller
             $this->api_res(10010);
             return;
         }
+
         //验证住户的uxid是不是当前ID
 //        $this->checkUser($resident->uxid);
         $this->load->model('roomunionmodel');
@@ -590,8 +592,8 @@ class Contract extends MY_Controller
         $contract_type  = $room->store->contract_type;
 
         //测试使用
-        //$data   = $this->generate($resident,$contract_type);
-        if(Storemodel::C_TYPE_NORMAL==$contract_type){
+        $data   = $this->test();
+        /*if(Storemodel::C_TYPE_NORMAL==$contract_type){
             if(empty($contract)){
                 //生成纸质版合同
                 $data   = $this->generate($resident, ['type' => Contractmodel::TYPE_NORMAL]);
@@ -632,7 +634,7 @@ class Contract extends MY_Controller
 //                $this->api_res(10016);
 //                return;
 //            }
-        }
+        }*/
 
         $contract   = new Contractmodel();
         //开始签约
@@ -790,6 +792,17 @@ class Contract extends MY_Controller
         }
 
         return $res['customer_id'];
+    }
+
+    private function test(){
+                    return array(
+                'type' => 'FDD',
+                'contract_id' => 'JINDI123456789',
+                'doc_title' => "title",
+                'download_url' => 'url_download',
+                'view_url' => 'url_view',
+                'status' => Contractmodel::STATUS_GENERATED,
+            );
     }
 
 
