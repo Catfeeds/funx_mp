@@ -442,7 +442,7 @@ class Contract extends MY_Controller
     function test(){
 
         $this->load->model('residentmodel');
-        $resident   = Residentmodel::find($resident_id);
+        $resident   = Residentmodel::find(32);
 
             $name       = $resident->name;
             $phone      = $resident->phone;
