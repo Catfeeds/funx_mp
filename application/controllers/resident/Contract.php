@@ -439,6 +439,24 @@ class Contract extends MY_Controller
         }
     }
 
+    function test(){
+
+        $this->load->model('residentmodel');
+        $resident   = Residentmodel::find($resident_id);
+
+            $name       = $resident->name;
+            $phone      = $resident->phone;
+            $cardNumber = $resident->card_number;
+            $cardType   = $resident->card_type;
+            $customerCA = $this->getCustomerCA(compact('name', 'phone', 'cardNumber', 'cardType'));
+            //生成法大大合同
+            $data=$this->generate($resident, [
+                'type' => Contractmodel::TYPE_FDD,
+                'customer_id'   => $customerCA,
+                ]);
+
+        $this->api_res(0,$data);
+    }
     /**
      * @param $resident
      * @return array
@@ -587,7 +605,6 @@ class Contract extends MY_Controller
                 'status' => Contractmodel::STATUS_ARCHIVED,                         //给个状态//合同已经生成
             );
         }
-
 
     }
 //        $contract->city_id      = $apartment->city->id;
