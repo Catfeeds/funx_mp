@@ -33,7 +33,7 @@ class Resident extends MY_Controller
         if(isset($input['has_contract'])){
 
             $contract   = $resident->contract();
-            if($contract->exists){
+            if($contract->exists()){
                 $this->api_res(10016);
                 return;
             }
