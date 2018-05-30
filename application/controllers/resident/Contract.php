@@ -413,7 +413,8 @@ class Contract extends MY_Controller
             $contract->resident_id  = $resident->id;
             $contract->uxid         = $resident->uxid;
             //此用户id是fdd返回id而不是正常的customer_id
-            //$contract->customer_id  = $resident->customer_id;
+            $contract->customer_id  = $resident->customer_id;
+            //$contract->fdd_customer_id  = $data['fdd_customer_id'];
             $contract->type         = $data['type'];
             $contract->employee_id  = $resident->employee_id;
             $contract->contract_id  = $data['contract_id'];
