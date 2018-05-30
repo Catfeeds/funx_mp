@@ -3,6 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 use Carbon\Carbon;
 use Illuminate\Database\Capsule\Manager as DB;
 use mikehaertl\pdftk\Pdf;
+
 /**
  * User: wws
  * Date: 2018-05-23
@@ -442,24 +443,25 @@ class Contract extends MY_Controller
         }
     }
 
-    function test1(){
 
+   public function test1(){
+    //echo "aa"
         $this->load->model('residentmodel');
-        $resident   = Residentmodel::find(32);
-
-            $name       = $resident->name;
-            $phone      = $resident->phone;
-            $cardNumber = $resident->card_number;
-            $cardType   = $resident->card_type;
-            $customerCA = $this->getCustomerCA(compact('name', 'phone', 'cardNumber', 'cardType'));
-            //生成法大大合同
-            $data=$this->generate($resident, [
-                'type' => Contractmodel::TYPE_FDD,
-                'customer_id'   => $customerCA,
-                ]);
-
+        $resident   = Residentmodel::find(3);
+        $name       = $resident->name;
+        $phone      = $resident->phone;
+        $cardNumber = $resident->card_number;
+        $cardType   = $resident->card_type;
+       // var_dump($resident);
+        $customerCA = $this->getCustomerCA(compact('name', 'phone', 'cardNumber', 'cardType'));
+        //生成法大大合同
+        $data=$this->generate($resident, [
+            'type' => Contractmodel::TYPE_FDD,
+            'customer_id'   => $customerCA,
+            ]);
         $this->api_res(0,$data);
     }
+
     /**
      * @param $resident
      * @return array
