@@ -347,8 +347,8 @@ class Contract extends MY_Controller
 
 //      判断住户合同是否已经归档，有已经归档的合同 就结束
         $this->load->model('contractmodel');
-        $has_contract = $resident->contract()->where('status', Contractmodel::STATUS_ARCHIVED);
-//      $has_contract = $resident->contract();
+//        $has_contract = $resident->contract()->where('status', Contractmodel::STATUS_ARCHIVED);
+        $has_contract = $resident->contract();
         if ($has_contract->exists()) {
             $this->api_res(10015);
             return;
@@ -440,11 +440,11 @@ class Contract extends MY_Controller
         }
     }
 
+
    public function test1(){
-    //echo "aa";
+    //echo "aa"
         $this->load->model('residentmodel');
         $resident   = Residentmodel::find(3);
-
         $name       = $resident->name;
         $phone      = $resident->phone;
         $cardNumber = $resident->card_number;
@@ -456,7 +456,6 @@ class Contract extends MY_Controller
             'type' => Contractmodel::TYPE_FDD,
             'customer_id'   => $customerCA,
             ]);
-
         $this->api_res(0,$data);
     }
 

@@ -20,25 +20,29 @@ class Resident extends MY_Controller
     public function getResident(){
         $input  = $this->input->post(null,true);
         $resident_id   = $this->input->post('resident_id',true);
-        if(isset($input['has_contract'])){
-            //如果有已经归档的合同,跳转到订单状态页面
-            $this->api_res(10016);
-            return;
-        }
-
         $this->load->model('residentmodel');
+        $this->load->model('contractmodel');
+
         //$resident   = Residentmodel::where('uxid',CURRENT_ID)->find($resident_id);
         $resident   = Residentmodel::find($resident_id);
         if(!$resident){
             $this->api_res(1007);
             return;
         }
+        //判断是否有合同
+        if(isset($input['has_contract'])){
+
+            $contract   = $resident->contract();
+            if($contract->exists()){
+                $this->api_res(10016);
+                return;
+            }
+        }
         //验证住户的uxid是不是当前ID
 //        $this->checkUser($resident->uxid);
         $this->load->model('roomunionmodel');
         $this->load->model('activitymodel');
         $this->load->model('coupontypemodel');
-        $this->load->model('contractmodel');
         $this->load->model('ordermodel');
         $this->load->model('customermodel');
         $this->load->model('storemodel');

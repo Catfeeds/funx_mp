@@ -4,6 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 use EasyWeChat\Foundation\Application;
 use EasyWeChat\Payment\Order;
 use Carbon\Carbon;
+use EasyWeChat\Message\Text;
 use Illuminate\Database\Capsule\Manager as DB;
 /**
  * Author:      zjh<401967974@qq.com>
@@ -90,7 +91,7 @@ class Payment extends MY_Controller
                 'detail'        => $store->name . '-' . $roomtype->name,
                 'out_trade_no'  => $out_trade_no,
                 'total_fee'     => $amount * 100,
-                'notify_url'    => site_url("pay/payment/notify"),
+                'notify_url'    => site_url("pay/payment/notify/".$store->id),
                 'openid'        => $this->user->openid,
                 'attach'        => serialize($attach),
             ];
@@ -238,8 +239,16 @@ class Payment extends MY_Controller
      */
     public function notify()
     {
+
+        $store_id    = $this->uri->segment(4);
+
+        $this->load->model('storemodel');
+        $apartment      = Storemodel::findOrFail($store_id);
+
         $this->load->helper('wechat');
         $customerWechatConfig   = getCustomerWechatConfig();
+//      $customerWechatConfig['payment']['merchant_id'] = $apartment->payment_merchant_id;
+//      $customerWechatConfig['payment']['key']         = $apartment->payment_key;
 
         $app    = new Application($customerWechatConfig);
 //        $eApp   = new Application(getEmployeeWechatConfig());
@@ -247,12 +256,7 @@ class Payment extends MY_Controller
 //        $response   = $app->payment->handleNotify(function($notify, $successful) use ($app, $eApp) {
         $response   = $app->payment->handleNotify(function($notify, $successful) use ($app) {
             try {
-                $this->load->model('storepaymodel');
-                $store_id   = Storepaymodel::where('out_trade_no',$notify->out_trade_no)->first()->store_id;
-                $this->load->model('storemodel');
-                $apartment      = Storemodel::findOrFail($store_id);
-//                $customerWechatConfig['payment']['merchant_id'] = $apartment->payment_merchant_id;
-//                $customerWechatConfig['payment']['key']         = $apartment->payment_key;
+
                 $data       = explode('_', $notify->out_trade_no);
                 $number     = $data[0];
                 $attach     = unserialize($notify->attach);
@@ -298,7 +302,9 @@ class Payment extends MY_Controller
                 Couponmodel::whereIn('order_id', $orderIds)->update(['status' => Couponmodel::STATUS_USED]);
 
                 try {
-                    $this->sendTemplateMessages($resident, $number, Ordermodel::PAYWAY_JSAPI, $notify->total_fee / 100);
+                    //发送模板消息
+//                    $this->sendTemplateMessages($resident, $number, Ordermodel::PAYWAY_JSAPI, $notify->total_fee / 100);
+
                 } catch (Exception $e) {
                     log_message('error', '微信支付-模板消息通知失败：' . $e->getMessage());
                     throw $e;

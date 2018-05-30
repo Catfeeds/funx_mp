@@ -53,29 +53,34 @@ class Order extends MY_Controller
         }
 
         //计算总金额
-        $amount = $orders->sum('money');
+        $amount = $orders->sum('money')*100;
         if (0 == $amount) {
             $this->api_res(10018);
             return;
         }
+
+        //分类计算金额
+        $order_class    = $orders->groupBy('type')
+            ->map(function ($order){
+                $order['sum']  = $order->sum('money')*100;
+                return $order;
+            });
 
         $this->load->model('residentmodel');
         $this->load->model('customermodel');
         $this->load->model('roomunionmodel');
         $this->load->model('storemodel');
         $resident   = Residentmodel::select(['id','name','phone','customer_id','room_id'])->find($resident_id);
-//        $customer   = $resident->customer()->select();
+
         $roomunion  = $resident->roomunion()->select(['id','number','store_id','area'])->first();
         $store      = $roomunion->store()->select(['id','name'])->first();
         $this->api_res(0,[
             'store'=>$store,
             'room'=>$roomunion,
-//            'customer'=>$customer,
             'resident'=>$resident,
             'amount'=>$amount,
-            'orders'=>$orders
+            'order_class'=>$order_class
         ]);
     }
-
 
 }

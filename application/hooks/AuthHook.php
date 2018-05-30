@@ -32,6 +32,8 @@ class AuthHook {
             'resident/order/getorderbynumber',
 
             'pay/payment/config',
+            //微信支付回调
+            'pay/payment/notify',
 
             'resident/resident/getresident',
             'resident/contract/sendsms',
