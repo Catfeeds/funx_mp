@@ -68,3 +68,17 @@ $config['customer_wechat_payment_key']          = 'c26cde6c73f3db135556f9cbed016
 $config['customer_wechat_payment_cert_path']    = '/data/wwwroot/fxpms_web/cert/apiclient_cert.pem';
 $config['customer_wechat_payment_key_path']     = '/data/wwwroot/fxpms_web/cert/apiclient_key.pem';
 
+//法大大电子合同接口
+$config['fadada_api_app_secret'] ='PMKQo0b3RCb911OaqmsGAFnw';
+$config['fadada_api_app_id'] ='400388';
+$config['fadada_customer_sign_key_word'] ='RESIDENT_SIGNATURE';
+$config['fadada_api_base_url'] ='https://testapi.fadada.com:8443/api/';
+
+$config['syncPerson_auto.api']  ='syncPerson_auto.api';
+$config['contractFiling.api'] ='contractFiling.api';
+$config['uploadtemplate.api'] ='uploadtemplate.api';
+$config['generate_contract.api'] ='generate_contract.api';
+$config['extsign.api'] ='extsign.api';
+$config['extsign_auto.api'] ='extsign_auto.api';
+
+
