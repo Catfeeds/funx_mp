@@ -18,6 +18,15 @@ class Contractmodel extends Basemodel {
         'resident_id',
         'download_url',
     ];
+
+
+    /**
+     * 合同签署类型
+     */
+    const SIGN_NEW  = 'NEW'; //新签
+    const SIGN_RENEW  = 'RENEW'; //续签
+    const SIGN_CHANGE  = 'CHANGE'; //换房
+
     /**
      * 合同的状态
      */

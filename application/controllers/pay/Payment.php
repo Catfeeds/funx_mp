@@ -302,9 +302,10 @@ class Payment extends MY_Controller
                 Couponmodel::whereIn('order_id', $orderIds)->update(['status' => Couponmodel::STATUS_USED]);
 
                 try {
+
                     //发送模板消息
 //                    $this->sendTemplateMessages($resident, $number, Ordermodel::PAYWAY_JSAPI, $notify->total_fee / 100);
-
+                    log_message('info','微信回调成功发送模板消息');
                 } catch (Exception $e) {
                     log_message('error', '微信支付-模板消息通知失败：' . $e->getMessage());
                     throw $e;
