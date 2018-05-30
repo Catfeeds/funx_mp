@@ -83,16 +83,25 @@ class Payment extends MY_Controller
             $store      = $roomunion->store;
             $roomtype   = $roomunion->roomtype;
             $attach     = ['resident_id' => $residentId];
+            $out_trade_no   = $number.'_'.mt_rand(10, 99);
             $attributes = [
                 'trade_type'    => Ordermodel::PAYWAY_JSAPI,
                 'body'          => $store->name . '-' . $roomtype->name,
                 'detail'        => $store->name . '-' . $roomtype->name,
-                'out_trade_no'  => $number.'_'.mt_rand(10, 99),
+                'out_trade_no'  => $out_trade_no,
                 'total_fee'     => $amount * 100,
-                'notify_url'    => site_url("payment/notify/?store_id=".$store->id),
+                'notify_url'    => site_url("pay/payment/notify"),
                 'openid'        => $this->user->openid,
                 'attach'        => serialize($attach),
             ];
+
+            $this->load->model('storepaymodel');
+            $store_pay  = new Storepaymodel();
+            $store_pay->out_trade_no    = $out_trade_no;
+            $store_pay->store_id    = $store->id;
+            $store_pay->amount  = $amount;
+            $store_pay->save();
+
             $wechatConfig   = getCustomerWechatConfig();
 //            $wechatConfig['payment']['merchant_id'] = $store->payment_merchant_id;
 //            $wechatConfig['payment']['key']         = $store->payment_key;
@@ -113,7 +122,6 @@ class Payment extends MY_Controller
             log_message('error', $e->getMessage());
             throw $e;
         }
-
 
         $this->api_res(0,['json'=>$json]);
     }
@@ -230,15 +238,8 @@ class Payment extends MY_Controller
      */
     public function notify()
     {
-        $this->load->model('storemodel');
-        $apartmentId    = $this->input->get('store_id',true);
-        $this->load->model('storemodel');
-        $apartment      = Storemodel::findOrFail($apartmentId);
-
         $this->load->helper('wechat');
         $customerWechatConfig   = getCustomerWechatConfig();
-        $customerWechatConfig['payment']['merchant_id'] = $apartment->payment_merchant_id;
-        $customerWechatConfig['payment']['key']         = $apartment->payment_key;
 
         $app    = new Application($customerWechatConfig);
 //        $eApp   = new Application(getEmployeeWechatConfig());
@@ -246,6 +247,12 @@ class Payment extends MY_Controller
 //        $response   = $app->payment->handleNotify(function($notify, $successful) use ($app, $eApp) {
         $response   = $app->payment->handleNotify(function($notify, $successful) use ($app) {
             try {
+                $this->load->model('storepaymodel');
+                $store_id   = Storepaymodel::where('out_trade_no',$notify->out_trade_no)->first()->store_id;
+                $this->load->model('storemodel');
+                $apartment      = Storemodel::findOrFail($store_id);
+//                $customerWechatConfig['payment']['merchant_id'] = $apartment->payment_merchant_id;
+//                $customerWechatConfig['payment']['key']         = $apartment->payment_key;
                 $data       = explode('_', $notify->out_trade_no);
                 $number     = $data[0];
                 $attach     = unserialize($notify->attach);

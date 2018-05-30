@@ -48,4 +48,5 @@ class Resident extends MY_Controller
         $data['card_three_url']   = $this->fullAliossUrl($data['card_three_url'] );
         $this->api_res(0,['data'=>$data]);
     }
+
 }

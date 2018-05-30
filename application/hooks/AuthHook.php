@@ -29,6 +29,8 @@ class AuthHook {
             'account/server/checkinorbookingevent',
             'account/server/index',
 
+            'resident/order/getorderbynumber',
+
             'pay/payment/config',
 
             'resident/resident/getresident',
