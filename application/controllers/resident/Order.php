@@ -46,7 +46,7 @@ class Order extends MY_Controller
         $resident_id = $input['resident_id'];
         $number      = $input['number'];
         $this->load->model('ordermodel');
-        $orders = Ordermodel::where(['resident_id'=>$resident_id,'number'=>$number])->get();
+        $orders = Ordermodel::where(['resident_id'=>$resident_id,'number'=>$number])->select(['id','number','money','status','type'])->get();
         if (0 == count($orders)) {
             $this->api_res(10017);
             return;
@@ -63,14 +63,14 @@ class Order extends MY_Controller
         $this->load->model('customermodel');
         $this->load->model('roomunionmodel');
         $this->load->model('storemodel');
-        $resident   = Residentmodel::find($resident_id);
-        $customer   = $resident->customer;
-        $roomunion  = $resident->roomunion;
-        $store      = $roomunion->store;
+        $resident   = Residentmodel::select(['id','name','phone','customer_id','room_id'])->find($resident_id);
+//        $customer   = $resident->customer()->select();
+        $roomunion  = $resident->roomunion()->select(['id','number','store_id','area'])->first();
+        $store      = $roomunion->store()->select(['id','name'])->first();
         $this->api_res(0,[
             'store'=>$store,
             'room'=>$roomunion,
-            'customer'=>$customer,
+//            'customer'=>$customer,
             'resident'=>$resident,
             'amount'=>$amount,
             'orders'=>$orders

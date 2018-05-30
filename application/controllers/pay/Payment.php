@@ -99,6 +99,7 @@ class Payment extends MY_Controller
             $store_pay  = new Storepaymodel();
             $store_pay->out_trade_no    = $out_trade_no;
             $store_pay->store_id    = $store->id;
+            $store_pay->amount  = $amount;
             $store_pay->save();
 
             $wechatConfig   = getCustomerWechatConfig();
