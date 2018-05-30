@@ -36,6 +36,7 @@ class AuthHook {
             'resident/resident/getresident',
             'resident/contract/sendsms',
             'resident/contract/confirm',
+            'resident/contract/test',
 
             'common/imageupload',
             'common/fileupload',
