@@ -53,7 +53,7 @@ class Order extends MY_Controller
         }
 
         //计算总金额
-        $amount = $orders->sum('money');
+        $amount = $orders->sum('money')*100;
         if (0 == $amount) {
             $this->api_res(10018);
             return;
