@@ -413,7 +413,9 @@ class Contract extends MY_Controller
             $contract->room_id  = $resident->room_id;
             $contract->resident_id  = $resident->id;
             $contract->uxid         = $resident->uxid;
+            //此用户id是fdd返回id而不是正常的customer_id
             $contract->customer_id  = $resident->customer_id;
+            //$contract->fdd_customer_id  = $data['fdd_customer_id'];
             $contract->type         = $data['type'];
             $contract->employee_id  = $resident->employee_id;
             $contract->contract_id  = $data['contract_id'];
@@ -421,6 +423,7 @@ class Contract extends MY_Controller
             $contract->download_url = $data['download_url'];
             $contract->view_url     = $data['view_url'];
             $contract->status       = $data['status'];
+            $contract->sign_type       = Contractmodel::SIGN_NEW ;
             $a  = $contract->save();
             //2.生成订单
             $this->load->model('ordermodel');
