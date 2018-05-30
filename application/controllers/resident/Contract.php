@@ -317,7 +317,7 @@ class Contract extends MY_Controller
         log_message('error',json_encode($input));
         $resident_id    = intval(strip_tags($input['resident_id']));
         $phone          = trim(strip_tags($input['phone']));
-        $code           = trim(strip_tags($input['code']));
+//        $code           = trim(strip_tags($input['code']));
         //验证短信验证码
 //        $this->load->library('m_redis');
 //        if(!$this->m_redis->verifyResidentPhoneCode($input['phone'],$input['code'])){
