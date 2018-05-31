@@ -82,6 +82,7 @@ class AuthHook {
             'shop/goodscart/quantitynum',
             'shop/goodscart/accounts',
             'shop/contract/contract',
+            'shop/goodscart/getorder',
 
 
 

@@ -80,6 +80,10 @@ class Roomunionmodel extends Basemodel{
         return $this->belongsTo(Roomtypemodel::class,'room_type_id');
     }
 
+    public function contracts()
+    {
+        return $this->hasMany(Contractmodel::class, 'store_id');
+    }
     //房屋公共智能设备
     public function housesmartdevice(){
 
