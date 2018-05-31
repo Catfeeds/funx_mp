@@ -37,13 +37,14 @@ class Wechat extends MY_Controller
             $this->api_res(1006);
             return false;
         }
+        log_message('debug','---->'.json_encode($user));
         $access_token   = $user['access_token'];
         $refresh_token  = $user['refresh_token'];
         $openid         = $user['openid'];
         $unionid        = $user['unionid'];
         $info_url   = 'https://api.weixin.qq.com/sns/userinfo?access_token'.$access_token.'&openid='.$openid.'&lang=zh_CN';
         $user_info  = $this->httpCurl($info_url,'get','json');
-        log_message('error',json_encode($user_info));
+        log_message('error','---->'.json_encode($user_info));
         $nickname   = $user_info['nickname'];
         $gender     = $user_info['sex'];
         $province   = $user_info['province'];
