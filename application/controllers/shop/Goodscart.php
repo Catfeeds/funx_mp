@@ -162,18 +162,26 @@ class Goodscart extends MY_Controller
     }
 
     /**
-     * 创建订单
+     * 创建订单号 生成待支付商品订单
      */
     public function getorder()
     {
         $this->load->model('ordermodel');
-
+        $post = $this->input->post(null, true);
         $number = Ordermodel::getOrderNumber();
-        echo $number;
-        var_dump($number);
+        $order = new Ordermodel();
+        $order->number = $number;
+        $order->uxid = 7; //CURRENT_ID
+        $order->status = Ordermodel::STATE_PENDING;
+        $order->goods_quantity = trim($post['sum']);
+        $order->goods_money = trim($post['price']);
+        $order->address_id = trim($post['address_id']);
 
-        //$this->api_res(0, $number);
-
+        if($order->save()){
+            $this->api_res(0, $number);
+        }else{
+            $this->api_res(1009);
+        }
     }
 
 }

@@ -61,7 +61,7 @@ class Ordermodel extends Basemodel{
     const DEAL_DONE         = 'DONE';       // 处理
     const DEAL_UNDONE       = 'UNDONE';     // 未处理
 
-    protected $table        = 'web_order';
+    protected $table        = 'boss_shop_order';
 
     protected $fillable     = [
         'deal',
@@ -113,6 +113,9 @@ class Ordermodel extends Basemodel{
     public function roomtype()
     {
         return $this->belongsTo(Roomtypemodel::class, 'room_type_id');
+    }
+    public function address(){
+        return $this->hasMany(Goodsaddressmodel::class,'address_id')->select('id');
     }
 
     /**
