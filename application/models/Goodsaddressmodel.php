@@ -10,4 +10,9 @@ class Goodsaddressmodel extends Basemodel
 {
     protected $table    = 'boss_shop_address';
     protected $hidden   = ['created_at','updated_at','deleted_at'];
+
+
+    public function address(){
+        return $this->belongsTo(Ordermodel::class,'_id')->select('id');
+    }
 }

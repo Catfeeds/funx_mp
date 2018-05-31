@@ -499,14 +499,14 @@ class Contract extends MY_Controller
         $contractCount = $apartment->contracts()
             ->where('created_at', '>=', Carbon::parse($resident->begin_time)->startOfYear())
             ->count();
-       // var_dump($contractCount);
+        //var_dump($contractCount);
         //门店里的合同前缀 - 用户表里的开始时间的年份 - 000格式合同数量自增 - 用户名 - 房间表的房间号
-      //exit;
+        //exit;
         //$resident->begin_time->year
         $contractNumber = $apartment->contract_number_prefix . '-' . Carbon::parse($resident->begin_time)->year . '-' .
             sprintf("%03d", ++$contractCount) . '-' . $resident->name . '-' . $room->number;
-     //  var_dump($contractNumber);
-       // 确定合同结束的时间
+        //var_dump($contractNumber);
+        // 确定合同结束的时间
         $now = Carbon::now();
         //所有的整数都转换成了字符串类型, 否则调用接口会出错
         $parameters = array(
@@ -539,8 +539,8 @@ class Contract extends MY_Controller
             'day'                 => "{$now->day}",
             'attachment_2_date'   => $now->format('Y-m-d'),
         );
-      //var_dump($parameters);
-      //  exit;
+        //var_dump($parameters);
+        //  exit;
         //如果是短租, 单日价格是(房租原价*1.2/30 + 物业费/30)
         if (Residentmodel::RENTTYPE_SHORT == $rentType) {
             $shortDayPrice = ceil($room->rent_money * 1.2 / 30 + $resident->real_property_costs / 30);

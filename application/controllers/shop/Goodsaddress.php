@@ -97,43 +97,43 @@ class Goodsaddress extends MY_Controller
     /**
      * 表单验证规则
      */
-        private function validation()
-        {
-           $this->load->library('form_validation');
-           $config = array(
-               array(
-                   'field' => 'uxid',
-                   'label' => '客户id',
-                   'rules' => 'trim|required',
-               ),
-               array(
-                   'field' => 'apartment',
-                   'label' => '公寓',
-                   'rules' => 'trim|required',
-               ),
-               array(
-                   'field' => 'building',
-                   'label' => '楼',
-                   'rules' => 'trim|required',
-               ),
-               array(
-                   'field' => 'room_number',
-                   'label' => '房间号',
-                   'rules' => 'trim|required',
-               ),
-               array(
-                   'field' => 'name',
-                   'label' => '收货人',
-                   'rules' => 'trim|required',
-               ),
-               array(
-                   'field' => 'phone',
-                   'label' => '电系电话',
-                   'rules' => 'trim|required',
-               ),
-           );
-            $this->form_validation->set_rules($config)->set_error_delimiters('','');
-            return $this->form_validation->run();
-        }
+    private function validation()
+    {
+       $this->load->library('form_validation');
+       $config = array(
+           array(
+               'field' => 'uxid',
+               'label' => '客户id',
+               'rules' => 'trim|required',
+           ),
+           array(
+               'field' => 'apartment',
+               'label' => '公寓',
+               'rules' => 'trim|required',
+           ),
+           array(
+               'field' => 'building',
+               'label' => '楼',
+               'rules' => 'trim|required',
+           ),
+           array(
+               'field' => 'room_number',
+               'label' => '房间号',
+               'rules' => 'trim|required',
+           ),
+           array(
+               'field' => 'name',
+               'label' => '收货人',
+               'rules' => 'trim|required',
+           ),
+           array(
+               'field' => 'phone',
+               'label' => '电系电话',
+               'rules' => 'trim|required',
+           ),
+       );
+        $this->form_validation->set_rules($config)->set_error_delimiters('','');
+        return $this->form_validation->run();
+    }
 
 }
