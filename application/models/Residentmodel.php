@@ -275,6 +275,31 @@ class Residentmodel extends Basemodel{
     }
 
 
+    /**
+     * 检索住户
+     */
+    public function queryIndex($query, array $ids = [])
+    {
+        $perPage    = isset($query['per_page']) ? $query['per_page'] : config('strongberry.pageSize');
+        $residents  = Resident::with('customer')->whereIn('id', $ids);
+
+        if (isset($query['status']) && in_array($query['status'], [
+                Residentmodel::STATE_RESERVE,
+                Residentmodel::STATE_NORMAL,
+                Residentmodel::STATE_NOTPAY,
+                Residentmodel::STATE_NORMAL_REFUND,
+                Residentmodel::STATE_UNDER_CONTRACT,
+                Residentmodel::STATE_RENEWAL,
+                Residentmodel::STATE_CHANGE_ROOM,
+            ])) {
+            $residents  = $residents->where('status', $query['status']);
+        }
+
+        $residents  = $residents->orderBy('end_time', 'ASC')->orderBy('room_id', 'ASC')->paginate($perPage);
+
+        return $residents;
+    }
+
 
 
 
