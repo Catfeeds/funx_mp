@@ -6,47 +6,47 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * Time:        17:10
  * Describe:
  */
-    /**
-     * 将数据进行json编码
-     */
-    function JSON($data)
-    {
-        return json_encode($data, JSON_UNESCAPED_UNICODE);
-    }
-
-    /**
-     * ajax 返回 json 数据
-     */
-    function jsonResponse($data)
-    {
-        header("Content-Type : application/json; charset=utf-8");
-        echo self::JSON($data);
-        exit;
-    }
-
-    /**
-     * ajax 返回成功消息
-     */
-    function success($message, $data = array())
-    {
-        self::jsonResponse(array(
-            'code'      => 'success',
-            'message'   => $message,
-            'data'      => $data,
-        ));
-    }
-
-    /**
-     * ajax 返回错误消息
-     */
-    function error($message, $data = array())
-    {
-        self::jsonResponse(array(
-            'code'      => 'error',
-            'message'   => $message,
-            'data'      => $data,
-        ));
-    }
+//    /**
+//     * 将数据进行json编码
+//     */
+//    function JSON($data)
+//    {
+//        return json_encode($data, JSON_UNESCAPED_UNICODE);
+//    }
+//
+//    /**
+//     * ajax 返回 json 数据
+//     */
+////    function jsonResponse($data)
+////    {
+////        header("Content-Type : application/json; charset=utf-8");
+////        echo self::JSON($data);
+////        exit;
+////    }
+//
+////    /**
+////     * ajax 返回成功消息
+////     */
+////    function success($message, $data = array())
+////    {
+////        self::jsonResponse(array(
+////            'code'      => 'success',
+////            'message'   => $message,
+////            'data'      => $data,
+////        ));
+////    }
+//
+//    /**
+//     * ajax 返回错误消息
+//     */
+//    function error($message, $data = array())
+//    {
+//        self::jsonResponse(array(
+//            'code'      => 'error',
+//            'message'   => $message,
+//            'data'      => $data,
+//        ));
+//    }
 
     /**
      * 检测手机号码

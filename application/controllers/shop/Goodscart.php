@@ -160,4 +160,20 @@ class Goodscart extends MY_Controller
         $sum = $goodscarts->sum('sum');
         $this->api_res(0, ['goodscarts' => $goodscarts, 'price' => $price ,'sum' =>$sum]);
     }
+
+    /**
+     * 创建订单
+     */
+    public function getorder()
+    {
+        $this->load->model('ordermodel');
+
+        $number = Ordermodel::getOrderNumber();
+        echo $number;
+        var_dump($number);
+
+        //$this->api_res(0, $number);
+
+    }
+
 }

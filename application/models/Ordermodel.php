@@ -116,12 +116,20 @@ class Ordermodel extends Basemodel{
     }
 
     /**
+     * 生成新的订单编号
+     */
+    public static function newNumber($cityAbbreviation = '', $apartmentAbbreviation = '')
+    {
+        return strtoupper($cityAbbreviation) . strtoupper($apartmentAbbreviation) . date('YmdHis') . mt_rand(1000, 9999);
+    }
+
+    /**
      * 生成随机数作为订单编号
      */
-    public function getOrderNumber()
+    public static function getOrderNumber()
     {
-
-        return date('YmdHis').mt_rand(1000000000, 9999999999);
+    //    return date('YmdHis').mt_rand(1000000000, 9999999999);
+        return date('YmdHis').mt_rand(100000000, 999999999);
 //        return date('YmdHis').mt_rand(1, 100000);
     }
 
