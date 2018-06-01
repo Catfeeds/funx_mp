@@ -394,7 +394,7 @@ class Server extends MY_Controller
         //有未支付的预订订单, 则应该去支付
         if (0 < $bookingOrdersCnt) {
 //            $url    = $loginUrl.site_url(['order', 'status']);
-            $url    = '预定订单支付页面';
+            $url    = 'http://tweb.funxdata.com/#/myBill';
         } else {
 //            $url    = $loginUrl.site_url(['contract', 'preview', $resident->id]);
             $url    = 'tweb.funxdata.com/#/generates?resident_id='.$resident->id;
