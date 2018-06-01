@@ -81,9 +81,19 @@ class Goodsordermodel extends Basemodel
         'pay_status',
     ];
 
-    protected $table  = 'boos_shop_order';
+    protected $table  = 'boss_shop_order';
 
     protected $hidden = ['created_at','updated_at','deleted_at'];
+
+    /**
+     * 生成随机数作为订单编号
+     */
+    public static function getOrderNumber()
+    {
+        //    return date('YmdHis').mt_rand(1000000000, 9999999999);
+        return date('YmdHis').mt_rand(100000000, 999999999);
+//        return date('YmdHis').mt_rand(1, 100000);
+    }
 
     public function address(){
         return $this->hasMany(Goodsaddressmodel::class,'address_id')->select('id');
