@@ -489,6 +489,7 @@ class Contract extends MY_Controller
         $this->load->model('roomunionmodel');
         $this->load->model('storemodel');
         $this->load->model('roomtypemodel');
+      //  $this->load->model('contractmodel');
 //        //生成该合同的编号
         $room = $resident->roomunion;
         $apartment = $resident->roomunion->store;
@@ -502,7 +503,6 @@ class Contract extends MY_Controller
         //var_dump($contractCount);
         //门店里的合同前缀 - 用户表里的开始时间的年份 - 000格式合同数量自增 - 用户名 - 房间表的房间号
         //exit;
-        //$resident->begin_time->year
         $contractNumber = $apartment->contract_number_prefix . '-' . Carbon::parse($resident->begin_time)->year . '-' .
             sprintf("%03d", ++$contractCount) . '-' . $resident->name . '-' . $room->number;
         //var_dump($contractNumber);
@@ -556,22 +556,51 @@ class Contract extends MY_Controller
 //        exit;
         $this->load->model('contractmodel');
         $contract = new Contractmodel();
-        $contract->doc_title = $parameters['contract_number'];                     //合同号 标题
+        $contract->doc_title = $parameters['contract_number'];                  //合同号 标题
         $contract->contract_id = $contractId;
 
         //上传合同
-        $docTitle   = $parameters['contract_number'];
-        $templateId = $apartment->fdd_customer_id;
-        //$templateId = $type['customer_id'];
-        $res1 = $this->fadada->uploadTemplate($docTitle,$templateId);
+        //$docTitle   = $parameters['contract_number'];
+
+         $templateId = $apartment->fdd_customer_id;
+
+        //合同模板pdf
+       // $this->load->library('fadada');
+        $this->load->library('upload', [
+            'upload_path'   => 'temp',
+            'allowed_types' => 'pdf',
+            'encrypt_name'  => true,
+        ]);
+
+        if (!$this->upload->do_upload('contracttpl')) {
+
+            throw new Exception($this->upload->display_errors());
+        }
+        $file   = $this->upload->data();
+
+//        $templateId = file("D:\Desktop\授权模板.pdf");
+//        foreach ($contract as $value){
+//            $templateId['fdd_customer_id'] = $this->fullAliossUrl($value['url']);
+//        }
+//        $res1 = $this->fadada->uploadTemplate($templateId);
 
         if (Contractmodel::TYPE_FDD == $type['type']) {
 
-            if(!isset($res1)){
-             throw new Exception('未找到相应的合同模板, 请稍后重试!');
-            }
+            $docUrl     = site_url(['temp', $file['file_name']]);
+            $templateId = date('YmdHis').mt_rand(10, 99);
+            $res1        = $this->fadada->uploadTemplate($docUrl, $templateId);
 
-//          if (!isset( Carbon::parse($room->roomtype->fdd_tpl_id)[$rentType])) {
+            if (!$res1) {
+                throw new Exception($this->fadada->showError());
+            }
+            $idInfo                 = is_array($room->roomtype->fdd_tpl_id) ? $room->roomtype->fdd_tpl_id : [];
+            $idInfo[$rentType]      = $templateId;
+            $rentType->fdd_tpl_id   = $idInfo;
+
+//            if(!isset($res1)){
+//             throw new Exception('未找到相应的合同模板, 请稍后重试!');
+//            }
+//            if (!isset( Carbon::parse($room->roomtype->fdd_tpl_id)[$rentType])) {
 //               throw new Exception('未找到相应的合同模板, 请稍后重试!');
 //            }
             //向法大大系统发送请求
@@ -585,11 +614,9 @@ class Contract extends MY_Controller
                 12
             );
        // var_dump($res);die();
-
 //            if (false == $res) {
 //                throw new Exception($this->fadada->showError());
 //            }
-
 //            $contract->type             = Contractmodel::TYPE_FDD;
 //            $contract->uxid             = $type['uxid'];
 //            $contract->download_url     = $res['download_url'];
@@ -639,7 +666,6 @@ class Contract extends MY_Controller
                 'status' => Contractmodel::STATUS_ARCHIVED,                         //给个状态//合同已经生成
             );
         }
-
     }
 //        $contract->city_id      = $apartment->city->id;
 //        $contract->apartment_id = $apartment->id;
