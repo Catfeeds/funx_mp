@@ -377,6 +377,7 @@ class Server extends MY_Controller
                 $resident->orders()->where('uxid', 0)->update(['customer_id' => $customer->id,'uxid'=>$customer->uxid]);
                 DB::commit();
             }catch (Exception $e){
+                log_message('error',$e->getMessage());
                 DB::rollBack();
                 throw  $e;
             }
