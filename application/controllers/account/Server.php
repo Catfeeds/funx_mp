@@ -27,6 +27,7 @@ class Server extends MY_Controller
     public function __construct()
     {
         parent::__construct();
+        $this->load->model('customermodel');
         $this->load->helper('wechat');
         $this->app = new Application(getCustomerWechatConfig());
     }
@@ -352,6 +353,7 @@ class Server extends MY_Controller
         $this->load->model('roomunionmodel');  
         $this->load->model('roomtypemodel');
         $this->load->model('storemodel');
+
         //$eventKey=182;
         $resident   = Residentmodel::findOrFail($eventKey);
 
@@ -375,6 +377,7 @@ class Server extends MY_Controller
                 $resident->orders()->where('uxid', 0)->update(['customer_id' => $customer->id,'uxid'=>$customer->uxid]);
                 DB::commit();
             }catch (Exception $e){
+                log_message('error',$e->getMessage());
                 DB::rollBack();
                 throw  $e;
             }
@@ -391,7 +394,7 @@ class Server extends MY_Controller
         //有未支付的预订订单, 则应该去支付
         if (0 < $bookingOrdersCnt) {
 //            $url    = $loginUrl.site_url(['order', 'status']);
-            $url    = '预定订单支付页面';
+            $url    = 'http://tweb.funxdata.com/#/myBill';
         } else {
 //            $url    = $loginUrl.site_url(['contract', 'preview', $resident->id]);
             $url    = 'tweb.funxdata.com/#/generates?resident_id='.$resident->id;

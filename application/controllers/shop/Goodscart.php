@@ -160,4 +160,28 @@ class Goodscart extends MY_Controller
         $sum = $goodscarts->sum('sum');
         $this->api_res(0, ['goodscarts' => $goodscarts, 'price' => $price ,'sum' =>$sum]);
     }
+
+    /**
+     * 创建订单号 生成待支付商品订单
+     */
+    public function getorder()
+    {
+        $this->load->model('goodsordermodel');
+        $post = $this->input->post(null, true);
+        $number = Goodsordermodel::getOrderNumber();
+        $order = new Goodsordermodel();
+        $order->number = $number;
+        $order->uxid = 7; //CURRENT_ID
+        $order->status = Goodsordermodel::STATE_PENDING;
+        $order->goods_quantity = trim($post['sum']);
+        $order->goods_money = trim($post['price']);
+        $order->address_id = trim($post['address_id']);
+
+        if($order->save()){
+            $this->api_res(0, $number);
+        }else{
+            $this->api_res(1009);
+        }
+    }
+
 }

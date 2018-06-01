@@ -114,14 +114,25 @@ class Ordermodel extends Basemodel{
     {
         return $this->belongsTo(Roomtypemodel::class, 'room_type_id');
     }
+    public function address(){
+        return $this->hasMany(Goodsaddressmodel::class,'address_id')->select('id');
+    }
+
+    /**
+     * 生成新的订单编号
+     */
+    public static function newNumber($cityAbbreviation = '', $apartmentAbbreviation = '')
+    {
+        return strtoupper($cityAbbreviation) . strtoupper($apartmentAbbreviation) . date('YmdHis') . mt_rand(1000, 9999);
+    }
 
     /**
      * 生成随机数作为订单编号
      */
-    public function getOrderNumber()
+    public static function getOrderNumber()
     {
-
-        return date('YmdHis').mt_rand(1000000000, 9999999999);
+    //    return date('YmdHis').mt_rand(1000000000, 9999999999);
+        return date('YmdHis').mt_rand(100000000, 999999999);
 //        return date('YmdHis').mt_rand(1, 100000);
     }
 
@@ -167,6 +178,28 @@ class Ordermodel extends Basemodel{
 
         $deposit_money          = $resident->deposit_money;     //押金
         $tmp_deposit            = $resident->tmp_deposit;       //其他押金
+
+        //续租时的订单处理, 可能需要更改
+        if (isset($resident->data['renewal'])) {
+            $depositMoney       = $resident->data['renewal']['delt_deposit'];
+            $tmpDepositMoney    = $resident->data['renewal']['new_tmp_deposit'];
+        }
+
+        //预订转入住, 订金转押金, 订金可以抵扣一部分押金
+        if (0 < $resident->book_money) {
+            $ordersBooking  = $resident->orders()
+                ->where([
+                    'status'    => Ordermodel::STATE_COMPLETED,
+                    'type'      => Ordermodel::PAYTYPE_RESERVE,
+                ])
+                ->get();
+
+            $moneyBooking   = $ordersBooking->sum('paid');
+            $deposit_money   = $deposit_money > $moneyBooking ?  $deposit_money - $moneyBooking : 0;
+
+            //用ORM会自动更新updated_at, 因此在这里用DB门面操作
+            Ordermodel::whereIn('id', $ordersBooking->pluck('id')->toArray())->update(['type' => Ordermodel::PAYTYPE_DEPOSIT_R]);
+        }
 
 
         //房租押金子订单

@@ -39,21 +39,20 @@ class Fadada
      */
     public function getCustomerCA($name, $phone, $id_card, $id_type = 0, $email = '')
     {
-        try {
+        try {                                         //身份证号|手机号码
             $id_mobile  = (new Crypt3des())::encrypt($id_card . '|' . $phone, config_item('fadada_api_app_secret'));
             $url        = $this->getApiUrl('syncPerson_auto.api');
             $msgDigest  = array(
-                'md5'  => ['timestamp' => date('YmdHis'),],
-                'sha1' => [config_item('fadada_api_app_secret')]
+                'md5'  => ['timestamp' => date('YmdHis'),],                  //请求时间
+                'sha1' => [config_item('fadada_api_app_secret')]                     // 秘钥
             );
             $reqData    = array(
                 'customer_name' => $name,
                 'ident_type'    => $id_type,
                 'id_mobile'     => $id_mobile,
             );
-
+           // $res = $this->requestFdd($response, $reqData, $msgDigest);
             $res = $this->requestFdd($url, $reqData, $msgDigest);
-
         } catch (Exception $e) {
             $this->error = $e->getMessage();
             return false;
@@ -91,7 +90,6 @@ class Fadada
             $this->error = $e->getMessage();
             return false;
         }
-
         return $res;
     }
 

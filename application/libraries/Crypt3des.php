@@ -21,9 +21,9 @@ class Crypt3des
 
     /**
      * 3des加密
-     * @param  $string 待加密的字符串
-     * @param  $key 加密用的密钥
-     * @return 加密后的字符串
+     * @param  $string //待加密的字符串
+     * @param  $key //加密用的密钥
+     * @return //加密后的字符串
      */
     static function encrypt($string, $key)
     {
