@@ -27,6 +27,7 @@ class Server extends MY_Controller
     public function __construct()
     {
         parent::__construct();
+        $this->load->model('customermodel');
         $this->load->helper('wechat');
         $this->app = new Application(getCustomerWechatConfig());
     }
@@ -352,6 +353,7 @@ class Server extends MY_Controller
         $this->load->model('roomunionmodel');  
         $this->load->model('roomtypemodel');
         $this->load->model('storemodel');
+
         //$eventKey=182;
         $resident   = Residentmodel::findOrFail($eventKey);
 
