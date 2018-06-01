@@ -140,7 +140,6 @@ class Fadada
 
             $msgDigest  = array(
                 'sha1'  => [config_item('fadada_api_app_secret'), $templateId, $contractId],
-               // 'sha1'  => [config_item('fadada_api_app_secret', $templateId, $contractId],
                 'md5'   => ['timestamp' => date('YmdHis')],
                 'other' => $parameterMap,
             );

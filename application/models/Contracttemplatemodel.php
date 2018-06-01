@@ -12,4 +12,9 @@ class Contracttemplatemodel extends Basemodel{
     protected $hidden   = ['created_at','updated_at','deleted_at'];
 
 
+    public function templateurl(){
+
+        return $this->hasMany(Storemodel::class,'store_id')->select('id');
+    }
+
 }

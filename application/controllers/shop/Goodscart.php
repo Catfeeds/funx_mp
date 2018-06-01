@@ -178,10 +178,43 @@ class Goodscart extends MY_Controller
         $order->address_id = trim($post['address_id']);
 
         if($order->save()){
-            $this->api_res(0, $number);
+            $this->api_res(0,['ordernum'=>$number]);
         }else{
             $this->api_res(1009);
         }
     }
 
+    /**
+     * 立即购买
+     */
+    public function nowBuy()
+    {
+        $this->load->model('goodsmodel');
+        $post = $this->input->post(null, true);
+        $goodsid = intval(trim($post['id']));
+        $uxid = 7;
+        $field = ['id','name','shop_price','description','goods_thumb'];
+        if (isset($uxid)) {
+            //$goodscart = Goodscartmodel::with('goods')->where('id', $goods_id)->get($field)->toArray();
+            $goods = Goodsmodel::where('id', $goodsid)->get($field);
+            foreach ($goods as $key => $value) {
+                $goods[$key]['goods_thumb'] = $this->fullAliossUrl(($goods[$key]['goods_thumb']));
+            }
+            //var_dump($goods);die();
+            $cart = new Goodscartmodel();
+            $cart->uxid = 7;
+            $cart->goods_id = $goodsid;
+            $cart->quantity = 1;
+            if($cart->save()){
+                $cartid = $cart->id;
+                //var_dump($cartid);die;
+                $this->api_res(0, ['goods'=>$goods,'cart_id'=>$cartid]);
+            }else{
+                $this->api_res(1009);
+            }
+        } else {
+            $this->api_res(1005);
+        }
+
+    }
 }
