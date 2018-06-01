@@ -6,7 +6,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * Time:        11:06
  * Describe:    优惠活动
  */
-class Activity extends MY_Controller
+class Roomlist extends MY_Controller
 {
     public function __construct()
     {
