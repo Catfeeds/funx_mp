@@ -166,13 +166,13 @@ class Goodscart extends MY_Controller
      */
     public function getorder()
     {
-        $this->load->model('ordermodel');
+        $this->load->model('goodsordermodel');
         $post = $this->input->post(null, true);
-        $number = Ordermodel::getOrderNumber();
-        $order = new Ordermodel();
+        $number = Goodsordermodel::getOrderNumber();
+        $order = new Goodsordermodel();
         $order->number = $number;
         $order->uxid = 7; //CURRENT_ID
-        $order->status = Ordermodel::STATE_PENDING;
+        $order->status = Goodsordermodel::STATE_PENDING;
         $order->goods_quantity = trim($post['sum']);
         $order->goods_money = trim($post['price']);
         $order->address_id = trim($post['address_id']);
