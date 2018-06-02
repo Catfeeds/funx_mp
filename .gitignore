@@ -1,6 +1,7 @@
 application/logs/
 application/cache/
 public/.htaccess
+public/temp
 
 .DS_Store
 .idea/

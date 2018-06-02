@@ -3,7 +3,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 use Carbon\Carbon;
 use Illuminate\Database\Capsule\Manager as DB;
 use mikehaertl\pdftk\Pdf;
-use Illuminate\Database\Query\Builder;
 
 /**
  * User: wws
@@ -449,41 +448,41 @@ class Contract extends MY_Controller
 
    public function test1(){
        // phpinfo();
-     // echo 1;
-     //die();
+       // echo 1;
+       // die();
         $this->load->model('residentmodel');
         $this->load->model('contractmodel');
         $resident   = Residentmodel::find(3);
 
-      //  var_dump($resident);die();
-//        $name       = $resident->name;
-//        $phone      = $resident->phone;
-//        $cardNumber = $resident->card_number;
-//        $cardType   = $resident->card_type;
-//       // var_dump($resident);
-//       //申请用户证书
-//       $customerCA = $this->getCustomerCA(compact('name', 'phone', 'cardNumber', 'cardType'));
-//   //  var_dump($customerCA);die();
+        //var_dump($resident);die();
+        $name       = $resident->name;
+        $phone      = $resident->phone;
+        $cardNumber = $resident->card_number;
+        $cardType   = $resident->card_type;
+       // var_dump($resident);
+       //申请用户证书
+        $customerCA = $this->getCustomerCA(compact('name', 'phone', 'cardNumber', 'cardType'));
+   //  var_dump($customerCA);die();
 
-//        //生成法大大合同
-//        $data=$this->generate($resident, [
-//            'type' => Contractmodel::TYPE_FDD,
-//            'customer_id'   => $customerCA,
-//            ]);
+        //生成法大大合同
+        $data=$this->generate($resident, [
+            'type' => Contractmodel::TYPE_FDD,
+            'customer_id'   => $customerCA,
+            ]);
 
-       //生成纸质版合同
-       $data   = $this->generate($resident, ['type' => Contractmodel::TYPE_NORMAL]);
-            $orderUnpaidCount   = $resident->orders()
-                ->whereIn('status', [Ordermodel::STATE_AUDITED, Ordermodel::STATE_PENDING, Ordermodel::STATE_CONFIRM])
-                ->count();
-
-            if (0 == $orderUnpaidCount) {
-                $resident->update(['status' => Residentmodel::STATE_NORMAL]);
-                $resident->room->update(['status' => Roommodel::STATE_RENT]);
-                $this->api_res(0);
-                return;
-            }
-       $this->api_res(0,$data);
+//       //生成纸质版合同
+//       $data   = $this->generate($resident, ['type' => Contractmodel::TYPE_NORMAL]);
+//            $orderUnpaidCount   = $resident->orders()
+//                ->whereIn('status', [Ordermodel::STATE_AUDITED, Ordermodel::STATE_PENDING, Ordermodel::STATE_CONFIRM])
+//                ->count();
+//
+//            if (0 == $orderUnpaidCount) {
+//                $resident->update(['status' => Residentmodel::STATE_NORMAL]);
+//                $resident->room->update(['status' => Roommodel::STATE_RENT]);
+//                $this->api_res(0);
+//                return;
+//            }
+        $this->api_res(0,$data);
     }
 
     /**
@@ -508,7 +507,7 @@ class Contract extends MY_Controller
         $rentType = $resident->rent_type;              //租金 //长租-短租
         //var_dump($apartment);
         //exit;
-//        //统计今年门店的合同的数量
+//      统计今年门店的合同的数量
         $contractCount = $apartment->contracts()
             ->where('created_at', '>=', Carbon::parse($resident->begin_time)->startOfYear())
             ->count();
@@ -587,13 +586,15 @@ class Contract extends MY_Controller
 //            $docUrl     = Storemodel:: with('templateurl');
             // echo 1; die();
             $field = ['url'];
-            $docUrl = Contracttemplatemodel::where('store_id', $apartment->id)->get($field)->toArray();
+            $docUrl = Contracttemplatemodel::where('store_id', $apartment->id)->get($field);
+          //  $res1 =  Contracttemplatemodel::where('store_id', $apartment->id)->get(['rent_type']);
+            //var_dump($res1);die();
 //            foreach ($docUrl as $value){
 //                $docUrl['url'] = $value['url'];
 //            }
-            //var_dump($docUrl);die();
             $templateId = date('YmdHis') . mt_rand(10, 99);
             $res1 = $this->fadada->uploadTemplate($docUrl, $templateId);
+
             // var_dump($res1);die();
 //            if (!$res1) {
 //                throw new Exception($this->fadada->showError());
@@ -613,7 +614,6 @@ class Contract extends MY_Controller
             $res = $this->fadada->generateContract(        //合同生成接口 //根据之前上传的合同模板生成合同
                 $parameters['contract_number'],
                 $res1,
-                // $templateId,
                 // Carbon::parse($room->roomtype->fdd_tpl_id)[$rentType],
                 $contractId,
                 $parameters,
@@ -680,21 +680,7 @@ class Contract extends MY_Controller
         );
    }
 }
-//        $contract->city_id      = $apartment->city->id;
-//        $contract->apartment_id = $apartment->id;
-//        $contract->resident_id  = $resident->id;
-//        $contract->contract_id  = $contractId;
-//        $contract->room_id      = $room->id;
-//        $contract->save();
 
-//            return array(
-//                'type' => 'FDD',                                  //合同类型
-//                'contract_id' => 'JINDI123456789',                //合同编号
-//                'doc_title' => "title",                           //合同标题
-//                'download_url' => 'url_download',
-//                'view_url' => 'url_view',
-//                'status' => Contractmodel::STATUS_GENERATED,
-//            );
 
     /**
      * 申请用户证书

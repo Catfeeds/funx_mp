@@ -167,6 +167,7 @@ class Goodscart extends MY_Controller
     public function getorder()
     {
         $this->load->model('goodsordermodel');
+        $this->load->model('goodsordergoodsmodel');
         $post = $this->input->post(null, true);
         $number = Goodsordermodel::getOrderNumber();
         $order = new Goodsordermodel();
@@ -176,9 +177,21 @@ class Goodscart extends MY_Controller
         $order->goods_quantity = trim($post['sum']);
         $order->goods_money = trim($post['price']);
         $order->address_id = trim($post['address_id']);
-
+        $ids = trim($post['goodes_ids']);
+        //$goodsids         = isset($ids)?explode(',',$ids):NULL;
+       //var_dump($ids);die();
         if($order->save()){
-            $this->api_res(0,['ordernum'=>$number]);
+            $ordergoods = new Goodsordergoodsmodel();
+            $ordergoods->quantity = $order->goods_quantity;
+            $ordergoods->price = $order->goods_money;
+            $ordergoods->goods_id = $ids;
+            $ordergoods->order_id = $order->id;
+            if($ordergoods->save()){
+               // echo 1;die();
+                $this->api_res(0,['ordernum'=>$number]);
+            }else{
+                $this->api_res(1009);
+            }
         }else{
             $this->api_res(1009);
         }
