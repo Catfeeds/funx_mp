@@ -243,17 +243,15 @@ class Payment extends MY_Controller
         $store_id    = $this->uri->segment(4);
 
         $this->load->model('storemodel');
-        $apartment      = Storemodel::findOrFail($store_id);
+        $store      = Storemodel::findOrFail($store_id);
 
         $this->load->helper('wechat');
         $customerWechatConfig   = getCustomerWechatConfig();
-//      $customerWechatConfig['payment']['merchant_id'] = $apartment->payment_merchant_id;
-//      $customerWechatConfig['payment']['key']         = $apartment->payment_key;
+//      $customerWechatConfig['payment']['merchant_id'] = $store->payment_merchant_id;
+//      $customerWechatConfig['payment']['key']         = $store->payment_key;
 
         $app    = new Application($customerWechatConfig);
-//        $eApp   = new Application(getEmployeeWechatConfig());
 
-//        $response   = $app->payment->handleNotify(function($notify, $successful) use ($app, $eApp) {
         $response   = $app->payment->handleNotify(function($notify, $successful) use ($app) {
             try {
 
@@ -268,6 +266,10 @@ class Payment extends MY_Controller
                 if (!count($resident)) {
                     return true;
                 }
+
+//                if(!$successful){
+//                    return true;
+//                }
                 $this->load->model('ordermodel');
                 $orders     = $resident->orders()->where('number', $number)->get();
 
@@ -302,6 +304,7 @@ class Payment extends MY_Controller
                 Couponmodel::whereIn('order_id', $orderIds)->update(['status' => Couponmodel::STATUS_USED]);
 
                 try {
+
 
                     //发送模板消息
 //                    $this->sendTemplateMessages($resident, $number, Ordermodel::PAYWAY_JSAPI, $notify->total_fee / 100);
