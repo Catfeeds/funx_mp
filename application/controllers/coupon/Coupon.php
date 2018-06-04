@@ -27,4 +27,5 @@ class Coupon extends MY_Controller
         $this->api_res(0,$coupon);
     }
 
+
 }
