@@ -106,12 +106,13 @@ class Fadada
                 'doc_url'     => $docUrl,
                 'template_id' => $templateId,
             );
-
+          //  var_dump($reqData);die();
             $msgDigest  = array(
-                'sha1' => [config_item('fadada_api_app_secret'), $templateId],
                 'md5'  => ['timestamp' => date('YmdHis')],
-            );
+                'sha1' => [config_item('fadada_api_app_secret'), $templateId],
 
+            );
+            //var_dump($msgDigest);die();
             $res = $this->requestFdd($url, $reqData, $msgDigest);
         } catch (Exception $e) {
             $this->error = $e->getMessage();
@@ -129,7 +130,9 @@ class Fadada
     {
         try {
             $url          = $this->getApiUrl('generate_contract.api');         // 生成各个接口的具体URL
+           // var_dump($url);die();
             $parameterMap = json_encode($parameters);
+           // var_dump($parameterMap);die();
             $reqData      = array(
                 'doc_title'     => $docTitle,
                 'template_id'   => $templateId,
@@ -137,15 +140,15 @@ class Fadada
                 'parameter_map' => json_encode($parameters),
                 'font_size'     => $fontSize,
             );
-
+            //var_dump($reqData);die();
             $msgDigest  = array(
                 'sha1'  => [config_item('fadada_api_app_secret'), $templateId, $contractId],
-               // 'sha1'  => [config_item('fadada_api_app_secret', $templateId, $contractId],
                 'md5'   => ['timestamp' => date('YmdHis')],
                 'other' => $parameterMap,
             );
-
+           //var_dump($msgDigest);die();
             $res = $this->requestFdd($url, $reqData, $msgDigest);           //向法大大系统发送请求
+           var_dump($res);die();
         } catch (Exception $e) {
             $this->error = $e->getMessage();
             return false;
@@ -177,7 +180,6 @@ class Fadada
                     'timestamp'      => date('YmdHis'),
                 ],
             );
-
             $data = array(
                 'url'               => $this->getApiUrl('extsign.api'),
                 'app_id'            => config_item('fadada_api_app_id'),
@@ -254,7 +256,7 @@ class Fadada
         if ($request['result'] != 'success') {
             throw new Exception($request['msg']);
         }
-
+        //var_dump($request);die();
         return $request;
     }
 
@@ -282,17 +284,18 @@ class Fadada
 
         foreach ($msgDigestArr['sha1'] as $str) {
             $sha1Str .= $str;
+           // var_dump($sha1Str);die();
         }
 
         $md5Str     = strtoupper(md5($md5Str));
         $sha1Str    = strtoupper(sha1($sha1Str));
-
+       // var_dump($sha1Str);die();
         $orgStr = config_item('fadada_api_app_id') . $md5Str . $sha1Str;
 
         if (isset($msgDigestArr['other'])) {
             $orgStr .= $msgDigestArr['other'];
         }
-
+        //var_dump(base64_encode(strtoupper(sha1($orgStr))));die();
         return base64_encode(strtoupper(sha1($orgStr)));
     }
 }
