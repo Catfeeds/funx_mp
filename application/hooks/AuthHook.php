@@ -90,6 +90,7 @@ class AuthHook {
             'shop/goodscart/nowbuy',
 
             'coupon/coupon/listcoupon',
+            'coupon/coupon/coupon',
 
         );
 
