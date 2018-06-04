@@ -80,6 +80,19 @@ class Residentmodel extends Basemodel{
         'data',
     ];
 
+    protected $casts    = [
+        'data' => 'array',
+    ];
+
+    protected $dates    = [
+        'book_time',
+        'refund_time',
+        'begin_time',
+        'end_time',
+        'created_at',
+        'updated_at',
+    ];
+
     protected $hidden  = [];
 
     //住户的房间信息

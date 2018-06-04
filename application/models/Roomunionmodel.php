@@ -102,6 +102,7 @@ class Roomunionmodel extends Basemodel{
         return $this->belongsTo(Residentmodel::class,'resident_id');
     }
 
+
     //合租人信息
     public function unionresident(){
 

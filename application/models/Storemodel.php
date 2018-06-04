@@ -60,4 +60,8 @@ class Storemodel extends Basemodel{
     {
         return $this->hasMany(Contractmodel::class, 'store_id');
     }
+
+    public function templateurl(){
+        return $this->hasMany(Contracttemplatemodel::class, 'store_id');
+    }
 }
