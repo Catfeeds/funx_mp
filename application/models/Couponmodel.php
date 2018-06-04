@@ -29,6 +29,12 @@ class Couponmodel extends Basemodel
         'coupon_type_id'
     ];
 
+    public function coupontype()
+    {
+        return $this->belongsTo(Coupontypemodel::class,'coupon_type_id')
+                    ->select('id','name','discount');
+    }
+
 
 
 }
