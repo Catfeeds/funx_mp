@@ -76,65 +76,65 @@ class Resident extends MY_Controller
         $this->api_res(0,['residents'=>$residents]);
     }
 
-    /**
-     * 申请退房
-     */
-    public function checkOut()
-    {
-        $residentId = trim($this->input->post('resident_id', true));
-        $this->load->model('residentmodel');
-        $resident   = Residentmodel::findOrFail($residentId);
-        $this->load->model('roomunionmodel');
-
-        $this->checkUser($resident->uxid);
-
-        if($resident->roomunion->resident_id != $residentId){
-            $this->api_res(10019);
-            return;
-        }
-        $this->api_res(0,['resident_id'=>$residentId]);
-
-    }
-
-
-    /**
-     * 住户退房-保存退款信息
-     */
-    public function refund()
-    {
-        $bank       = trim($this->input->post('bank', true));
-        $time       = trim($this->input->post('time', true));
-        $cardNumber = trim($this->input->post('card_number', true));
-        $residentId = trim($this->input->post('resident_id', true));
-
-        $this->load->model('residentmodel');
-        $resident   = Residentmodel::findOrFail($residentId);
-        $this->load->model('roomunionmodel');
-
-        $this->checkUser($resident->uxid);
-
-        if($resident->roomunion->resident_id != $residentId){
-            $this->api_res(10019);
-            return;
-        }
-
-        $time = strtotime($time);
-        if (FALSE === $time) {
-            throw new Exception('请选择合适的时间');
-        }
-
-        if (Residentmodel::STATE_NORMAL == $resident->status) {
-            $tmpInfo            = $resident->data;
-            $tmpInfo['refund']  = array(
-                'bank'        => $bank,
-                'out_time'    => date('Y-m-d', $time),
-                'bank_number' => $cardNumber,
-            );
-            $resident->data     = $tmpInfo;
-            $resident->save();
-        }
-
-        $this->api_res(0);
-    }
+//    /**
+//     * 申请退房
+//     */
+//    public function checkOut()
+//    {
+//        $residentId = trim($this->input->post('resident_id', true));
+//        $this->load->model('residentmodel');
+//        $resident   = Residentmodel::findOrFail($residentId);
+//        $this->load->model('roomunionmodel');
+//
+//        $this->checkUser($resident->uxid);
+//
+//        if($resident->roomunion->resident_id != $residentId){
+//            $this->api_res(10019);
+//            return;
+//        }
+//        $this->api_res(0,['resident_id'=>$residentId]);
+//
+//    }
+//
+//
+//    /**
+//     * 住户退房-保存退款信息
+//     */
+//    public function refund()
+//    {
+//        $bank       = trim($this->input->post('bank', true));
+//        $time       = trim($this->input->post('time', true));
+//        $cardNumber = trim($this->input->post('card_number', true));
+//        $residentId = trim($this->input->post('resident_id', true));
+//
+//        $this->load->model('residentmodel');
+//        $resident   = Residentmodel::findOrFail($residentId);
+//        $this->load->model('roomunionmodel');
+//
+//        $this->checkUser($resident->uxid);
+//
+//        if($resident->roomunion->resident_id != $residentId){
+//            $this->api_res(10019);
+//            return;
+//        }
+//
+//        $time = strtotime($time);
+//        if (FALSE === $time) {
+//            throw new Exception('请选择合适的时间');
+//        }
+//
+//        if (Residentmodel::STATE_NORMAL == $resident->status) {
+//            $tmpInfo            = $resident->data;
+//            $tmpInfo['refund']  = array(
+//                'bank'        => $bank,
+//                'out_time'    => date('Y-m-d', $time),
+//                'bank_number' => $cardNumber,
+//            );
+//            $resident->data     = $tmpInfo;
+//            $resident->save();
+//        }
+//
+//        $this->api_res(0);
+//    }
 
 }

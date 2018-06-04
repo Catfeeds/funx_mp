@@ -21,7 +21,8 @@ class Roomtype extends MY_Controller
         $field  = ['id','name','feature','area','room_number','hall_number','toilet_number','toward','provides','images','description'];
         $post   = $this->input->post(null,true);
         $room_type_id   = $post['room_type_id'];
-        $room_type  = Roomtypemodel::select($field)->find($room_type_id);
+        $this->load->model('storemodel');
+        $room_type  = Roomtypemodel::with('store')->select($field)->find($room_type_id);
         if(!$room_type){
             $this->api_res(1007);
             return;
