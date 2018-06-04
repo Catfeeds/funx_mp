@@ -84,7 +84,7 @@ class AuthHook {
             'shop/contract/contract',
             'shop/goodscart/getorder',
 
-
+            'coupon/coupon/listcoupon',
 
         );
 
