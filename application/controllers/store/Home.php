@@ -51,12 +51,13 @@ class Home extends MY_Controller
             ->get()
             ->whereIn('store.id',$ids)
             ->map(function($query){
+                $query->images  = $this->fullAliossUrl(json_decode($query->images,true),true);
                 $query->max_price   = $query->roomunion->max('rent_price');
                 $query->min_price   = $query->roomunion->min('rent_price');
                 return $query;
             })->toArray();
 
-        $this->api_res(0,['count'=>$count,'page'=>$page,'total_page'=>$total_page,'room_types'=>$room_types]);
+        $this->api_res(0,['count'=>$count,'page'=>$page,'per_page'=>$per_page,'total_page'=>$total_page,'room_types'=>$room_types]);
 
     }
 
