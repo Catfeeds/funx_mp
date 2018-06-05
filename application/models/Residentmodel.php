@@ -120,10 +120,10 @@ class Residentmodel extends Basemodel{
     }
 
     //同住人信息
-    public function commonresident(){
-
-        return $this->hasMany(Commonresidentmodel::class,'resident_id');
-    }
+//    public function commonresident(){
+//
+//        return $this->hasMany(Commonresidentmodel::class,'resident_id');
+//    }
 
     //住户的优惠券
     public function  coupons()
