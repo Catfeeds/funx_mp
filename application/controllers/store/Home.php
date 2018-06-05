@@ -30,7 +30,6 @@ class Home extends MY_Controller
         });
 
         $this->load->model('roomtypemodel');
-        $this->load->model('storemodel');
         $this->load->model('roomunionmodel');
         $page   = isset($input['page'])?$input['page']:1;
         $per_page   = isset($input['per_page'])?$input['per_page']:PAGINATE;
