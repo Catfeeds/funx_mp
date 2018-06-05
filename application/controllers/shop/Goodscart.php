@@ -138,7 +138,6 @@ class Goodscart extends MY_Controller
         }else{
             $this->api_res(10100);
         }
-
     }
 
     /**
