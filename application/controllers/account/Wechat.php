@@ -37,7 +37,7 @@ class Wechat extends MY_Controller
             $this->api_res(1006);
             return false;
         }
-        log_message('debug','---->'.json_encode($user));
+        log_message('error','---->'.json_encode($user));
         $access_token   = $user['access_token'];
         $refresh_token  = $user['refresh_token'];
         $openid         = $user['openid'];
