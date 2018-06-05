@@ -22,9 +22,28 @@ class Coupon extends MY_Controller
         $this->load->model('Coupontypemodel');
         $filed = ['coupon_type_id','status','deadline'];
         $coupon = Couponmodel::with('coupontype')->orderBy('created_at','DESC')
-                            //->where('resident_id',CURRENT_ID)
-                            ->get($filed);
+                            ->get($filed)->toArray();
         $this->api_res(0,$coupon);
+    }
+
+    /**
+     * 优惠券使用
+     */
+    public function coupon()
+    {
+        $post = $this->input->post(null,true);
+        if($post['status']){
+            $status = trim($post['status']);
+        }else{
+            $status = 'UNUSED';
+        }
+        $this->load->model('Coupontypemodel');
+        $filed = ['coupon_type_id','status','deadline'];
+        $coupon = Couponmodel::with('coupontype')->where('status',$status)
+                                ->orderBy('created_at','DESC')
+                                ->get($filed)->toArray();
+        $this->api_res(0,$coupon);
+
     }
 
 }
