@@ -119,18 +119,26 @@ class Goodscart extends MY_Controller
      */
     public function quantityNum()
     {
+        $this->load->model('goodsmodel');
         $post = $this->input->post(null, true);
         //$uxid = intval(strip_tags(trim($post['uxid'])));
         $goods_id = intval(strip_tags(trim($post['goods_id'])));
         $cart_num = intval(strip_tags(trim($post['quantity'])));
-                                        //CURRENT_ID
-        $num = Goodscartmodel::where('uxid', 7)->where('goods_id', $goods_id)->first();
-        $num->quantity = $cart_num;
-        if ($num->save()) {
-            $this->api_res(0);
-        } else {
-            $this->api_res(1009);
+        $cart_id  =intval(strip_tags(trim($post['cart_id'])));//CURRENT_ID
+        $filed = ['quantity'];
+        $goods = Goodsmodel::where('id',$goods_id)->get($filed)->toArray();
+        if($cart_num <= $goods[0]){
+            $num = Goodscartmodel::where('uxid', 7)->where('id',$cart_id)->first();
+            $num->quantity = $cart_num;
+            if ($num->save()) {
+                $this->api_res(0);
+            } else {
+                $this->api_res(1009);
+            }
+        }else{
+            $this->api_res(10100);
         }
+
     }
 
     /**
@@ -228,6 +236,5 @@ class Goodscart extends MY_Controller
         } else {
             $this->api_res(1005);
         }
-
     }
 }
