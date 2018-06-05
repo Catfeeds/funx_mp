@@ -446,7 +446,7 @@ class Contract extends MY_Controller
         }
     }
 
-   public function test1(){
+    public function test1(){
        // phpinfo();
        // echo 1;
        // die();
@@ -551,7 +551,7 @@ class Contract extends MY_Controller
             'attachment_2_date' => $now->format('Y-m-d'),
         );
         //var_dump($parameters);
-        //  exit;
+        //exit;
         //如果是短租, 单日价格是(房租原价*1.2/30 + 物业费/30)
         if (Residentmodel::RENTTYPE_SHORT == $rentType) {
             $shortDayPrice = ceil($room->rent_money * 1.2 / 30 + $resident->real_property_costs / 30);
@@ -630,12 +630,12 @@ class Contract extends MY_Controller
 //            $contract->status           = Contractmodel::STATUS_GENERATED;
 
             return array(
-                'type' => Contractmodel::TYPE_FDD,              //合同类型
-                'contract_id' => $contractId,                          //合同编号
+                'type' => Contractmodel::TYPE_FDD,                   //合同类型
+                'contract_id' => $contractId,                        //合同编号
                 'doc_title' => $parameters['contract_number'],       //合同标题
-                'download_url' => $res['download_url'],                 //合同下载路径
-                'view_url' => $res['viewpdf_url'],                  //合同预览路径
-                'status' => Contractmodel::STATUS_GENERATED,      //给个状态//合同已经生成
+                'download_url' => $res['download_url'],              //合同下载路径
+                'view_url' => $res['viewpdf_url'],                   //合同预览路径
+                'status' => Contractmodel::STATUS_GENERATED,         //给个状态//合同已经生成
             );
 
 

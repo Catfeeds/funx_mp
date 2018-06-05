@@ -118,6 +118,18 @@ class Ordermodel extends Basemodel{
         return $this->hasMany(Goodsaddressmodel::class,'address_id')->select('id');
     }
 
+    //社区名
+    public function storename(){
+
+        return $this->belongsTo(Storemodel::class,'store_id')->select('id','name');
+    }
+
+    //房间号
+    public function roomnum(){
+
+        return $this->belongsTo(Roomunionmodel::class,'room_id')->select('id','number');
+    }
+
     /**
      * 生成新的订单编号
      */
