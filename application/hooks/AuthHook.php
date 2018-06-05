@@ -71,7 +71,7 @@ class AuthHook {
             'shop/goodscategory/listgoods',
             'shop/goods/goodsinfo',
             'shop/goods/searchgoods',
-
+            'shop/goods/goodssta',
             'shop/goodsaddress/addaddress',
             'shop/goodsaddress/deleteaddress',
             'shop/goodsaddress/updateaddress',
@@ -91,6 +91,7 @@ class AuthHook {
             'shop/order/orderlist',
             'shop/order/orderux',
             'shop/order/order',
+
 
             'coupon/coupon/listcoupon',
             'coupon/coupon/coupon',

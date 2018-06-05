@@ -20,6 +20,12 @@ class Goodsordermodel extends Basemodel
     const STATE_EXPIRE      = 'EXPIRE';     // 过期
     const STATE_CLOSE       = 'CLOSE';      // 关闭
 
+    const STATE_PAYMENT    = 'PAYMENT';         // 已付款
+    const STATE_DELIVERED    = 'DELIVERED';     // 交付中 配送中
+    const STATE_COMPLETE     = 'COMPLETE';      // 完成
+    const STATE_CANCEL    = 'CANCEL';           // 取消
+
+
     /**
      * 支付方式
      */
@@ -83,7 +89,7 @@ class Goodsordermodel extends Basemodel
 
     protected $table  = 'boss_shop_order';
 
-    protected $hidden = ['created_at','updated_at','deleted_at'];
+    protected $hidden = ['updated_at','deleted_at'];
 
     /**
      * 生成随机数作为订单编号
