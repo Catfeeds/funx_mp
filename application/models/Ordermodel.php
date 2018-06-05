@@ -85,6 +85,8 @@ class Ordermodel extends Basemodel{
         'pay_status',
     ];
 
+
+
     public function customer()
     {
         return $this->belongsTo(Customermodel::class, 'customer_id');
@@ -121,13 +123,22 @@ class Ordermodel extends Basemodel{
     //社区名
     public function storename(){
 
-        return $this->belongsTo(Storemodel::class,'store_id')->select('id','name');
+        return $this->belongsTo(Storemodel::class,'store_id')->select('id','name','created_at');
     }
 
     //房间号
     public function roomnum(){
 
         return $this->belongsTo(Roomunionmodel::class,'room_id')->select('id','number');
+    }
+
+    public function residentder(){
+
+        return $this->belongsTo(Residentmodel::class,'resident_id')->select('id','name','deposit_money');
+    }
+
+    public function union(){
+        return $this->belongsTo(Roomunionmodel::class,'room_id')->select('id','number','area');
     }
 
     /**
@@ -148,6 +159,39 @@ class Ordermodel extends Basemodel{
 //        return date('YmdHis').mt_rand(1, 100000);
     }
 
+    /**
+     * 返回订单类型的名称
+     */
+    public static function getTypeName($type = null)
+    {
+        $names = self::allTypesWithName();
+
+        return isset($names[$type]) ? $names[$type] : '未知';
+    }
+    /**
+     * 返回所有账单的名称
+     */
+    public static function allTypesWithName()
+    {
+        return [
+            self::PAYTYPE_ROOM          => '住宿服务费',
+            self::PAYTYPE_DEVICE        => '设备服务费',
+            self::PAYTYPE_UTILITY       => '水电服务费',
+            self::PAYTYPE_REFUND        => '退款',
+            self::PAYTYPE_RESERVE       => '预订服务费',
+            self::PAYTYPE_MANAGEMENT    => '物业服务费',
+            self::PAYTYPE_DEPOSIT_R     => '住宿押金',
+            self::PAYTYPE_DEPOSIT_O     => '其他押金',
+            self::PAYTYPE_OTHER         => '其他服务费',
+            self::PAYTYPE_ELECTRIC      => '用电服务费',
+            self::PAYTYPE_WATER         => '冷水服务费',
+            self::PAYTYPE_WATER_HOT     => '热水服务费',
+            self::PAYTYPE_CLEAN         => '清洁服务费',
+            self::PAYTYPE_COMPENSATION  => '物品赔偿费',
+            self::PAYTYPE_OVERDUE       => '滞纳金',
+            self::PAYTYPE_REPAIR        => '维修服务费',
+        ];
+    }
     /**
      * 检索当日确定的账单的数量
      */
