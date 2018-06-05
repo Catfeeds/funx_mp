@@ -12,7 +12,7 @@ class Goodscartmodel extends Basemodel
     protected $hidden   = ['created_at','updated_at','deleted_at'];
 
     public function goods(){
-        return $this->belongsTo(Goodsmodel::class,'goods_id')->select('id','name','shop_price','description','goods_thumb');
+        return $this->belongsTo(Goodsmodel::class,'goods_id')->select('id','name','shop_price','description','goods_thumb','quantity');
     }
     public function goodprice(){
         return $this->belongsTo(Goodsmodel::class,'goods_id')->select('id','shop_price');

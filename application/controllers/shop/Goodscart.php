@@ -129,7 +129,6 @@ class Goodscart extends MY_Controller
         $goods = Goodsmodel::where('id',$goods_id)->get($filed)->toArray();
         if($cart_num <= $goods[0]){
             $num = Goodscartmodel::where('uxid', 7)->where('id',$cart_id)->first();
-            //var_dump($num);die();
             $num->quantity = $cart_num;
             if ($num->save()) {
                 $this->api_res(0);
