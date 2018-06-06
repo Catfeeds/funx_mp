@@ -254,6 +254,7 @@ class Payment extends MY_Controller
 
         $response   = $app->payment->handleNotify(function($notify, $successful) use ($app) {
             try {
+                DB::beginTransaction();
 
                 $data       = explode('_', $notify->out_trade_no);
                 $number     = $data[0];
@@ -267,9 +268,9 @@ class Payment extends MY_Controller
                     return true;
                 }
 
-//                if(!$successful){
-//                    return true;
-//                }
+                if(!$successful){
+                    return true;
+                }
                 $this->load->model('ordermodel');
                 $orders     = $resident->orders()->where('number', $number)->get();
 
@@ -313,8 +314,9 @@ class Payment extends MY_Controller
                     log_message('error', '微信支付-模板消息通知失败：' . $e->getMessage());
                     throw $e;
                 }
-
+                DB::commit();
             } catch (Exception $e) {
+                DB::rollBack();
                 log_message('error', $e->getMessage());
                 throw $e;
                // return false;

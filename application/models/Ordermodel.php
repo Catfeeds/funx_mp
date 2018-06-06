@@ -237,8 +237,8 @@ class Ordermodel extends Basemodel{
 
         //续租时的订单处理, 可能需要更改
         if (isset($resident->data['renewal'])) {
-            $depositMoney       = $resident->data['renewal']['delt_deposit'];
-            $tmpDepositMoney    = $resident->data['renewal']['new_tmp_deposit'];
+            $deposit_money       = $resident->data['renewal']['delt_deposit'];
+            $tmp_deposit         = $resident->data['renewal']['new_tmp_deposit'];
         }
 
         //预订转入住, 订金转押金, 订金可以抵扣一部分押金

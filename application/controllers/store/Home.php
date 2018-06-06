@@ -52,8 +52,8 @@ class Home extends MY_Controller
             ->whereIn('store.id',$ids)
             ->map(function($query){
                 $query->images  = $this->fullAliossUrl(json_decode($query->images,true),true);
-                $query->max_price   = $query->roomunion->max('rent_price');
-                $query->min_price   = $query->roomunion->min('rent_price');
+                $query->max_price   = (int)$query->roomunion->max('rent_price');
+                $query->min_price   = (int)$query->roomunion->min('rent_price');
                 return $query;
             })->toArray();
 
