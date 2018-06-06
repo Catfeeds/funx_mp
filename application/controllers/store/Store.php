@@ -1,5 +1,6 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
+use EasyWeChat\Foundation\Application;
 /**
  * Author:      zjh<401967974@qq.com>
  * Date:        2018/5/17 0017
@@ -15,6 +16,15 @@ class Store extends MY_Controller
         if(!defined('COMPANY_ID')){
             define('COMPANY_ID',4);
         }
+    }
+
+    /**
+     * 调取门店地图的config
+     */
+    public function mapConfig(){
+        $app    = new Application(getCustomerWechatConfig());
+        $jssdk  = $app->js->config(['getLocation', 'openLocation'], false);
+        $this->api_res(0,['jssdk'=>$jssdk]);
     }
 
     /**

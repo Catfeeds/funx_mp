@@ -41,6 +41,7 @@ class AuthHook {
             'resident/contract/test1',
 
             'store/home/listhome',
+            'store/store/mapconfig',
 
             'resident/resident/record',
             'resident/resident/refund',
