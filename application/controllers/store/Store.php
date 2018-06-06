@@ -22,6 +22,7 @@ class Store extends MY_Controller
      * 调取门店地图的config
      */
     public function mapConfig(){
+        $this->load->helper('wechat');
         $app    = new Application(getCustomerWechatConfig());
         $jssdk  = $app->js->config(['getLocation', 'openLocation'], false);
         $this->api_res(0,['jssdk'=>$jssdk]);
