@@ -40,10 +40,12 @@ class Coupon extends MY_Controller
         $this->load->model('Coupontypemodel');
         $filed = ['coupon_type_id','status','deadline'];
         $coupon = Couponmodel::with('coupontype')->where('status',$status)
-                                ->orderBy('created_at','DESC')
-                                ->get($filed)->toArray();
+                ->orderBy('created_at','DESC')
+                ->get($filed)->map(function ($coupon){
+                    $coupon = $coupon->toArray();
+                    $coupon['deadline'] = date('Y-m-d',strtotime($coupon['deadline']));
+                    return $coupon;
+                })->toArray();
         $this->api_res(0,$coupon);
-
     }
-
 }
