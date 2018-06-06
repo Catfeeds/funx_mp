@@ -38,8 +38,8 @@ class Home extends MY_Controller
 
         $count  = Roomtypemodel::with('store','roomunion')
             ->get()->map(function($query){
-                $query->max_price   = $query->roomunion->max('rent_price');
-                $query->min_price   = $query->roomunion->min('rent_price');
+                $query->max_price   = (int)($query->roomunion->max('rent_price'));
+                $query->min_price   = (int)($query->roomunion->min('rent_price'));
                 return $query;
             })
             ->whereIn('store.id',$ids)
