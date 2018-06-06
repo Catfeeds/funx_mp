@@ -36,7 +36,7 @@ class Goods extends MY_Controller
     /**
      *查找商品 按商品名 模糊查找
      */
-    public function searchgoods()
+    public function searchGoods()
     {
         $name = $this->input->post('name',true);
         $field = ['id', 'name', 'shop_price', 'description', 'goods_thumb'];
@@ -46,6 +46,30 @@ class Goods extends MY_Controller
                 $goods[$key]['goods_thumb'] = $this->fullAliossUrl($value['goods_thumb']);
             }
             $this->api_res(0,['searchgoods'=>$goods]);
+        }else{
+            $this->api_res(1005);
+        }
+    }
+
+    /**
+     * 商城订单 状态 - 个人中心
+     */
+    public function goodsSta()
+    {
+        $this->load->model('goodsordermodel');
+        $uxid = 7;
+        $field = ['number','goods_money','created_at','status'];
+        if(isset($uxid)){
+            $goods = Goodsordermodel::where('uxid',$uxid)->whereIn(
+                'status',[
+                    Goodsordermodel::STATE_PENDING,
+                    Goodsordermodel::STATE_PAYMENT,
+                    Goodsordermodel::STATE_DELIVERED,
+                    Goodsordermodel::STATE_COMPLETE,
+                    Goodsordermodel::STATE_CLOSE
+                ]
+            )->get($field)->groupBy('status');
+            $this->api_res(0,$goods);
         }else{
             $this->api_res(1005);
         }

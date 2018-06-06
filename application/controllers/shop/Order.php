@@ -65,12 +65,11 @@ class Order extends MY_Controller
                 Ordermodel::STATE_PENDING,
                 Ordermodel::STATE_CONFIRM,
                 Ordermodel::STATE_COMPLETED,
-            ])->get($field)->groupBy('status')->groupBy('store_id')->groupBy('room_id')->groupBy('resident_id');
-            $this->api_res(0,[ 'status'=>$list]);
+            ])->get($field)->groupBy('status');
+            $this->api_res(0,['status'=>$list]);
         } else {
             $this->api_res(1005);
         }
     }
-
 
 }
