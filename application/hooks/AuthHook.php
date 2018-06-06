@@ -61,6 +61,8 @@ class AuthHook {
             'service/serviceorder/serviceorder',
             'service/serviceorder/cleanorder',
             'service/reserve/reserve',
+            'service/reserve/precontract',
+            'service/reserve/visited',
 
             'customer/center/showinfo',
             'customer/center/shownickname',

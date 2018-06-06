@@ -38,6 +38,34 @@ class Reserve extends MY_Controller
         }
     }
 
+    /**
+     * 预约过的房源
+     */
+    public function precontract()
+    {
+        $this->load->model('roomunionmodel');
+        $this->load->model('roomtypemodel');
+        $filed = ['id','room_type_id','room_id'];
+        $precontract = Reserveordermodel::with('room')->with('room_type')->where('customer_id',1)
+                    ->whereIn('status',['BEGIN','WAIT'])->get($filed)->toArray();
+        $this->api_res(0,$precontract);
+    }
+
+    /**
+     * 看过的房源
+     */
+    public function visited()
+    {
+        $this->load->model('roomunionmodel');
+        $this->load->model('roomtypemodel');
+        $filed = ['id','room_type_id','room_id'];
+        $precontract = Reserveordermodel::with('room')->with('room_type')->where('customer_id',1)
+            ->where('status','END')->get($filed)->toArray();
+        $this->api_res(0,$precontract);
+    }
+    /**
+     * 表单验证
+     */
     public function validation()
     {
         $this->load->library('form_validation');
