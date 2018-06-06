@@ -12,7 +12,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 function getCustomerWechatConfig(){
     $debug  = (ENVIRONMENT!=='development'?false:true);
     return array(
-        'debug'     => $debug,
+        'debug'     => true,
         'app_id'    => config_item('wx_map_appid'),
         'secret'    => config_item('wx_map_secret'),
         'token'     => config_item('wx_map_token'),
