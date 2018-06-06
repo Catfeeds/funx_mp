@@ -22,14 +22,18 @@ class Coupon extends MY_Controller
         $this->load->model('Coupontypemodel');
         $filed = ['coupon_type_id','status','deadline'];
         $coupon = Couponmodel::with('coupontype')->orderBy('created_at','DESC')
-                            ->get($filed)->toArray();
+                ->get($filed)->map(function ($coupon){
+                    $coupon = $coupon->toArray();
+                    $coupon['deadline'] = date('Y-m-d',strtotime($coupon['deadline']));
+                    return $coupon;
+                })->toArray();
         $this->api_res(0,$coupon);
     }
 
     /**
      * 优惠券使用
      */
-    public function coupon()
+    /*public function coupon()
     {
         $post = $this->input->post(null,true);
         if($post['status']){
@@ -47,5 +51,5 @@ class Coupon extends MY_Controller
                     return $coupon;
                 })->toArray();
         $this->api_res(0,$coupon);
-    }
+    }*/
 }
