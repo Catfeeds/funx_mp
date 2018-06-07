@@ -33,7 +33,7 @@ class Wechat extends MY_Controller
         $user   = $this->httpCurl($url,'get','json');
         if(array_key_exists('errcode',$user))
         {
-            log_message('error',$user['errmsg']);
+            log_message('error','请求access_token'.$user['errmsg']);
             $this->api_res(1006);
             return false;
         }
@@ -42,9 +42,15 @@ class Wechat extends MY_Controller
         $refresh_token  = $user['refresh_token'];
         $openid         = $user['openid'];
         $unionid        = $user['unionid'];
-        $info_url   = 'https://api.weixin.qq.com/sns/userinfo?access_token'.$access_token.'&openid='.$openid.'&lang=zh_CN';
+        $info_url   = 'https://api.weixin.qq.com/sns/userinfo?access_token='.$access_token.'&openid='.$openid.'&lang=zh_CN';
+        log_message('error','---->'.$info_url);
         $user_info  = $this->httpCurl($info_url,'get','json');
-        log_message('error','---->'.json_encode($user_info));
+        if(array_key_exists('errcode',$user_info)){
+            log_message('error','请求info:'.$user_info['errmsg']);
+            $this->api_res(1006);
+            return false;
+        }
+        log_message('error','----->'.json_encode($user_info));
         $nickname   = $user_info['nickname'];
         $gender     = $user_info['sex'];
         $province   = $user_info['province'];

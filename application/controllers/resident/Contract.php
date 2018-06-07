@@ -426,7 +426,7 @@ class Contract extends MY_Controller
             $contract->download_url = $data['download_url'];
             $contract->view_url     = $data['view_url'];
             $contract->status       = $data['status'];
-            $contract->sign_type       = Contractmodel::SIGN_NEW ;
+//            $contract->sign_type       = Contractmodel::SIGN_NEW ;
             $a  = $contract->save();
             //2.生成订单
             $this->load->model('ordermodel');
