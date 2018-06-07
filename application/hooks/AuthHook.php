@@ -101,6 +101,8 @@ class AuthHook {
             'coupon/coupon/listcoupon',
             'coupon/coupon/coupon',
 
+            'owner/owner/ownerlist',
+            'owner/owner/bill',
         );
 
         $directory  = $this->CI->router->fetch_directory();
