@@ -41,9 +41,19 @@ class Order extends MY_Controller
         $this->load->model('roomunionmodel');
         $this->load->model('residentmodel');
         $uxid = 7;
-        $field = ['id','store_id','room_id','resident_id','type','paid'];
-        if (isset($uxid)) {
-            $list = Ordermodel::with('storename')->with('union')->with('residentder')->where('uxid',$uxid)->get($field);
+        $field = ['id','store_id','room_id','name','id','deposit_money'];
+        if (isset($uxid)){
+            $resident_ids  = Ordermodel::whereIn('status', [
+                Ordermodel::STATE_PENDING,
+                Ordermodel::STATE_CONFIRM,
+                Ordermodel::STATE_COMPLETED,])->groupBy('resident_id')->get(['resident_id'])->map(function($id){
+                return $id->resident_id;
+            });
+            $list  = Residentmodel::with('orders','roomunion1','store')->whereIn('id',$resident_ids->toArray())->where('uxid',$uxid)->get($field)
+                ->map(function($query){
+                    $query->sum = $query->orders->sum('money');
+                    return $query;
+                })->toArray();
             $this->api_res(0,[ 'list'=>$list]);
         } else {
             $this->api_res(1005);
@@ -59,17 +69,47 @@ class Order extends MY_Controller
         $this->load->model('roomunionmodel');
         $this->load->model('residentmodel');
         $uxid = 7;
-        $field = ['id','store_id','room_id','resident_id','type','paid','status'];
-        if (isset($uxid)) {
-            $list = Ordermodel::with('storename')->with('union')->with('residentder')->where('uxid',$uxid)->whereIn('status', [
+        //$field = ['id','store_id','room_id','resident_id','type','paid','status'];
+        $field = ['id','store_id','room_id','name','id'];
+        if (isset($uxid)){
+            $resident_ids  = Ordermodel::whereIn('status',[
                 Ordermodel::STATE_PENDING,
                 Ordermodel::STATE_CONFIRM,
-                Ordermodel::STATE_COMPLETED,
-            ])->get($field)->groupBy('status');
-            $this->api_res(0,['status'=>$list]);
+                Ordermodel::STATE_COMPLETED,])->groupBy('resident_id')->get(['resident_id'])->map(function($id){
+                return $id->resident_id;
+            });
+            $list  = Residentmodel::with('orders','roomunion1','store')->whereIn('id',$resident_ids->toArray())->where('uxid',$uxid)->get($field)
+                ->map(function($query){
+                    $query->sum = $query->orders->sum('money');
+                    return $query;
+                })->toArray();
+            $this->api_res(0,[ 'list'=>$list]);
         } else {
             $this->api_res(1005);
         }
     }
+//->groupBy('status')
 
+        //$this->load->model('storemodel');
+        //$this->load->model('roomunionmodel');
+        //$this->load->model('residentmodel');
+        //$uxid = 7;
+        //    //$field = ['id','store_id','room_id','resident_id','type','paid','status'];
+        //$field = ['id','store_id','room_id','name','id'];
+        //if (isset($uxid)){
+        //$resident_ids  = Ordermodel::whereIn('status', [
+        //Ordermodel::STATE_PENDING,
+        //Ordermodel::STATE_CONFIRM,
+        //Ordermodel::STATE_COMPLETED,])->groupBy('resident_id')->get(['resident_id'])->map(function($id){
+        //    return $id->resident_id;
+        //});
+        //$list  = Residentmodel::with('orders','roomunion')->whereIn('id',$resident_ids->toArray())->where('uxid',$uxid)->get()
+        //->map(function($query){
+        //    $query->sum = $query->orders->sum('money');
+        //    return $query;
+        //})->toArray();
+        //$this->api_res(0,[ 'list'=>$list]);
+        //} else {
+        //    $this->api_res(1005);
+        //}
 }

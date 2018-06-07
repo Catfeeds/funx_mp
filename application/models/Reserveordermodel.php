@@ -12,4 +12,13 @@ class Reserveordermodel extends Basemodel
     protected $hidden= ['created_at','updated_at','deleted_at'];
     protected $fillable = ['store_id','room_type_id','name','phone','time'];
 
+    public function room(){
+        return $this->belongsTo(Roomunionmodel::class,'room_id')
+                    ->select('id','rent_price','area');
+    }
+
+    public function room_type(){
+        return $this->belongsTo(Roomtypemodel::class,'room_type_id')
+            ->select('id','name','feature');
+    }
 }
