@@ -42,7 +42,7 @@ class Wechat extends MY_Controller
         $refresh_token  = $user['refresh_token'];
         $openid         = $user['openid'];
         $unionid        = $user['unionid'];
-        $info_url   = 'https://api.weixin.qq.com/sns/userinfo?access_token'.$access_token.'&openid='.$openid.'&lang=zh_CN';
+        $info_url   = 'https://api.weixin.qq.com/sns/userinfo?access_token='.$access_token.'&openid='.$openid.'&lang=zh_CN';
         log_message('error','---->'.$info_url);
         $user_info  = $this->httpCurl($info_url,'get','json');
         if(array_key_exists('errcode',$user_info)){
