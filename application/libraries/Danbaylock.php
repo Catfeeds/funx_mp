@@ -148,6 +148,7 @@ class Danbaylock
     public function handle()
     {
         $token = $this->getMtokenByLogin();
+        $this->CI->m_redis->storeDanbyToken($token);
         /*if($this->m_redis->storeDanbyToken($token)){
             return $token;
         }else{
