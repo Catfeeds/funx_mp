@@ -107,6 +107,8 @@ define('CUSTOMERINFO','FUNXDATA:WEB:CUSTOMER:INFO');//web端客户信息
 define('CUSTOMERPHONECODE','FUNXDATA:WEB:CUSTOMER:PHONE_CODE');//web端 用户绑定手机号时发送验证码
 define('RESIDENTPHONECODE','FUNXDATA:WEB:RESIDENT:PHONE_CODE');//web端客户信息
 
+define('DANBYTOKEN','FUNXDATA:WEB:DANBY:TOKEN');//蛋贝token
+
 
 //分页
 define('PAGINATE',10);          //分页页码
