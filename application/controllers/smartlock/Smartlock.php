@@ -53,6 +53,7 @@ class Smartlock extends MY_Controller
      */
     public function temporaryPwd()
     {
+        $this->load->library('m_redis');
         $post = $this->input->post();
         if ($post['serial_number']){
             $device_id = trim($post['serial_number']);
@@ -61,12 +62,13 @@ class Smartlock extends MY_Controller
                     return $supplier->supplier;
                 });
             if ($supplier[0] == 'DANBAY'){
-                (new Danbaylock($device_id))->getMtokenByLogin();
                 $pwd = (new Danbaylock($device_id))->addTempPwd();
                 $this->api_res(0,$pwd);
             }elseif ($supplier[0] == 'YEEUU'){
                 $pwd = (new Yeeuulock($device_id))->cyclePwd();
                 $this->api_res(0,$pwd);
+            }else{
+                $this->api_res(0,[]);
             }
 
         }

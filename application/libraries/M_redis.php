@@ -256,7 +256,4 @@ class M_redis
         $token  = $this->redis->get($key);
         return $token;
     }
-
-
-
 }
