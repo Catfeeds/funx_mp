@@ -100,6 +100,7 @@ class AuthHook {
             'smartlock/smartlock/withsmart',
             'smartlock/smartlock/temporarypwd',
             'smartlock/smartlock/updatepwd',
+            'smartlock/smartlock/lockrecord',
 
             'owner/owner/ownerlist',
             'owner/owner/bill',
