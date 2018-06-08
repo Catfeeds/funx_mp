@@ -82,6 +82,7 @@ class Danbaylock
             'password'  => $newPwd,
             'pwdID'     => $pwdID,
         ]);
+        return $res;
     }
 
     /**
