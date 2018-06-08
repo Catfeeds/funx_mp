@@ -64,12 +64,6 @@ class AuthHook {
             'service/reserve/precontract',
             'service/reserve/visited',
 
-            'customer/center/showinfo',
-            'customer/center/shownickname',
-            'customer/center/setnickname',
-            'customer/center/setphone',
-            'customer/center/verifyphone',
-
             'customer/contract/checksign',
             'customer/contract/generate',
 
@@ -101,6 +95,8 @@ class AuthHook {
             'coupon/coupon/listcoupon',
             'coupon/coupon/coupon',
 
+            'owner/owner/ownerlist',
+            'owner/owner/bill',
         );
 
         $directory  = $this->CI->router->fetch_directory();
