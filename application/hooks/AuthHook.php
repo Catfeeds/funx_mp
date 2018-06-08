@@ -64,12 +64,6 @@ class AuthHook {
             'service/reserve/precontract',
             'service/reserve/visited',
 
-            'customer/center/showinfo',
-            'customer/center/shownickname',
-            'customer/center/setnickname',
-            'customer/center/setphone',
-            'customer/center/verifyphone',
-
             'customer/contract/checksign',
             'customer/contract/generate',
 
