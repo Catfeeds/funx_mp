@@ -40,7 +40,7 @@ class AuthHook {
             'resident/contract/confirm',
             'resident/contract/test1',
 
-            'store/home/listhome',
+            //'store/home/listhome',
             'store/store/mapconfig',
 
             'resident/resident/record',
@@ -107,13 +107,17 @@ class AuthHook {
         if(!in_array($full_path,$authArr)) {
 
             try {
-
                 $token = $this->CI->input->get_request_header('token');
                 $decoded = $this->CI->m_jwt->decodeJwtToken($token);
                 $d_uxid   = $decoded->uxid;
                 $d_company_id   = $decoded->company_id;
                 define('CURRENT_ID',$d_uxid);
                 define('COMPANY_ID',$d_company_id);
+
+                $this->CI->load->model('customermodel');
+                $this->CI->user = Customermodel::where('uxid',CURRENT_ID)->first();
+
+
             } catch (Exception $e) {
                 header("Content-Type:application/json;charset=UTF-8");
                 echo json_encode(array('rescode' => 1001, 'resmsg' => 'token无效', 'data' => []));
