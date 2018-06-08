@@ -101,6 +101,9 @@ class AuthHook {
             'coupon/coupon/listcoupon',
             'coupon/coupon/coupon',
 
+            'smartlock/smartlock/rooms',
+            'smartlock/smartlock/withsmart',
+            'smartlock/smartlock/temporarypwd',
         );
 
         $directory  = $this->CI->router->fetch_directory();
