@@ -68,6 +68,7 @@ class Smartlock extends MY_Controller
             if ($supplier[0] == 'DANBAY'){
                 (new Danbaylock($device_id))->handle();
                 $pwd = (new Danbaylock($device_id))->addTempPwd();
+                var_dump($pwd);
                 $this->api_res(0,$pwd);
             }elseif ($supplier[0] == 'YEEUU'){
                 $pwd = (new Yeeuulock($device_id))->cyclePwd();
