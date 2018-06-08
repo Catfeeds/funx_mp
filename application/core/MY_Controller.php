@@ -18,12 +18,16 @@ class MY_Controller extends CI_Controller {
         parent::__construct();
         $this->output->set_content_type('application/json');
         //测试使用
-        if(!defined('CURRENT_ID'))
+        /*if(!defined('CURRENT_ID'))
         {
             define('CURRENT_ID',1001);
             $this->load->model('customermodel');
             $this->user = Customermodel::where('uxid',1001)->first();
         }else{
+            $this->load->model('customermodel');
+            $this->user = Customermodel::where('uxid',CURRENT_ID)->first();
+        }*/
+        if(defined('CURRENT_ID')){
             $this->load->model('customermodel');
             $this->user = Customermodel::where('uxid',CURRENT_ID)->first();
         }
