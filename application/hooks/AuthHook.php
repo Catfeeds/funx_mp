@@ -40,7 +40,7 @@ class AuthHook {
             'resident/contract/confirm',
             'resident/contract/test1',
 
-            //'store/home/listhome',
+            'store/home/listhome',
             'store/store/mapconfig',
 
             'resident/resident/record',
