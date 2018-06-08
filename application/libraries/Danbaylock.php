@@ -37,7 +37,6 @@ class Danbaylock
             'password'  => $pwd,
             'pwdType'   => 0,
         ]);
-var_dump($res);
         return ['pwd_id'   => $res['result']['pwdID'],
                 'password' => $pwd,
                 ];
@@ -56,7 +55,7 @@ var_dump($res);
         ]);
 
         return [
-            'pwd_id'   => $res['pwdID'],
+            'pwd_id'   => $res['result']['pwdID'],
             'password' => $pwd,];
     }
 

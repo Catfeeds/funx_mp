@@ -22,11 +22,11 @@ class Smartlock extends MY_Controller
         $this->load->model('roomunionmodel');
         $this->load->model('storemodel');
         $this->load->model('buildingmodel');
-        /*$resident_id = Residentmodel::where('customer_id',CURRENT_ID)->get(['id'])
+        $resident_id = Residentmodel::where('customer_id',CURRENT_ID)->get(['id'])
             ->map(function ($re_id){
                 return $re_id->id;
-            })->toArray();*/
-        if (/*$resident_id||*/1){
+            })->toArray();
+        if ($resident_id){
             $rooms = Roomunionmodel::with('store_s')->with('building_s')
                 ->where('resident_id',1684)
                 ->get(['id','store_id','number','building_id'])->toArray();
@@ -44,9 +44,14 @@ class Smartlock extends MY_Controller
     {
         $post = $this->input->post(null,true);
         $roomid = intval($post['id']);
-        $smartdevice = Smartdevicemodel::where('room_id',$roomid)->get(['id','serial_number'])->toArray();
+        $this->load->model('storemodel');
+        $this->load->model('roomunionmodel');
+        $smartdevice = Smartdevicemodel::where('room_id',$roomid)->get(['serial_number'])->toArray();
+        $store = Roomunionmodel::with('store_s')->where('id',$roomid)
+                ->get(['id','store_id'])->toArray();
+
         if ($smartdevice){
-            $this->api_res(0,$smartdevice);
+            $this->api_res(0,[$smartdevice,$store]);
         }else{
             $this->api_res(0,[]);
         }
@@ -75,7 +80,6 @@ class Smartlock extends MY_Controller
             }else{
                 $this->api_res(0,[]);
             }
-
         }
     }
 
