@@ -142,6 +142,18 @@ class Residentmodel extends Basemodel{
         return $this->belongsTo(Employeemodel::class, 'employee_id');
     }
 
+
+    public function roomunion1(){
+
+        return $this->belongsTo(Roomunionmodel::class,'room_id')->select('id','area','number') ;
+    }
+
+    public function store(){
+
+        return $this->belongsTo(storemodel::class,'store_id')->select('id','name','created_at') ;
+    }
+
+
     /**
      * 计算用户的合同结束时间
      * 主要是考虑到, 租房合同开始日期是某个月的月底而结束月份是2月份的情况

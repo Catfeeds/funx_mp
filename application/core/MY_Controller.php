@@ -9,24 +9,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  */
 class MY_Controller extends CI_Controller {
 
-    protected $position;
-
-    protected $user;
-
     public function __construct()
     {
         parent::__construct();
         $this->output->set_content_type('application/json');
-        //测试使用
-        if(!defined('CURRENT_ID'))
-        {
-            define('CURRENT_ID',1001);
-            $this->load->model('customermodel');
-            $this->user = Customermodel::where('uxid',1001)->first();
-        }else{
-            $this->load->model('customermodel');
-            $this->user = Customermodel::where('uxid',CURRENT_ID)->first();
-        }
     }
 
     //API返回统一方法
