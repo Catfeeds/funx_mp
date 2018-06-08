@@ -49,7 +49,9 @@ class Reserve extends MY_Controller
             ->where('customer_id',1)
             ->whereIn('status',['BEGIN','WAIT'])->get($filed)
             ->map(function ($item){
-                $item->room_type->images = $this->fullAliossUrl(json_decode($item->room_type->images,true),true);
+                if (isset($item->room_type->images)){
+                    $item->room_type->images = $this->fullAliossUrl(json_decode($item->room_type->images,true),true);
+                }
                 return $item;
             })->toArray();
         $this->api_res(0,$precontract);
@@ -62,8 +64,9 @@ class Reserve extends MY_Controller
     {
         $this->load->model('roomunionmodel');
         $this->load->model('roomtypemodel');
+        $this->load->model('employeemodel');
         $filed = ['id','room_type_id','room_id','employee_id'];
-        $precontract = Reserveordermodel::with('room')->with('room_type')
+        $precontract = Reserveordermodel::with('room')->with('room_type')->with('employee')
             ->where('customer_id',1)
             ->where('status','END')->get($filed)
             ->map(function ($item){
