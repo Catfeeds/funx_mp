@@ -22,15 +22,34 @@ class Smartlock extends MY_Controller
         $this->load->model('roomunionmodel');
         $this->load->model('storemodel');
         $this->load->model('buildingmodel');
-        $resident_id = Residentmodel::where('customer_id',CURRENT_ID)->get(['id'])
+
+        $resident_id = Residentmodel::where('customer_id',1)->get(['id'])
             ->map(function ($re_id){
                 return $re_id->id;
             })->toArray();
-        //var_dump($resident_id);
-        $rooms = Roomunionmodel::with('store_s')->with('building_s')
-            ->where('resident_id',1684)
-            ->get(['id','store_id','number','building_id'])->toArray();
-        $this->api_res(0,$rooms);
+        if ($resident_id||1){
+            $rooms = Roomunionmodel::with('store_s')->with('building_s')
+                ->where('resident_id',1684)
+                ->get(['id','store_id','number','building_id'])->toArray();
+            $this->api_res(0,['list'=>$rooms]);
+        }else{
+            $this->api_res(0,[]);
+        }
+    }
+
+    /**
+     * 根据房间获取门店
+     */
+    public function getStore()
+    {
+        $post = $this->input->post(null,true);
+        $room_id = trim($post['room_id']);
+        $this->load->model('roomunionmodel');
+        $this->load->model('storemodel');
+        $rooms = Roomunionmodel::with('store_s')
+            ->where('id',$room_id)
+            ->get(['id','store_id'])->toArray();
+        $this->api_res(0,['list'=>$rooms]);
     }
 
     /**
@@ -40,7 +59,10 @@ class Smartlock extends MY_Controller
     {
         $post = $this->input->post(null,true);
         $roomid = intval($post['id']);
+        $this->load->model('storemodel');
+        $this->load->model('roomunionmodel');
         $smartdevice = Smartdevicemodel::where('room_id',$roomid)->get(['id','serial_number'])->toArray();
+
         if ($smartdevice){
             $this->api_res(0,$smartdevice);
         }else{
@@ -62,6 +84,7 @@ class Smartlock extends MY_Controller
                     return $supplier->supplier;
                 });
             if ($supplier[0] == 'DANBAY'){
+                (new Danbaylock($device_id))->handle();
                 $pwd = (new Danbaylock($device_id))->addTempPwd();
                 $this->api_res(0,$pwd);
             }elseif ($supplier[0] == 'YEEUU'){
@@ -70,10 +93,6 @@ class Smartlock extends MY_Controller
             }else{
                 $this->api_res(0,[]);
             }
-
         }
     }
-
-
-
 }

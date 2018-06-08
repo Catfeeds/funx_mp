@@ -15,6 +15,7 @@ class Danbaylock
     protected $signature    = 'danbay:update-token';
     protected $description  = 'update-token-for-danbay-api-request';
     protected $loginUrl     = 'http://www.danbay.cn/system/connect';
+    protected $CI;
 
     const PWD_TYPE_GUEST    = 3;
     const PWD_TYPE_BUTLER   = 2;
@@ -23,6 +24,7 @@ class Danbaylock
     public function __construct($deviceId)
     {
         $this->deviceId = $deviceId;
+        $this->CI = &get_instance();   //获取CI对象
     }
 
     /**
@@ -35,8 +37,7 @@ class Danbaylock
             'password'  => $pwd,
             'pwdType'   => 0,
         ]);
-
-        return ['pwd_id'   => $res['pwdID'],
+        return ['pwd_id'   => $res['result']['pwdID'],
                 'password' => $pwd,
                 ];
     }
@@ -54,7 +55,7 @@ class Danbaylock
         ]);
 
         return [
-            'pwd_id'   => $res['pwdID'],
+            'pwd_id'   => $res['result']['pwdID'],
             'password' => $pwd,];
     }
 
@@ -146,6 +147,7 @@ class Danbaylock
     public function handle()
     {
         $token = $this->getMtokenByLogin();
+        $this->CI->m_redis->storeDanbyToken($token);
         /*if($this->m_redis->storeDanbyToken($token)){
             return $token;
         }else{
@@ -198,7 +200,7 @@ class Danbaylock
      */
     private function setToken()
     {
-        $token = $this->m_redis->getDanBYToken();
+        $token = $this->CI->m_redis->getDanBYToken();
         if (!$token) {
             log_message('error','token 过期,请稍后重试!');
         }
