@@ -95,6 +95,10 @@ class AuthHook {
             'coupon/coupon/listcoupon',
             'coupon/coupon/coupon',
 
+            'smartlock/smartlock/rooms',
+            'smartlock/smartlock/withsmart',
+            'smartlock/smartlock/temporarypwd',
+
             'owner/owner/ownerlist',
             'owner/owner/bill',
         );

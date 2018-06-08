@@ -50,12 +50,24 @@ class Roomunionmodel extends Basemodel{
         return $this->belongsTo(Storemodel::class,'store_id');
     }
 
+    public function store_s(){
+
+//        return $this->belongsTo(Storemodel::class,'store_id')->select(
+//            ['id','name','province','city','district','address','describe']);
+        return $this->belongsTo(Storemodel::class,'store_id')->select('id','name');
+    }
+
+
     //房间所属楼栋信息
     public function building(){
 
         return $this->belongsTo(Buildingmodel::class,'building_id');
     }
 
+    public function building_s(){
+
+        return $this->belongsTo(Buildingmodel::class,'building_id')->select('id','name');
+    }
     //房间的长租合同模板
     public function long_template(){
         return $this->belongsTo(Contracttemplatemodel::class,'contract_template_long_id')
