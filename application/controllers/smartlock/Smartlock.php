@@ -22,7 +22,8 @@ class Smartlock extends MY_Controller
         $this->load->model('roomunionmodel');
         $this->load->model('storemodel');
         $this->load->model('buildingmodel');
-        $resident_id = Residentmodel::where('customer_id',CURRENT_ID)->get(['id'])
+
+        $resident_id = Residentmodel::where('customer_id',1)->get(['id'])
             ->map(function ($re_id){
                 return $re_id->id;
             })->toArray();
@@ -34,7 +35,21 @@ class Smartlock extends MY_Controller
         }else{
             $this->api_res(0,[]);
         }
+    }
 
+    /**
+     * 根据房间获取门店
+     */
+    public function getStore()
+    {
+        $post = $this->input->post(null,true);
+        $room_id = trim($post['room_id']);
+        $this->load->model('roomunionmodel');
+        $this->load->model('storemodel');
+        $rooms = Roomunionmodel::with('store_s')
+            ->where('room_id',$room_id)
+            ->get(['id','store_id'])->toArray();
+        $this->api_res(0,['list'=>$rooms]);
     }
 
     /**
@@ -82,7 +97,4 @@ class Smartlock extends MY_Controller
             }
         }
     }
-
-
-
 }
