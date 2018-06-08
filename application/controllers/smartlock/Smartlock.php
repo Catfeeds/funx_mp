@@ -47,7 +47,7 @@ class Smartlock extends MY_Controller
         $this->load->model('roomunionmodel');
         $this->load->model('storemodel');
         $rooms = Roomunionmodel::with('store_s')
-            ->where('room_id',$room_id)
+            ->where('id',$room_id)
             ->get(['id','store_id'])->toArray();
         $this->api_res(0,['list'=>$rooms]);
     }
@@ -61,12 +61,10 @@ class Smartlock extends MY_Controller
         $roomid = intval($post['id']);
         $this->load->model('storemodel');
         $this->load->model('roomunionmodel');
-        $smartdevice = Smartdevicemodel::where('room_id',$roomid)->get(['serial_number'])->toArray();
-        $store = Roomunionmodel::with('store_s')->where('id',$roomid)
-                ->get(['id','store_id'])->toArray();
+        $smartdevice = Smartdevicemodel::where('room_id',$roomid)->get(['id','serial_number'])->toArray();
 
         if ($smartdevice){
-            $this->api_res(0,[$smartdevice,$store]);
+            $this->api_res(0,$smartdevice);
         }else{
             $this->api_res(0,[]);
         }
