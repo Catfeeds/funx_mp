@@ -51,7 +51,7 @@ class Order extends MY_Controller
 
         $resident   = Residentmodel::with(['roomunion','neworders'=>function($query){
             $query->whereIn('status',[Newordermodel::STATE_CONFIRM,Newordermodel::PAYTYPE_COMPENSATION]);
-        }])->where('customer_id',$this->user->id);
+        }])->where('customer_id',1349);
         $orders  = $resident->get()->map(function($query){
             $query->count  = count($query->neworders);
             $query->amount = $query->neworders->sum('money');
@@ -61,6 +61,7 @@ class Order extends MY_Controller
         $this->api_res(0,['residents'=>$orders]);
 
     }
+
 
     /**
      * 通过订单编号和住户id获取用户订单信息
@@ -107,6 +108,57 @@ class Order extends MY_Controller
             'amount'=>$amount,
             'order_class'=>$order_class
         ]);
+    }
+
+    /**
+     * 查看已支付订单详情
+     */
+    public function paid()
+    {
+        $this->load->model('residentmodel');
+        $this->load->model('newordermodel');
+        $this->load->model('roomunionmodel');
+        $this->load->model('coupontypemodel');
+        $this->load->model('couponmodel');
+        $this->load->model('storemodel');
+
+        $resident_id    = $this->input->post('resident_id',true);
+
+        $resident   = Residentmodel::with(['roomunion','neworders'=>function($query){
+            $query->whereIn('status',[Newordermodel::STATE_CONFIRM,Newordermodel::STATE_COMPLETED])->orderBy('year','ASC')->orderBy('month','ASC');
+        }])
+            ->where('customer_id',$this->user->id)
+            ->findOrFail($resident_id);
+
+        $room   = $resident->roomunion;
+        $neworders   = $resident->neworders;
+
+        if(!$room->store->pay_online){
+            $this->api_res(10020);
+            return;
+        }
+        if(count($neworders) == 0){
+            $this->api_res(0,['list'=>[]]);
+            return;
+        }
+        //更新订单编号
+//        $number = Ordermodel::newNumber($room->apartment->city->abbreviation, $room->apartment->abbreviation);
+//        Newordermodel::whereIn('id', $neworders->pluck('id')->toArray())->update(['number' => $number]);
+
+        $list   = $neworders->groupBy('type')->map(function ($items, $type) {
+            return [
+                'name'   => Newordermodel::getTypeName($type),
+                'amount' => number_format($items->sum('paid'), 2),
+            ];
+        });
+
+        $totalMoney = number_format($neworders->sum('money'), 2);
+
+        $coupons    = $this->getCouponsAvailable($resident, $neworders);
+
+        $this->api_res(0,['orders'=>$neworders,'list'=>$list,'coupons'=>$coupons,'resident'=>$resident,'room'=>$room,'totalMoeny'=>$totalMoney]);
+
+
     }
 
     /**
