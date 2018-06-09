@@ -138,7 +138,7 @@ class Payment extends MY_Controller
         //住户id
         $residentId = trim($this->input->post('resident_id', true));
         //订单编号
-        //$number     = trim($this->input->post('number', true));
+        $number     = trim($this->input->post('number', true));
         //使用的优惠券
         $couponIds  = $this->input->post('coupons[]', true)?$this->input->post('coupons[]', true):[];
 
@@ -150,7 +150,7 @@ class Payment extends MY_Controller
         $this->resident = Residentmodel::with('orders', 'coupons')->findOrFail($residentId);
         //$this->checkUser($this->resident->uxid);
 
-        $orders         = $this->resident->orders()->where('status', Ordermodel::STATE_PENDING)->get();
+        $orders         = $this->resident->orders()->where('number', $number)->get();
 
         $coupons        = $this->resident->coupons()->whereIn('id', $couponIds)->get();
 
@@ -170,7 +170,7 @@ class Payment extends MY_Controller
             DB::beginTransaction();
             //更新订单的付款方式和支付金额
             $this->updatePayWayAndPaid($orders);
-            $discount   = 0;
+
             if (count($coupons)) {
                 $discount   = $this->amountOfDiscount($orders, $coupons);
                 $amount     = $amount - $discount;
@@ -184,7 +184,7 @@ class Payment extends MY_Controller
             $store      = $roomunion->store;
             $roomtype   = $roomunion->roomtype;
             $attach     = ['resident_id' => $residentId];
-            $out_trade_no   = $residentId.'_'.mt_rand(10, 99);
+            $out_trade_no   = $number.'_'.mt_rand(10, 99);
             $attributes = [
                 'trade_type'    => Ordermodel::PAYWAY_JSAPI,
                 'body'          => $store->name . '-' . $roomtype->name,
@@ -201,13 +201,7 @@ class Payment extends MY_Controller
             $store_pay->out_trade_no    = $out_trade_no;
             $store_pay->store_id    = $store->id;
             $store_pay->amount  = $amount;
-            $store_pay->discount  = $discount;
-            $store_pay->status  = 'UNDONE';
-            $store_pay->resident_id  = $residentId;
-            $store_pay->data=['orders'=>$orders,'coupons'=>$coupons];
             $store_pay->save();
-
-            $orders->update(['out_trade_no'=>$out_trade_no,'store_pay_id'=>$store_pay->id]);
 
             $wechatConfig   = getCustomerWechatConfig();
 //            $wechatConfig['payment']['merchant_id'] = $store->payment_merchant_id;
@@ -459,12 +453,12 @@ class Payment extends MY_Controller
                 DB::beginTransaction();
 
                 $data       = explode('_', $notify->out_trade_no);
-                //$residentId     = $data[0];
+                $number     = $data[0];
                 $attach     = unserialize($notify->attach);
                 $this->load->model('residentmodel');
                 $resident   = Residentmodel::with('orders')->find($attach['resident_id']);
 
-                log_message('error', 'notify-arrived--->' . $notify->out_trade_no);
+                log_message('error', 'notify-arrived' . $number);
 
                 if (!count($resident)) {
                     return true;
@@ -474,19 +468,15 @@ class Payment extends MY_Controller
                     return true;
                 }
                 $this->load->model('ordermodel');
-                $orders     = $resident->orders()->where('status', Ordermodel::STATE_PENDING)->get();
+                $orders     = $resident->orders()->where('number', $number)->get();
 
                 if (!count($orders)) {
                     return true;
                 }
 
-                $pay_date   = date('Y-m-d H:i:s',time());
                 foreach ($orders as $order) {
                     $orderIds[]    = $order->id;
-                    $order->pay_date    = $pay_date;
                     $order->status = Ordermodel::STATE_CONFIRM;
-                    $order->out_trade_no = $notify->out_trade_no;
-                    //$order->out_trade_no = $notify->out_trade_no;
                     $order->save();
 
                     if ($order->type == 'DEIVCE') {
@@ -510,16 +500,6 @@ class Payment extends MY_Controller
                 $this->load->model('couponmodel');
                 Couponmodel::whereIn('order_id', $orderIds)->update(['status' => Couponmodel::STATUS_USED]);
 
-                $this->load->model('storepaymodel');
-                $store_pay  = Storepaymodel::where('resident_id',$resident->id)->where('out_trade_no',$notify->out_trade_no)->first();
-                //test
-                if(!empty($store_pay))
-                {
-                    $store_pay  ->status    = 'DONE';
-                    $store_pay->save();
-                }
-
-                DB::commit();
                 try {
 
 
@@ -530,7 +510,7 @@ class Payment extends MY_Controller
                     log_message('error', '微信支付-模板消息通知失败：' . $e->getMessage());
                     throw $e;
                 }
-
+                DB::commit();
             } catch (Exception $e) {
                 DB::rollBack();
                 log_message('error', $e->getMessage());

@@ -20,9 +20,9 @@ class Contract extends MY_Controller
         $this->load->library('fadada');
         $this->load->helper('common');
        // $this->load->model('roomtypemodel');
-         $this->load->model('contracttemplatemodel');
 
     }
+
 
     /**
      1.身份证 2.护照 6.社会保障卡 A.武装警察身份证 B.港澳通行证 C.台湾居民来往大陆通行证 E.户口本
@@ -42,6 +42,7 @@ class Contract extends MY_Controller
     /**
      * 合同的类型, 电子合同还是纸质合同
      */
+
 
     /**
      * 合同信息确认页面
@@ -65,7 +66,6 @@ class Contract extends MY_Controller
             }
             //更新订单
             $resident->orders()->update(['uxid' => $customer->id]);
-
             // $resident->coupons()->where('customer_id', 0)->update(['customer_id' => $customer->id]);
             // $customer->coupons()->where('resident_id', 0)->update(['resident_id' => $residentId]);
 
@@ -80,6 +80,52 @@ class Contract extends MY_Controller
         }
         $this->api_res(0,['contract'=>$contract]);
     }
+
+
+
+    /*********************************以下为重写的内容，上面是原来的内容****************************************/
+    /**
+     * 合同确认页面-发送短信验证码
+     */
+    public function sendSms(){
+
+        $phone        = trim(strip_tags($this->input->post('phone')));            //手机号
+        $resident_id  = trim(strip_tags($this->input->post('resident_id')));    //用户id
+        $this->load->model('residentmodel');
+        $resident   = Residentmodel::find($resident_id);                          //租户信息
+        if(!$resident){
+            $this->api_res(1007);
+            return;
+        }
+        if($resident->phone!=$phone){
+            $this->api_res(10010);
+            return;
+        }
+        //验证住户的uxid是不是当前ID
+//        $this->checkUser($resident->uxid);
+
+        $this->load->model('roomunionmodel');
+        $room   = $resident->roomunion;
+        if($room->status!=Roomunionmodel::STATE_OCCUPIED){          //不是房间被占用的状态  //房间空着 结束
+            $this->api_res(10014);
+            return;
+        }
+
+        $this->load->library('m_redis');
+        if(!$this->m_redis->ttlResidentPhoneCode($phone))
+        {
+            $this->api_res(10007);
+            return;
+        }
+
+        $this->load->library('sms');                        //使用云片发送短信验证码 //STR_PAD_LEFT  0
+        $code   = str_pad(rand(1,9999),4,0,STR_PAD_LEFT);
+        $str    = SMSTEXT.$code;                            //SMSTEXT.$code  //SMSTEXT 指定信息
+        $this->m_redis->storeResidentPhoneCode($phone,$code);
+        $this->sms->send($str,$phone);
+        $this->api_res(0);
+    }
+
     /**
      * 合同确认页面-确认签约
      */
@@ -175,6 +221,7 @@ class Contract extends MY_Controller
 //            }
         }*/
 
+
         $contract   = new Contractmodel();
         //开始签约
         try{
@@ -213,6 +260,19 @@ class Contract extends MY_Controller
             throw $e;
         }
     }
+
+    private function test()
+    {
+        return array(
+            'type' => 'FDD',
+            'contract_id' => 'JINDI123456789',
+            'doc_title' => "title",
+            'download_url' => 'url_download',
+            'view_url' => 'url_view',
+            'status' => Contractmodel::STATUS_GENERATED,
+        );
+    }
+
 
     /**
      * 生成签署合同的页面
@@ -282,13 +342,46 @@ class Contract extends MY_Controller
                 'attachment_2_date'   => date("Y-m-d")                             //最终时间确认
             );
 
-            $data['name']='杜伟';
-            $data['phone']='15771763360';
-            $data['cardNumber']='511325198704153015';
-            $data['cardType']='1';
+
 
             $customerCA = $this->getCustomerCA($data);
 
+
+
+        $contract   = new Contractmodel();
+        //开始签约
+        try{
+            DB::beginTransaction();
+            //1,生成合同
+            $contract->store_id = $resident->store_id;
+            $contract->room_id  = $resident->room_id;
+            $contract->resident_id  = $resident->id;
+            $contract->uxid         = $resident->uxid;
+            //此用户id是fdd返回id而不是正常的customer_id
+            $contract->customer_id  = $resident->customer_id;
+            $contract->fdd_customer_id  = $data['fdd_customer_id'];
+            $contract->type         = $data['type'];
+            $contract->employee_id  = $resident->employee_id;
+            $contract->contract_id  = $data['contract_id'];
+            $contract->doc_title    = $data['doc_title'];
+            $contract->download_url = $data['download_url'];
+            $contract->view_url     = $data['view_url'];
+            $contract->status       = $data['status'];
+            $contract->sign_type       = Contractmodel::SIGN_NEW ;
+            $a  = $contract->save();
+            //2.生成订单
+            $this->load->model('ordermodel');
+            $b  = $this->ordermodel->firstCheckInOrders($resident, $room);
+//            $this->load->model('newordermodel');
+//            $b  =  $this->newordermodel->firstCheckInOrders($resident,$room);
+
+            if($a && $b){
+                DB::commit();
+            }else{
+                DB::rollBack();
+                $this->api_res(1009);
+                return;
+            }
 
             $contractId             = 'JINDI'.date("YmdHis").mt_rand(10,60);
             $res        = $this->fadada->generateContract(
@@ -299,13 +392,18 @@ class Contract extends MY_Controller
                 12
             );
 
+
             $contract['type']          = 'FDD';
             $contract['customer_id']      = $contractId;
             $contract['download_url']    = $res['download_url'];
             $contract['view_url']       = $res['viewpdf_url'];
             $contract['status']          = 'GENERATED';
             $this->api_res(0,$contract);
+        }catch (Exception $e){
+            DB::rollBack();
+            throw $e;
         }
+    }
         //生成普通的电子合同
         private function generate(){
 
@@ -335,8 +433,6 @@ class Contract extends MY_Controller
 
         return $res['customer_id'];
     }
-
-
 
 
 

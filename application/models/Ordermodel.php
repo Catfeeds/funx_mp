@@ -211,7 +211,6 @@ class Ordermodel extends Basemodel{
 
 
         $info=[
-            'number'         => $this->getOrderNumber(),
             'store_id'       => $roomunion->store_id,
             'room_type_id'   => $roomunion->room_type_id,
             'employee_id'    => $resident->employee_id,
@@ -261,6 +260,7 @@ class Ordermodel extends Basemodel{
         //房租押金子订单
         if (0 < $deposit_money) {
             $info   = array_merge($info, [
+                'number'         => $this->getOrderNumber(),
                 'money'     => $deposit_money,
                 'paid'      => $deposit_money,
                 'type'      => Ordermodel::PAYTYPE_DEPOSIT_R,
@@ -273,6 +273,7 @@ class Ordermodel extends Basemodel{
         //其他押金子订单
         if (0 < $tmp_deposit) {
             $info   = array_merge($info, [
+                'number'         => $this->getOrderNumber(),
                 'money'     => $tmp_deposit,
                 'paid'      => $tmp_deposit,
                 'type'      => Ordermodel::PAYTYPE_DEPOSIT_O,
@@ -292,6 +293,7 @@ class Ordermodel extends Basemodel{
         if (0 < $resident->real_property_costs) {
             foreach ($firstPay as $bill) {
                 $info   = array_merge($info, [
+                    'number'         => $this->getOrderNumber(),
                     'type'      => Ordermodel::PAYTYPE_MANAGEMENT,
                     'year'      => $bill['year'],
                     'month'     => $bill['month'],
@@ -307,6 +309,7 @@ class Ordermodel extends Basemodel{
         if (0 < $resident->real_rent_money) {
             foreach ($firstPay as $bill) {
                 $info   = array_merge($info, [
+                    'number'         => $this->getOrderNumber(),
                     'type'      => Ordermodel::PAYTYPE_ROOM,
                     'year'      => $bill['year'],
                     'month'     => $bill['month'],
@@ -317,7 +320,8 @@ class Ordermodel extends Basemodel{
                 // Order::create($info);
             }
         }
-        return $info['number'];
+       // return $info['number'];
+        return true;
     }
 
     /**

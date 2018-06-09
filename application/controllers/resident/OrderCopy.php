@@ -22,16 +22,16 @@ class Order extends MY_Controller
     public function listUnpaidOrder()
     {
         $this->load->model('residentmodel');
-        $this->load->model('ordermodel');
+        $this->load->model('newordermodel');
         $this->load->model('storemodel');
         $this->load->model('roomunionmodel');
 
-        $resident   = Residentmodel::with(['roomunion','orders'=>function($query){
-            $query->where('status',Ordermodel::STATE_PENDING);
+        $resident   = Residentmodel::with(['roomunion','neworders'=>function($query){
+            $query->where('status',Newordermodel::STATE_PENDING);
         }])->where('customer_id',1349);
         $orders  = $resident->get()->map(function($query){
-            $query->count  = count($query->orders);
-            $query->amount = $query->orders->sum('money');
+            $query->count  = count($query->neworders);
+            $query->amount = $query->neworders->sum('money');
             return $query;
         })->where('amount','>',0);
 
@@ -45,16 +45,16 @@ class Order extends MY_Controller
     public function listPaidOrder()
     {
         $this->load->model('residentmodel');
-        $this->load->model('ordermodel');
+        $this->load->model('newordermodel');
         $this->load->model('storemodel');
         $this->load->model('roomunionmodel');
 
-        $resident   = Residentmodel::with(['roomunion','orders'=>function($query){
-            $query->whereIn('status',[Ordermodel::STATE_CONFIRM,Ordermodel::PAYTYPE_COMPENSATION]);
+        $resident   = Residentmodel::with(['roomunion','neworders'=>function($query){
+            $query->whereIn('status',[Newordermodel::STATE_CONFIRM,Newordermodel::PAYTYPE_COMPENSATION]);
         }])->where('customer_id',1349);
         $orders  = $resident->get()->map(function($query){
-            $query->count  = count($query->orders);
-            $query->amount = $query->orders->sum('money');
+            $query->count  = count($query->neworders);
+            $query->amount = $query->neworders->sum('money');
             return $query;
         })->where('amount','>',0);
 
@@ -116,7 +116,7 @@ class Order extends MY_Controller
     public function paid()
     {
         $this->load->model('residentmodel');
-        $this->load->model('ordermodel');
+        $this->load->model('newordermodel');
         $this->load->model('roomunionmodel');
         $this->load->model('coupontypemodel');
         $this->load->model('couponmodel');
@@ -124,20 +124,20 @@ class Order extends MY_Controller
 
         $resident_id    = $this->input->post('resident_id',true);
 
-        $resident   = Residentmodel::with(['roomunion','orders'=>function($query){
-            $query->whereIn('status',[Ordermodel::STATE_CONFIRM,Ordermodel::STATE_COMPLETED])/*->orderBy('year','ASC')->orderBy('month','ASC')*/;
+        $resident   = Residentmodel::with(['roomunion','neworders'=>function($query){
+            $query->whereIn('status',[Newordermodel::STATE_CONFIRM,Newordermodel::STATE_COMPLETED])->orderBy('year','ASC')->orderBy('month','ASC');
         }])
             ->where('customer_id',$this->user->id)
             ->findOrFail($resident_id);
 
         $room   = $resident->roomunion;
-        $orders   = $resident->orders;
+        $neworders   = $resident->neworders;
 
         if(!$room->store->pay_online){
             $this->api_res(10020);
             return;
         }
-        if(count($orders) == 0){
+        if(count($neworders) == 0){
             $this->api_res(0,['list'=>[]]);
             return;
         }
@@ -145,18 +145,18 @@ class Order extends MY_Controller
 //        $number = Ordermodel::newNumber($room->apartment->city->abbreviation, $room->apartment->abbreviation);
 //        Newordermodel::whereIn('id', $neworders->pluck('id')->toArray())->update(['number' => $number]);
 
-        $list   = $orders->groupBy('type')->map(function ($items, $type) {
+        $list   = $neworders->groupBy('type')->map(function ($items, $type) {
             return [
-                'name'   => Ordermodel::getTypeName($type),
+                'name'   => Newordermodel::getTypeName($type),
                 'amount' => number_format($items->sum('paid'), 2),
             ];
         });
 
-        $totalMoney = number_format($orders->sum('money'), 2);
+        $totalMoney = number_format($neworders->sum('money'), 2);
 
-        $coupons    = $this->getCouponsAvailable($resident, $orders);
+        $coupons    = $this->getCouponsAvailable($resident, $neworders);
 
-        $this->api_res(0,['orders'=>$orders,'list'=>$list,'coupons'=>$coupons,'resident'=>$resident,'room'=>$room,'totalMoeny'=>$totalMoney]);
+        $this->api_res(0,['orders'=>$neworders,'list'=>$list,'coupons'=>$coupons,'resident'=>$resident,'room'=>$room,'totalMoeny'=>$totalMoney]);
 
 
     }
@@ -168,7 +168,7 @@ class Order extends MY_Controller
     {
 
         $this->load->model('residentmodel');
-        $this->load->model('ordermodel');
+        $this->load->model('newordermodel');
         $this->load->model('roomunionmodel');
         $this->load->model('coupontypemodel');
         $this->load->model('couponmodel');
@@ -176,20 +176,20 @@ class Order extends MY_Controller
 
         $resident_id    = $this->input->post('resident_id',true);
 
-        $resident   = Residentmodel::with(['roomunion','orders'=>function($query){
-            $query->where('status',Ordermodel::STATE_PENDING)/*->orderBy('year','ASC')->orderBy('month','ASC')*/;
+        $resident   = Residentmodel::with(['roomunion','neworders'=>function($query){
+            $query->where('status',Newordermodel::STATE_PENDING)->orderBy('year','ASC')->orderBy('month','ASC');
         }])
             ->where('customer_id',$this->user->id)
             ->findOrFail($resident_id);
 
         $room   = $resident->roomunion;
-        $orders   = $resident->orders;
+        $neworders   = $resident->neworders;
 
         if(!$room->store->pay_online){
             $this->api_res(10020);
             return;
         }
-        if(count($orders) == 0){
+        if(count($neworders) == 0){
             $this->api_res(0,['list'=>[]]);
             return;
         }
@@ -197,18 +197,18 @@ class Order extends MY_Controller
 //        $number = Ordermodel::newNumber($room->apartment->city->abbreviation, $room->apartment->abbreviation);
 //        Newordermodel::whereIn('id', $neworders->pluck('id')->toArray())->update(['number' => $number]);
 
-        $list   = $orders->groupBy('type')->map(function ($items, $type) {
+        $list   = $neworders->groupBy('type')->map(function ($items, $type) {
             return [
-                'name'   => Ordermodel::getTypeName($type),
+                'name'   => Newordermodel::getTypeName($type),
                 'amount' => number_format($items->sum('paid'), 2),
             ];
         });
 
-        $totalMoney = number_format($orders->sum('money'), 2);
+        $totalMoney = number_format($neworders->sum('money'), 2);
 
-        $coupons    = $this->getCouponsAvailable($resident, $orders);
+        $coupons    = $this->getCouponsAvailable($resident, $neworders);
 
-        $this->api_res(0,['orders'=>$orders,'list'=>$list,'coupons'=>$coupons,'resident'=>$resident,'room'=>$room,'totalMoeny'=>$totalMoney]);
+        $this->api_res(0,['orders'=>$neworders,'list'=>$list,'coupons'=>$coupons,'resident'=>$resident,'room'=>$room,'totalMoeny'=>$totalMoney]);
 
     }
 
@@ -219,14 +219,14 @@ class Order extends MY_Controller
     {
         $orders = $orderCollection->groupBy('type');
         //优惠券的使用目前仅限于房租和代金券
-        if (!isset($orders[Ordermodel::PAYTYPE_ROOM]) && !isset($orders[Ordermodel::PAYTYPE_MANAGEMENT])) {
+        if (!isset($orders[Newordermodel::PAYTYPE_ROOM]) && !isset($orders[Newordermodel::PAYTYPE_MANAGEMENT])) {
             return false;
         }
 
         //月付用户首次支付不能使用优惠券
         if (1 == $resident->pay_frequency) {
             $tmpOrder = $orderCollection->first();
-            if (Ordermodel::PAYSTATE_PAYMENT == $tmpOrder->pay_status AND $resident->begin_time->day < 21) {
+            if (Newordermodel::PAYSTATE_PAYMENT == $tmpOrder->pay_status AND $resident->begin_time->day < 21) {
                 return null;
             }
         }
@@ -240,7 +240,7 @@ class Order extends MY_Controller
                 $resident,
                 $orders,
                 $usageList,
-                Ordermodel::PAYTYPE_ROOM,
+                Newordermodel::PAYTYPE_ROOM,
                 $resident->real_rent_money
             );
 
@@ -250,7 +250,7 @@ class Order extends MY_Controller
                 $resident,
                 $orders,
                 $usageList,
-                Ordermodel::PAYTYPE_MANAGEMENT,
+                Newordermodel::PAYTYPE_MANAGEMENT,
                 $resident->real_property_costs
             );
 
