@@ -225,7 +225,6 @@ class Contract extends MY_Controller
 
 
         $contract   = new Contractmodel();
-        echo 1;die();
         //开始签约
         try{
             DB::beginTransaction();
@@ -260,7 +259,6 @@ class Contract extends MY_Controller
             $this->api_res(0,['resident_id'=>$resident->id,'order_number'=>$b]);
         }catch (Exception $e){
             DB::rollBack();
-            log_message('error',$e->getMessage());
             throw $e;
         }
     }
@@ -317,7 +315,51 @@ class Contract extends MY_Controller
             $CustomerCA= $this->getCustomerCA($data);
             $contractId   = 'JINDI'.date("YmdHis").mt_rand(10,60);
 
+<<<<<<< HEAD
             $res2        = $this->fadada->generateContract(
+=======
+           // $customerCA = $this->getCustomerCA($data);
+
+
+
+        $contract   = new Contractmodel();
+        //开始签约
+        try{
+            DB::beginTransaction();
+            //1,生成合同
+            $contract->store_id = $resident->store_id;
+            $contract->room_id  = $resident->room_id;
+            $contract->resident_id  = $resident->id;
+            $contract->uxid         = $resident->uxid;
+            //此用户id是fdd返回id而不是正常的customer_id
+            $contract->customer_id  = $resident->customer_id;
+            $contract->fdd_customer_id  = $data['fdd_customer_id'];
+            $contract->type         = $data['type'];
+            $contract->employee_id  = $resident->employee_id;
+            $contract->contract_id  = $data['contract_id'];
+            $contract->doc_title    = $data['doc_title'];
+            $contract->download_url = $data['download_url'];
+            $contract->view_url     = $data['view_url'];
+            $contract->status       = $data['status'];
+            $contract->sign_type       = Contractmodel::SIGN_NEW ;
+            $a  = $contract->save();
+            //2.生成订单
+            $this->load->model('ordermodel');
+            $b  = $this->ordermodel->firstCheckInOrders($resident, $room);
+//            $this->load->model('newordermodel');
+//            $b  =  $this->newordermodel->firstCheckInOrders($resident,$room);
+
+            if($a && $b){
+                DB::commit();
+            }else{
+                DB::rollBack();
+                $this->api_res(1009);
+                return;
+            }
+
+            $contractId             = 'JINDI'.date("YmdHis").mt_rand(10,60);
+            $res        = $this->fadada->generateContract(
+>>>>>>> c69b72503b04bbe4c291c75e20a8b19a988bb3fa
                 $parameters['contract_number'],
                 $cont_template->fdd_tpl_id,
                 $contractId,
