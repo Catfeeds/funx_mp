@@ -19,7 +19,9 @@ class Contract extends MY_Controller
         parent::__construct();
         $this->load->library('fadada');
         $this->load->helper('common');
-       // $this->load->model('roomtypemodel');
+        $this->load->model('contractmodel');
+        $this->load->model('contracttemplatemodel');
+        // $this->load->model('roomtypemodel');
 
     }
 
