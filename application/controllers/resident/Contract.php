@@ -259,6 +259,7 @@ class Contract extends MY_Controller
             $this->api_res(0,['resident_id'=>$resident->id,'order_number'=>$b]);
         }catch (Exception $e){
             DB::rollBack();
+            log_message('error',$e->getMessage());
             throw $e;
         }
     }
