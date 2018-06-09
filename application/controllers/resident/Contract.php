@@ -261,6 +261,19 @@ class Contract extends MY_Controller
         }
     }
 
+    private function test()
+    {
+        return array(
+            'type' => 'FDD',
+            'contract_id' => 'JINDI123456789',
+            'doc_title' => "title",
+            'download_url' => 'url_download',
+            'view_url' => 'url_view',
+            'status' => Contractmodel::STATUS_GENERATED,
+        );
+    }
+
+
     /**
      * 生成签署合同的页面
      * */
