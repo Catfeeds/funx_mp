@@ -36,9 +36,10 @@ class AuthHook {
             'pay/payment/notify',
 
             'resident/resident/getresident',
+            'resident/contract/index',
             'resident/contract/sendsms',
             'resident/contract/confirm',
-            'resident/contract/test1',
+            'resident/contract/signcontract',
 
             'store/home/listhome',
             'store/store/mapconfig',
@@ -111,7 +112,6 @@ class AuthHook {
         $full_path  = strtolower($directory.$class.'/'.$method);
         // var_dump( $full_path );
         if(!in_array($full_path,$authArr)) {
-
             try {
 
                 $token = $this->CI->input->get_request_header('token');
