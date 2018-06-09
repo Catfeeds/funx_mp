@@ -174,7 +174,6 @@ class Contract extends MY_Controller
             return;
         }
 
-        echo 1;exit;
 
         //判断门店的合同类型选择调用哪个合同流程
         $this->load->model('storemodel');
@@ -351,6 +350,17 @@ class Contract extends MY_Controller
         return $result;
     }
 
+    private function test()
+    {
+        return array(
+            'type' => 'FDD',
+            'contract_id' => 'JINDI123456789',
+            'doc_title' => "title",
+            'download_url' => 'url_download',
+            'view_url' => 'url_view',
+            'status' => Contractmodel::STATUS_GENERATED,
+        );
+    }
 
 
 }
