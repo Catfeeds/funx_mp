@@ -263,7 +263,7 @@ class Contract extends MY_Controller
         }
     }
 
-<<<<<<< HEAD
+
     /**
      * 生成签署合同的页面
      * */
@@ -347,43 +347,7 @@ class Contract extends MY_Controller
 
         return $result;
     }
-=======
 
-
-
-
-        //生成普通的电子合同
-        private function generate(){
-
-
-        }
-
-        //生成法大大的电子合同
-        private function generateFDD(){
-            //生成电子合同, 这个所有的整数都转换成了字符串类型, 否则调用接口会出错
-
-
-
-
-
-        }
-
-    /**
-     * 申请用户证书
-     */
-    private function getCustomerCA($data)
-    {
-        $res = $this->fadada->getCustomerCA($data['name'], $data['phone'], $data['cardNumber'], $data['cardType']);
-
-        if ($res == false) {
-            echo "aa";
-            throw new Exception($this->fadada->showError());
-        }
-
-        return $res['customer_id'];
-    }
-
->>>>>>> a04c4c4c137881dafc5ec707e7192060c77667e2
 
 
 }
