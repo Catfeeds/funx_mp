@@ -22,7 +22,7 @@ class Goodscart extends MY_Controller
         $this->load->model('goodsmodel');
        // $post = $this->input->post(null, true);
         //$uxid = intval(strip_tags(trim($post['uxid'])));
-        $uxid  = 7;
+        $uxid  = 7;//CURRENT_ID
         $field = ['id', 'goods_id', 'quantity'];
         if (isset($uxid)) {
                 $goodscart = Goodscartmodel::with('goods')->where('uxid',$uxid)->get($field)->toArray();
