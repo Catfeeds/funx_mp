@@ -124,12 +124,14 @@ class Goodscart extends MY_Controller
         //$uxid = intval(strip_tags(trim($post['uxid'])));
         $goods_id = intval(strip_tags(trim($post['goods_id'])));
         $cart_num = intval(strip_tags(trim($post['quantity'])));
-        $cart_id  =intval(strip_tags(trim($post['cart_id'])));//CURRENT_ID
+       // $uxid  =intval(strip_tags(trim($post['uxid'])));//CURRENT_ID
+       // $cart_id  =intval(strip_tags(trim($post['cart_id'])));//CURRENT_ID
         $filed = ['quantity'];
         $goods = Goodsmodel::where('id',$goods_id)->get($filed)->toArray();
         if($cart_num <= $goods[0]){
-            $num = Goodscartmodel::where('uxid', 7)->where('id',$cart_id)->first();
+            $num = Goodscartmodel::where('uxid', 7)->first();
             $num->quantity = $cart_num;
+          //  var_dump($cart_num);die();
             if ($num->save()) {
                 $this->api_res(0);
             } else {

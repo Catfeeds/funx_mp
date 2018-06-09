@@ -95,4 +95,71 @@ class Smartlock extends MY_Controller
             }
         }
     }
+
+    /*
+     * 修改密码
+     */
+   public function updatePwd()
+   {
+       //$this->load->library('m_redis');
+       $post    = $this->input->post();
+       $oldpwd  = trim($post['old_pwd']);
+       $newpwd  = trim($post['new_pwd']);
+       $repwd   = trim($post['re_pwd']);
+       if (!($newpwd ===$repwd)){
+           $this->api_res(1002);
+           return;
+       }
+       if ($post['serial_number']){
+           $device_id = trim($post['serial_number']);
+           $supplier = Smartdevicemodel::where('serial_number',$device_id)
+               ->get(['supplier'])->map(function ($supplier){
+                   return $supplier->supplier;
+               });
+           if ($supplier[0] == 'DANBAY'){
+/*               (new Danbaylock($device_id))->handle();
+               $danbay = new Danbaylock($device_id);
+               $all_pwd = $danbay->getLockPwdList();
+
+               $pwd = $danbay->editGuestPwd(1,$newpwd);*/
+               $this->api_res(0,[]);
+           }elseif ($supplier[0] == 'YEEUU'){
+               $pwd = (new Yeeuulock($device_id))->extPwd($newpwd,1);
+               $this->api_res(0,$pwd);
+           }else{
+               $this->api_res(0,[]);
+           }
+       }
+   }
+
+   /**
+    * 查看开门记录
+    */
+    public function lockRecord()
+    {
+        //$this->load->library('m_redis');
+        $post = $this->input->post();
+        if(!empty($post['begin_time'])){$bt=$post['begin_time'];}else{$bt = date('Ymd',0);};
+        if(!empty($post['end_time'])){$et=$post['end_time'];}else{$et = date('Ymd',time());};
+        if ($post['serial_number']){
+            $device_id = trim($post['serial_number']);
+            $supplier = Smartdevicemodel::where('serial_number',$device_id)
+                ->get(['supplier'])->map(function ($supplier){
+                    return $supplier->supplier;
+                });
+            if ($supplier[0] == 'DANBAY'){
+
+                $this->api_res(0,[]);
+            }elseif ($supplier[0] == 'YEEUU'){
+                $pwd = (new Yeeuulock($device_id))->openRecords($bt,$et);
+                $pwd = $pwd['data'];
+                foreach ($pwd as $key=>$value){
+                    $pwd[$key]['opTime'] = date('Y-m-d',strtotime($pwd[$key]['opTime']));
+                }
+                $this->api_res(0,$pwd);
+            }else{
+                $this->api_res(0,[]);
+            }
+        }
+    }
 }

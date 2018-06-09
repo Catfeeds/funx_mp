@@ -20,7 +20,13 @@ class Contract extends MY_Controller
         $this->load->library('fadada');
         $this->load->helper('common');
        // $this->load->model('roomtypemodel');
+         $this->load->model('contracttemplatemodel');
 
+    }
+
+    public function index(){
+
+//        echo "aa";
     }
 
     /**
@@ -45,6 +51,7 @@ class Contract extends MY_Controller
             }
             //更新订单
             $resident->orders()->update(['uxid' => $customer->id]);
+
             // $resident->coupons()->where('customer_id', 0)->update(['customer_id' => $customer->id]);
             // $customer->coupons()->where('resident_id', 0)->update(['resident_id' => $residentId]);
 
@@ -59,6 +66,23 @@ class Contract extends MY_Controller
         }
         $this->api_res(0,['contract'=>$contract]);
     }
+
+    /**
+     * 奔向签署合同页面的链接
+     * */
+
+        public function signContract(){
+            //生成合同
+            $cont_template = Contracttemplatemodel::where(['room_type_id'=>53,'rent_type'=>'LONG'])->first();
+
+            $this->api_res(0,['contract'=>$cont_template]);
+          //  var_dump($cont_template);
+
+
+
+
+        }
+
 
     /**
      * 奔向签署合同页面的链接

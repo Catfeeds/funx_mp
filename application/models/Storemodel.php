@@ -42,7 +42,7 @@ class Storemodel extends Basemodel{
 //    //门店的员工信息
 //    public function employee(){
 //
-//        return $this->hasMany(Employeemodel::class,'store_id');
+//        return $this->hasMany(employeemodel::class,'store_id');
 //    }
 //
 //    //门店的房型
