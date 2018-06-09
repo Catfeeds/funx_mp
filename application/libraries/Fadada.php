@@ -140,15 +140,14 @@ class Fadada
                 'parameter_map' => json_encode($parameters),
                 'font_size'     => $fontSize,
             );
-            //var_dump($reqData);die();
             $msgDigest  = array(
                 'sha1'  => [config_item('fadada_api_app_secret'), $templateId, $contractId],
                 'md5'   => ['timestamp' => date('YmdHis')],
                 'other' => $parameterMap,
             );
-           //var_dump($msgDigest);die();
             $res = $this->requestFdd($url, $reqData, $msgDigest);           //向法大大系统发送请求
-           var_dump($res);die();
+           return $res;
+           die();
         } catch (Exception $e) {
             $this->error = $e->getMessage();
             return false;
