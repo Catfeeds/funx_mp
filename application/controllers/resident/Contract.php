@@ -133,8 +133,6 @@ class Contract extends MY_Controller
      */
     public  function confirm(){
 
-        echo 1;exit;
-
         $input  = $this->input->post(null,true);
         log_message('error',json_encode($input));
         $resident_id    = intval(strip_tags($input['resident_id']));
@@ -158,13 +156,15 @@ class Contract extends MY_Controller
         }
 
         //验证住户的uxid是不是当前ID
-        $this->checkUser($resident->uxid);
+        //$this->checkUser($resident->uxid);
         $this->load->model('roomunionmodel');
         $room   = $resident->roomunion;
         if($room->status!=Roomunionmodel::STATE_OCCUPIED){
             $this->api_res(10014);
             return;
         }
+
+        echo 1;exit;
 
 //      判断住户合同是否已经归档，有已经归档的合同 就结束
         $this->load->model('contractmodel');
