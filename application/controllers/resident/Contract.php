@@ -80,214 +80,8 @@ class Contract extends MY_Controller
         }
         $this->api_res(0,['contract'=>$contract]);
     }
-    /**
-     * 奔向签署合同页面的链接
-     */
-    public function getSignUrl($contract)
-    {
-        //查找用户之前是否有未签署的请求
-        $recordOld = $contract->transactions->where('role', Fddrecordmodel::ROLE_B)
-            ->where('status', Fddrecordmodel::STATUS_INITIATED)->first();
 
-        if (count($recordOld)) {
-            $transactionId = $recordOld->transaction_id;
-        } else {
-            $transactionId  = 'B'.date("YmdHis").mt_rand(10, 60);
-        }
 
-        //生成调用该接口所需要的信息
-        $data = $this->fadada->signARequestData(
-            $contract->customer_id,
-            $contract->contract_id,
-            $transactionId,
-            $contract->doc_title,
-            site_url('contract/signresult'),    //return_url
-            employee_url('contract/notify')     //notify_url
-        );
-
-        if (!$data) {
-            throw new Exception($this->fadada->showError());
-        }
-
-        //手动签署, 只有页面跳转到法大大平台交易才能生效, 因此, 若上一步骤失败, 就不该存储交易记录.
-        if (!$recordOld) {
-            $record = new Fddrecordmodel();
-            $record->role = Fddrecordmodel::ROLE_B;
-            $record->status = Fddrecordmodel::STATUS_INITIATED;
-            $record->remark = '乙方发起了签署动作';
-            $record->contract_id = $contract->id;
-            $record->transaction_id = $transactionId;
-            $record->save();
-        }
-
-        $baseUrl = array_shift($data);
-
-        return $baseUrl . '?' . http_build_query($data);
-    }
-
-    /**
-     * 用户签署之后跳转的页面
-     * 获取签署结果, 更新合同状态为签署中
-     */
-    public function signResult()
-    {
-        $this->load->library('fadada');
-        $this->load->library('form_validation');
-
-        $config = array(
-            array(
-                'field' => 'transaction_id',
-                'label' => 'transaction_id',
-                'rules' => 'required',
-            ),
-            array(
-                'field' => 'result_code',
-                'label' => 'result_code',
-                'rules' => 'required',
-            ),
-            array(
-                'field' => 'result_desc',
-                'label' => 'result_desc',
-                'rules' => 'required',
-            ),
-            array(
-                'field' => 'timestamp',
-                'label' => 'timestamp',
-                'rules' => 'required',
-            ),
-            array(
-                'field' => 'msg_digest',
-                'label' => 'msg_digest',
-                'rules' => 'required',
-            )
-        );
-
-        $input = array(
-            'transaction_id' => trim($this->input->get('transaction_id', true)),
-            'result_code'    => trim($this->input->get('result_code', true)),
-            'result_desc'    => trim($this->input->get('result_desc', true)),
-            'download_url'   => trim($this->input->get('download_url', true)),
-            'viewpdf_url'    => trim($this->input->get('viewpdf_url', true)),
-            'timestamp'      => trim($this->input->get('timestamp', true)),
-            'msg_digest'     => trim($this->input->get('msg_digest', true)),
-        );
-
-        //CI 中的表单验证, 可能是只能验证 form 表单提交的数据, url-query 中携带的数据, 好像无法验证
-        $this->form_validation->set_data($input);
-        $this->form_validation->set_rules($config);
-
-        if ($this->form_validation->run() == FALSE) {
-            redirect(site_url('center'));
-        }
-
-        //获取完参数之后进行校验
-        $msgDigestData = array(
-            'sha1' => [FADADA_API_APP_SECRET, $input['transaction_id']],
-            'md5'  => [$input['timestamp']],
-        );
-
-        try {
-            $msgDigestStr = $this->fadada->getMsgDigest($msgDigestData);
-
-            if ($msgDigestStr != $input['msg_digest']) {
-                throw new Exception('msg_digest 验证失败');
-            }
-
-            //更新合同记录, 将合同状态设置为签署中
-            $contract = Fddrecordmodel::where('transaction_id', $input['transaction_id'])->first()->contract;
-            if ($contract->status == Contractmodel::STATUS_GENERATED) {
-                $contract->status = Contractmodel::STATUS_SIGNING;
-                $contract->save();
-            }
-        } catch (Exception $e) {
-            log_message('error', $e->getMessage());
-            redirect(site_url('center'));
-        }
-
-        //没有问题就跳转支付页面
-        redirect(site_url(['order', 'payment', $contract->resident->id]));
-    }
-
-    /**
-     * 校验验证码
-     */
-    private function checkVerifyCode($phone = '', $verifyCode = '')
-    {
-        $key = config_item('verify_code_prefix').$this->auth->id();
-
-        if (!isset($_SESSION[$key])) {
-            throw new Exception('验证码不正确!');
-        }
-
-        $data = unserialize($_SESSION[$key]);
-
-        if ($data['phone'] != $phone || $data['code'] != $verifyCode) {
-            throw new Exception('手机号码与验证码不匹配!');
-        }
-
-        //验证完成后销毁 session
-        unset($_SESSION[$key]);
-
-        return true;
-    }
-
-    /**
-     * 表单验证规则
-     */
-    private function validation()
-    {
-        $this->load->library('form_validation');
-        $config = array(
-            array(
-                'field' => 'resident_id',
-                'label' => '用户id',
-                'rules' => 'trim|required',
-            ),
-            array(
-                'field' => 'name',
-                'label' => '用户名',
-                'rules' => 'trim|required',
-            ),
-            array(
-                'field' => 'phone',
-                'label' => '手机',
-                'rules' => 'trim|required',
-            ),
-            array(
-                'field' => 'verify_code',
-                'label' => '二维码',
-                'rules' => 'trim|required',
-            ),//id_card
-            array(
-                'field' => 'id_card',
-                'label' => '证件',
-                'rules' => 'trim|required',
-            ),
-            array(
-                'field' => 'id_type',
-                'label' => '类型',
-                'rules' => 'trim|required',
-            ),
-            array(
-                'field' => 'alternative',
-                'label' => '紧急联系人的姓名',
-                'rules' => 'trim|required',
-            ),
-            array(
-                'field' => 'alter_phone',
-                'label' => '紧急联系人电话',
-                'rules' => 'trim|required',
-            ),
-            array(
-                'field' => 'address',
-                'label' => '地址',
-                'rules' => 'trim|required',
-            ),
-
-        );
-        $this->form_validation->set_rules($config)->set_error_delimiters('','');
-        return $this->form_validation->run();
-    }
 
     /*********************************以下为重写的内容，上面是原来的内容****************************************/
     /**
@@ -428,6 +222,114 @@ class Contract extends MY_Controller
         }*/
 
 
+        $contract   = new Contractmodel();
+        //开始签约
+        try{
+            DB::beginTransaction();
+            //1,生成合同
+            $contract->store_id = $resident->store_id;
+            $contract->room_id  = $resident->room_id;
+            $contract->resident_id  = $resident->id;
+            $contract->uxid         = $resident->uxid;
+            //此用户id是fdd返回id而不是正常的customer_id
+            $contract->customer_id  = $resident->customer_id;
+            //$contract->fdd_customer_id  = $data['fdd_customer_id'];
+            $contract->type         = $data['type'];
+            $contract->employee_id  = $resident->employee_id;
+            $contract->contract_id  = $data['contract_id'];
+            $contract->doc_title    = $data['doc_title'];
+            $contract->download_url = $data['download_url'];
+            $contract->view_url     = $data['view_url'];
+            $contract->status       = $data['status'];
+//            $contract->sign_type       = Contractmodel::SIGN_NEW ;
+            $a  = $contract->save();
+            //2.生成订单
+            $this->load->model('ordermodel');
+            $b  = $this->ordermodel->firstCheckInOrders($resident, $room);
+
+            if($a && $b){
+                DB::commit();
+            }else{
+                DB::rollBack();
+                $this->api_res(1009);
+                return;
+            }
+            $this->api_res(0,['resident_id'=>$resident->id,'order_number'=>$b]);
+        }catch (Exception $e){
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * 生成签署合同的页面
+     * */
+        public function signContract(){
+            //获取合同模板
+            $cont_template = Contracttemplatemodel::where(['room_type_id'=>53,'rent_type'=>'LONG'])->first();
+            //签署合同需要准备的信息
+//            $parameters     = array(
+//                'contract_number'     => $contractNumber,               //合同号
+//                'customer_name'       => $resident->name,               //租户姓名
+//                'id_card'             => $resident->card_number,        //身份证号
+//                'phone'               => $resident->phone,              //电话号码
+//                'address'             => $resident->address,            //地址
+//                'alternative_person'  => $resident->alternative,        //紧急联人
+//                'alternative_phone'   => $resident->alter_phone,        //紧急联系人电话
+//                'room_number'         => $resident->room->number,       //房间号
+//                'year_start'          => "{$resident->begin_time->year}",    //起租年
+//                'month_start'         => "{$resident->begin_time->month}",     //起租月
+//                'day_start'           => "{$resident->begin_time->day}",        //起租日
+//                'year_end'            => "{$resident->end_time->year}",         //结束年
+//                'month_end'           => "{$resident->end_time->month}",        //结束月
+//                'day_end'             => "{$resident->end_time->day}",           //接速日
+//                'rent_money'          => "{$resident->real_rent_money}",           //租金
+//                'rent_money_upper'    => Util::num2rmb($resident->real_rent_money),  //租金确认
+//                'service_money'       => "{$resident->real_property_costs}",        //服务费
+//                'service_money_upper' => Util::num2rmb($resident->real_property_costs),// 服务费确认
+//                'deposit_money'       => "{$resident->deposit_money}",                   //暂时不确定
+//                'deposit_month'       => (string)$resident->deposit_month,               //金额确定
+//                'deposit_money_upper' => Util::num2rmb($resident->deposit_money),         //金额确定
+//                'tmp_deposit'         => "{$resident->tmp_deposit}",                       //临时租金
+//                'tmp_deposit_upper'   => Util::num2rmb($resident->tmp_deposit),             //零食租金确认
+//                'special_term'        => $resident->special_term ? $resident->special_term : '无',  //
+//                'year'                => "{$now->year}",                                    //签约年
+//                'month'               => "{$now->month}",                                   //签约月
+//                'day'                 => "{$now->day}",                                     //签约日
+//                'attachment_2_date'   => $now->format('Y-m-d'),                             //最终时间确认
+//            );
+            $parameters     = array(
+                'contract_number'     => '2018-06-09-001',               //合同号
+                'customer_name'       => '杜伟',               //租户姓名
+                'id_card'             => '511325198704153015',        //身份证号
+                'phone'               => '15771763360',              //电话号码
+                'address'             => 'test',            //地址
+                'alternative_person'  => 'test',        //紧急联人
+                'alternative_phone'   => '15555555555',        //紧急联系人电话
+                'room_number'         => '2018',       //房间号
+                'year_start'          => "2018",    //起租年
+                'month_start'         => "06",     //起租月
+                'day_start'           => "09",        //起租日
+                'year_end'            => "2018",         //结束年
+                'month_end'           => "07",        //结束月
+                'day_end'             => "12",           //接速日
+                'rent_money'          => "200",           //租金
+                'rent_money_upper'    => num2rmb(200),  //租金确认
+                'service_money'       => "300",        //服务费
+                'service_money_upper' => num2rmb(300),// 服务费确认
+                'deposit_money'       => "400",                   //押金
+                'deposit_month'       => "2",               //押金月份
+                'deposit_money_upper' => num2rmb(400),         //金额确定
+                'tmp_deposit'         => "100",                       //其它押金
+                'tmp_deposit_upper'   => num2rmb(100),             //其它押金
+                'special_term'        => '无',  //
+                'year'                => date("Y"),                                    //签约年
+                'month'               => date("m"),                                   //签约月
+                'day'                 => date("d"),                                     //签约日
+                'attachment_2_date'   => date("Y-m-d")                             //最终时间确认
+            );
+
+
 
             $customerCA = $this->getCustomerCA($data);
 
@@ -518,81 +420,6 @@ class Contract extends MY_Controller
 
         return $res['customer_id'];
     }
-
-//* 生成签署合同的页面
-//* */
-    public function signContract(){
-        //获取合同模板
-        $cont_template = Contracttemplatemodel::where(['room_type_id'=>53,'rent_type'=>'LONG'])->first();
-        //签署合同需要准备的信息
-//            $parameters     = array(
-//                'contract_number'     => $contractNumber,               //合同号
-//                'customer_name'       => $resident->name,               //租户姓名
-//                'id_card'             => $resident->card_number,        //身份证号
-//                'phone'               => $resident->phone,              //电话号码
-//                'address'             => $resident->address,            //地址
-//                'alternative_person'  => $resident->alternative,        //紧急联人
-//                'alternative_phone'   => $resident->alter_phone,        //紧急联系人电话
-//                'room_number'         => $resident->room->number,       //房间号
-//                'year_start'          => "{$resident->begin_time->year}",    //起租年
-//                'month_start'         => "{$resident->begin_time->month}",     //起租月
-//                'day_start'           => "{$resident->begin_time->day}",        //起租日
-//                'year_end'            => "{$resident->end_time->year}",         //结束年
-//                'month_end'           => "{$resident->end_time->month}",        //结束月
-//                'day_end'             => "{$resident->end_time->day}",           //接速日
-//                'rent_money'          => "{$resident->real_rent_money}",           //租金
-//                'rent_money_upper'    => Util::num2rmb($resident->real_rent_money),  //租金确认
-//                'service_money'       => "{$resident->real_property_costs}",        //服务费
-//                'service_money_upper' => Util::num2rmb($resident->real_property_costs),// 服务费确认
-//                'deposit_money'       => "{$resident->deposit_money}",                   //暂时不确定
-//                'deposit_month'       => (string)$resident->deposit_month,               //金额确定
-//                'deposit_money_upper' => Util::num2rmb($resident->deposit_money),         //金额确定
-//                'tmp_deposit'         => "{$resident->tmp_deposit}",                       //临时租金
-//                'tmp_deposit_upper'   => Util::num2rmb($resident->tmp_deposit),             //零食租金确认
-//                'special_term'        => $resident->special_term ? $resident->special_term : '无',  //
-//                'year'                => "{$now->year}",                                    //签约年
-//                'month'               => "{$now->month}",                                   //签约月
-//                'day'                 => "{$now->day}",                                     //签约日
-//                'attachment_2_date'   => $now->format('Y-m-d'),                             //最终时间确认
-//            );
-        $parameters     = array(
-            'contract_number'     => '2018-06-09-001',               //合同号
-            'customer_name'       => '杜伟',               //租户姓名
-            'id_card'             => '511325198704153015',        //身份证号
-            'phone'               => '15771763360',              //电话号码
-            'address'             => 'test',            //地址
-            'alternative_person'  => 'test',        //紧急联人
-            'alternative_phone'   => '15555555555',        //紧急联系人电话
-            'room_number'         => '2018',       //房间号
-            'year_start'          => "2018",    //起租年
-            'month_start'         => "06",     //起租月
-            'day_start'           => "09",        //起租日
-            'year_end'            => "2018",         //结束年
-            'month_end'           => "07",        //结束月
-            'day_end'             => "12",           //接速日
-            'rent_money'          => "200",           //租金
-            'rent_money_upper'    => num2rmb(200),  //租金确认
-            'service_money'       => "300",        //服务费
-            'service_money_upper' => num2rmb(300),// 服务费确认
-            'deposit_money'       => "400",                   //押金
-            'deposit_month'       => "2",               //押金月份
-            'deposit_money_upper' => num2rmb(400),         //金额确定
-            'tmp_deposit'         => "100",                       //其它押金
-            'tmp_deposit_upper'   => num2rmb(100),             //其它押金
-            'special_term'        => '无',  //
-            'year'                => date("Y"),                                    //签约年
-            'month'               => date("m"),                                   //签约月
-            'day'                 => date("d"),                                     //签约日
-            'attachment_2_date'   => date("Y-m-d")                             //最终时间确认
-        );
-
-        $data['name']='杜伟';
-        $data['phone']='15771763360';
-        $data['cardNumber']='511325198704153015';
-        $data['cardType']='1';
-    }
-
-
 
 
 
