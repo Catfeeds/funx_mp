@@ -225,7 +225,6 @@ class Contract extends MY_Controller
 
 
         $contract   = new Contractmodel();
-        echo 1;die();
         //开始签约
         try{
             DB::beginTransaction();
@@ -260,7 +259,6 @@ class Contract extends MY_Controller
             $this->api_res(0,['resident_id'=>$resident->id,'order_number'=>$b]);
         }catch (Exception $e){
             DB::rollBack();
-            log_message('error',$e->getMessage());
             throw $e;
         }
     }
@@ -348,7 +346,7 @@ class Contract extends MY_Controller
 
 
 
-            $customerCA = $this->getCustomerCA($data);
+           // $customerCA = $this->getCustomerCA($data);
 
 
 
