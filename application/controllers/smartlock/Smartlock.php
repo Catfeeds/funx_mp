@@ -152,6 +152,10 @@ class Smartlock extends MY_Controller
                 $this->api_res(0,[]);
             }elseif ($supplier[0] == 'YEEUU'){
                 $pwd = (new Yeeuulock($device_id))->openRecords($bt,$et);
+                $pwd = $pwd['data'];
+                foreach ($pwd as $key=>$value){
+                    $pwd[$key]['opTime'] = date('Y-m-d',strtotime($pwd[$key]['opTime']));
+                }
                 $this->api_res(0,$pwd);
             }else{
                 $this->api_res(0,[]);
