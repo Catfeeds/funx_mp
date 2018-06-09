@@ -225,6 +225,7 @@ class Contract extends MY_Controller
 
 
         $contract   = new Contractmodel();
+        echo 1;die();
         //开始签约
         try{
             DB::beginTransaction();
