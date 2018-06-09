@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 use Carbon\Carbon;
 use Illuminate\Database\Capsule\Manager as DB;
-use mikehaertl\pdftk\Pdf;
+//use mikehaertl\pdftk\Pdf;
 
 /**
  * User: wws
