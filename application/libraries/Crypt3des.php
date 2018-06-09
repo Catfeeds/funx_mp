@@ -12,7 +12,8 @@ class Crypt3des
     static function PaddingPKCS7($input)
     {
         $srcdata      = $input;
-        $block_size   = mcrypt_get_block_size ('tripledes', 'ecb');
+       $block_size   = @mcrypt_get_block_size ('tripledes', 'ecb');
+        // $block_size =8;
         $padding_char = $block_size - (strlen($input) % $block_size);
         $srcdata      .= str_repeat(chr($padding_char), $padding_char);
 
@@ -33,10 +34,10 @@ class Crypt3des
         $cipher_alg     = MCRYPT_TRIPLEDES;
 
         // 初始化向量来增加安全性
-        $iv             = mcrypt_create_iv(mcrypt_get_iv_size($cipher_alg, MCRYPT_MODE_ECB), MCRYPT_RAND);
+        $iv             = @mcrypt_create_iv(mcrypt_get_iv_size($cipher_alg, MCRYPT_MODE_ECB), MCRYPT_RAND);
 
         //开始加密
-        $encryptedStr   = mcrypt_encrypt($cipher_alg, $key, $string, MCRYPT_MODE_ECB, $iv);
+        $encryptedStr   = @mcrypt_encrypt($cipher_alg, $key, $string, MCRYPT_MODE_ECB, $iv);
 
         // 转化成16进制
         $des3           = bin2hex($encryptedStr);
