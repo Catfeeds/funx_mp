@@ -6,7 +6,7 @@ class Devicemodel extends Basemodel
     const STATE_CONFIRM     = 'CONFIRM';    // 确认
     const STATE_COMPLETED   = 'COMPLATE';   // 完成
 
-    protected $table        = 'devices';
+    protected $table        = 'boss_device';
 
     public function roomtype()
     {
