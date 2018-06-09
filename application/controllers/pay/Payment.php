@@ -207,6 +207,8 @@ class Payment extends MY_Controller
             $store_pay->data=['orders'=>$orders,'coupons'=>$coupons];
             $store_pay->save();
 
+            $orders->update(['out_trade_no'=>$out_trade_no,'store_pay_id'=>$store_pay->id]);
+
             $wechatConfig   = getCustomerWechatConfig();
 //            $wechatConfig['payment']['merchant_id'] = $store->payment_merchant_id;
 //            $wechatConfig['payment']['key']         = $store->payment_key;
@@ -478,9 +480,13 @@ class Payment extends MY_Controller
                     return true;
                 }
 
+                $pay_date   = date('Y-m-d H:i:s',time());
                 foreach ($orders as $order) {
                     $orderIds[]    = $order->id;
+                    $order->pay_date    = $pay_date;
                     $order->status = Ordermodel::STATE_CONFIRM;
+                    $order->out_trade_no = $notify->out_trade_no;
+                    //$order->out_trade_no = $notify->out_trade_no;
                     $order->save();
 
                     if ($order->type == 'DEIVCE') {
@@ -506,6 +512,7 @@ class Payment extends MY_Controller
 
                 $this->load->model('storepaymodel');
                 $store_pay  = Storepaymodel::where('resident_id',$resident->id)->where('out_trade_no',$notify->out_trade_no)->first();
+                //test
                 if(!empty($store_pay))
                 {
                     $store_pay  ->status    = 'DONE';
