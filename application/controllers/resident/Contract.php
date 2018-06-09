@@ -139,7 +139,7 @@ class Contract extends MY_Controller
         //验证短信验证码
         $this->load->library('m_redis');
         if(!$this->m_redis->verifyResidentPhoneCode($input['phone'],$input['code'])){
-            $this->api_res(10007);
+            $this->api_res(10011);
             return;
         }
         $this->load->model('residentmodel');
