@@ -141,7 +141,7 @@ class Contract extends MY_Controller
         //验证短信验证码
         $this->load->library('m_redis');
         if(!$this->m_redis->verifyResidentPhoneCode($input['phone'],$input['code'])){
-            $this->api_res(10007);
+            $this->api_res(10014);
             return;
         }
         $this->load->model('residentmodel');
@@ -164,7 +164,6 @@ class Contract extends MY_Controller
             return;
         }
 
-        echo 1;exit;
 
 //      判断住户合同是否已经归档，有已经归档的合同 就结束
         $this->load->model('contractmodel');
@@ -174,6 +173,8 @@ class Contract extends MY_Controller
             $this->api_res(10015);
             return;
         }
+
+        echo 1;exit;
 
         //判断门店的合同类型选择调用哪个合同流程
         $this->load->model('storemodel');
