@@ -133,6 +133,8 @@ class Contract extends MY_Controller
      */
     public  function confirm(){
 
+        echo 1;exit;
+
         $input  = $this->input->post(null,true);
         log_message('error',json_encode($input));
         $resident_id    = intval(strip_tags($input['resident_id']));
