@@ -182,7 +182,7 @@ class Contract extends MY_Controller
 
         //测试使用
         $data   = $this->test();
-        /*if(Storemodel::C_TYPE_NORMAL==$contract_type){
+   /*     if(Storemodel::C_TYPE_NORMAL==$contract_type){
             if(empty($contract)){
                 //生成纸质版合同
                 $data   = $this->generate($resident, ['type' => Contractmodel::TYPE_NORMAL]);
