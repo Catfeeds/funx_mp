@@ -12,7 +12,8 @@ class Crypt3des
     static function PaddingPKCS7($input)
     {
         $srcdata      = $input;
-        $block_size   = mcrypt_get_block_size ('tripledes', 'ecb');
+//        $block_size   = mcrypt_get_block_size ('tripledes', 'ecb');
+        $block_size =8;
         $padding_char = $block_size - (strlen($input) % $block_size);
         $srcdata      .= str_repeat(chr($padding_char), $padding_char);
 
