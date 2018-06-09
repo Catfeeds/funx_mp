@@ -19,6 +19,11 @@ class Reserveordermodel extends Basemodel
 
     public function room_type(){
         return $this->belongsTo(Roomtypemodel::class,'room_type_id')
-            ->select('id','name','feature');
+            ->select('id','name','feature','images');
+    }
+
+    public function employee(){
+        return $this->belongsTo(Employeemodel::class,'employee_id')
+            ->select('id','name','phone');
     }
 }
