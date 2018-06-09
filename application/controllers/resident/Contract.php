@@ -141,7 +141,7 @@ class Contract extends MY_Controller
         //验证短信验证码
         $this->load->library('m_redis');
         if(!$this->m_redis->verifyResidentPhoneCode($input['phone'],$input['code'])){
-            $this->api_res(10007);
+            $this->api_res(10011);
             return;
         }
         $this->load->model('residentmodel');
@@ -225,6 +225,7 @@ class Contract extends MY_Controller
 
 
         $contract   = new Contractmodel();
+        echo 1;die();
         //开始签约
         try{
             DB::beginTransaction();
@@ -259,6 +260,7 @@ class Contract extends MY_Controller
             $this->api_res(0,['resident_id'=>$resident->id,'order_number'=>$b]);
         }catch (Exception $e){
             DB::rollBack();
+            log_message('error',$e->getMessage());
             throw $e;
         }
     }
