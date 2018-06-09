@@ -17,23 +17,49 @@ class Order extends MY_Controller
     }
 
     /**
-     * 订单列表
+     * 用户未支付订单列表
      */
-    public function listOrder()
+    public function listUnpaidOrder()
     {
-//        $input  = $this->input->post(null,true);
-//        $resident_id    = $input['resident_id'];
-//        $this->load->model('residentmodel');
-//        $resident   = Residentmodel::find($resident_id);
-////        $this->checkUser($resident->uxid);
-//        $this->load->model('ordermodel');
-//        $orders = $resident->orders;
-
-        $uxid   = CURRENT_ID;
-        $this->load->model('ordermodel');
         $this->load->model('residentmodel');
-        $residents  = Residentmodel::with('orders')->where('uxid',$uxid)->get();
-        //$orders = Ordermodel::where('uxid',$uxid)->get();
+        $this->load->model('newordermodel');
+        $this->load->model('storemodel');
+        $this->load->model('roomunionmodel');
+
+        $resident   = Residentmodel::with(['roomunion','neworders'=>function($query){
+            $query->where('status',Newordermodel::STATE_PENDING);
+        }])->where('customer_id',1349);
+        $orders  = $resident->get()->map(function($query){
+            $query->count  = count($query->neworders);
+            $query->amount = $query->neworders->sum('money');
+            return $query;
+        })->where('amount','>',0);
+
+        $this->api_res(0,['residents'=>$orders]);
+
+    }
+
+    /**
+     * 展示用户已经支付的订单列表
+     */
+    public function listPaidOrder()
+    {
+        $this->load->model('residentmodel');
+        $this->load->model('newordermodel');
+        $this->load->model('storemodel');
+        $this->load->model('roomunionmodel');
+
+        $resident   = Residentmodel::with(['roomunion','neworders'=>function($query){
+            $query->whereIn('status',[Newordermodel::STATE_CONFIRM,Newordermodel::PAYTYPE_COMPENSATION]);
+        }])->where('customer_id',$this->user->id);
+        $orders  = $resident->get()->map(function($query){
+            $query->count  = count($query->neworders);
+            $query->amount = $query->neworders->sum('money');
+            return $query;
+        })->where('amount','>',0);
+
+        $this->api_res(0,['residents'=>$orders]);
+
     }
 
     /**
@@ -81,6 +107,175 @@ class Order extends MY_Controller
             'amount'=>$amount,
             'order_class'=>$order_class
         ]);
+    }
+
+    /**
+     * 获取用户需要支付的订单信息, 以及可以使用的优惠券信息
+     */
+    public function unpaid()
+    {
+
+        $this->load->model('residentmodel');
+        $this->load->model('newordermodel');
+        $this->load->model('roomunionmodel');
+        $this->load->model('coupontypemodel');
+        $this->load->model('couponmodel');
+        $this->load->model('storemodel');
+
+        $resident_id    = $this->input->post('resident_id',true);
+
+        $resident   = Residentmodel::with(['roomunion','neworders'=>function($query){
+            $query->where('status',Newordermodel::STATE_PENDING)->orderBy('year','ASC')->orderBy('month','ASC');
+        }])
+            ->where('customer_id',$this->user->id)
+            ->findOrFail($resident_id);
+
+        $room   = $resident->roomunion;
+        $neworders   = $resident->neworders;
+
+        if(!$room->store->pay_online){
+            $this->api_res(10020);
+            return;
+        }
+        if(count($neworders) == 0){
+            $this->api_res(0,['list'=>[]]);
+            return;
+        }
+        //更新订单编号
+//        $number = Ordermodel::newNumber($room->apartment->city->abbreviation, $room->apartment->abbreviation);
+//        Newordermodel::whereIn('id', $neworders->pluck('id')->toArray())->update(['number' => $number]);
+
+        $list   = $neworders->groupBy('type')->map(function ($items, $type) {
+            return [
+                'name'   => Newordermodel::getTypeName($type),
+                'amount' => number_format($items->sum('paid'), 2),
+            ];
+        });
+
+        $totalMoney = number_format($neworders->sum('money'), 2);
+
+        $coupons    = $this->getCouponsAvailable($resident, $neworders);
+
+        $this->api_res(0,['orders'=>$neworders,'list'=>$list,'coupons'=>$coupons,'resident'=>$resident,'room'=>$room,'totalMoeny'=>$totalMoney]);
+
+    }
+
+    /**
+     * 查找订单可用的优惠券
+     */
+    private function getCouponsAvailable($resident, $orderCollection)
+    {
+        $orders = $orderCollection->groupBy('type');
+        //优惠券的使用目前仅限于房租和代金券
+        if (!isset($orders[Newordermodel::PAYTYPE_ROOM]) && !isset($orders[Newordermodel::PAYTYPE_MANAGEMENT])) {
+            return false;
+        }
+
+        //月付用户首次支付不能使用优惠券
+        if (1 == $resident->pay_frequency) {
+            $tmpOrder = $orderCollection->first();
+            if (Newordermodel::PAYSTATE_PAYMENT == $tmpOrder->pay_status AND $resident->begin_time->day < 21) {
+                return null;
+            }
+        }
+
+        $couopnCollection   = $resident->coupons()->where('status', Couponmodel::STATUS_UNUSED)->get();
+        $usageList          = $couopnCollection->groupBy('coupon_type.limit');
+
+        //找出房租可用的代金券
+        $forRent    = $this
+            ->getCouponByUsage(
+                $resident,
+                $orders,
+                $usageList,
+                Newordermodel::PAYTYPE_ROOM,
+                $resident->real_rent_money
+            );
+
+        //找出物业服务费可用的代金券
+        $forService = $this
+            ->getCouponByUsage(
+                $resident,
+                $orders,
+                $usageList,
+                Newordermodel::PAYTYPE_MANAGEMENT,
+                $resident->real_property_costs
+            );
+
+        $coupons = [];
+
+        if ($forRent) {
+            foreach ($forRent as $coupon) {
+                $coupons[] = $coupon;
+            }
+        }
+
+        if ($forService) {
+            foreach ($forService as $coupon) {
+                $coupons[] = $coupon;
+            }
+        }
+
+        return $coupons;
+    }
+
+    /**
+     * 根据优惠券的类型挑选优惠券
+     */
+    private function getCouponByUsage($resident, $orders, $usageList, $typeName, $price)
+    {
+        if (!isset($orders[$typeName]) OR !isset($usageList[$typeName])) {
+            return false;
+        }
+
+        $couponNumber   = min(count($orders[$typeName]), $resident->pay_frequency);
+
+        // $list   = $usageList[$typeName]->take($couponNumber);
+
+        $list = $usageList[$typeName]->sortByDesc(function ($coupon) use ($typeName, $price) {
+            return $this->calcDiscount($price, $coupon, $typeName);
+        })->take($couponNumber);
+
+        foreach ($list as $coupon) {
+            $couponType = $coupon->coupon_type;
+            $coupons[] = [
+                'id'        => $coupon->id,
+                'type'      => $couponType->type,
+                'usage'     => $typeName,
+                'name'      => $couponType->name,
+                'deadline'  => $coupon->deadline->toDateString(),
+                'value'     => $couponType->discount,
+                'discount'  => $this->calcDiscount($price, $coupon, $couponType),
+            ];
+        }
+
+        return $coupons;
+    }
+
+
+    /**
+     * 根据优惠券类型的不同, 计算出相应的价格
+     */
+    private function calcDiscount($price, $coupon, $couponType)
+    {
+        $couponType = $coupon->coupon_type;
+
+        switch ($couponType->type) {
+            case Coupontypemodel::TYPE_CASH:
+                $discount = $couponType->discount;
+                break;
+            case Coupontypemodel::TYPE_DISCOUNT:
+                $discount = $price * (100 - $couponType->discount) / 100.0;
+                break;
+            case Coupontypemodel::TYPE_REMIT:
+                $discount = $price;
+                break;
+            default:
+                $discount = 0;
+                break;
+        }
+
+        return $discount;
     }
 
 }

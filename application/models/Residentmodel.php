@@ -107,6 +107,12 @@ class Residentmodel extends Basemodel{
         return $this->hasMany(Ordermodel::class,'resident_id');
     }
 
+    //
+    public function neworders(){
+
+        return $this->hasMany(Newordermodel::class,'resident_id');
+    }
+
     //住户的合同信息
     public function contract(){
 

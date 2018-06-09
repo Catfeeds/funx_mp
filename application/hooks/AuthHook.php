@@ -91,6 +91,10 @@ class AuthHook {
             'shop/order/orderux',
             'shop/order/order',
 
+            'resident/order/unpaid',
+            'resident/order/listunpaidorder',
+            'resident/order/listpaidorder',
+
 
             'coupon/coupon/listcoupon',
             'coupon/coupon/coupon',

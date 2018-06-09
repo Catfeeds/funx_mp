@@ -12,14 +12,14 @@ use mikehaertl\pdftk\Pdf;
 /**
  * 法大大电子合同相关操作
  */
-class Contract extends MY_Controller
+class ContractCopy extends MY_Controller
 {
     public function __construct()
     {
         parent::__construct();
         $this->load->library('fadada');
         $this->load->helper('common');
-       // $this->load->model('roomtypemodel');
+        // $this->load->model('roomtypemodel');
 
     }
 
@@ -418,7 +418,7 @@ class Contract extends MY_Controller
             $contract->uxid         = $resident->uxid;
             //此用户id是fdd返回id而不是正常的customer_id
             $contract->customer_id  = $resident->customer_id;
-            $contract->fdd_customer_id  = $data['fdd_customer_id'];
+            //$contract->fdd_customer_id  = $data['fdd_customer_id'];
             $contract->type         = $data['type'];
             $contract->employee_id  = $resident->employee_id;
             $contract->contract_id  = $data['contract_id'];
@@ -426,13 +426,11 @@ class Contract extends MY_Controller
             $contract->download_url = $data['download_url'];
             $contract->view_url     = $data['view_url'];
             $contract->status       = $data['status'];
-            $contract->sign_type       = Contractmodel::SIGN_NEW ;
+//            $contract->sign_type       = Contractmodel::SIGN_NEW ;
             $a  = $contract->save();
             //2.生成订单
-//            $this->load->model('ordermodel');
-//            $b  = $this->ordermodel->firstCheckInOrders($resident, $room);
-            $this->load->model('newordermodel');
-            $b  =  $this->newordermodel->firstCheckInOrders($resident,$room);
+            $this->load->model('ordermodel');
+            $b  = $this->ordermodel->firstCheckInOrders($resident, $room);
 
             if($a && $b){
                 DB::commit();
@@ -441,7 +439,7 @@ class Contract extends MY_Controller
                 $this->api_res(1009);
                 return;
             }
-            $this->api_res(0,['resident_id'=>$resident->id]);
+            $this->api_res(0,['resident_id'=>$resident->id,'order_number'=>$b]);
         }catch (Exception $e){
             DB::rollBack();
             throw $e;
@@ -449,9 +447,9 @@ class Contract extends MY_Controller
     }
 
     public function test1(){
-       // phpinfo();
-       // echo 1;
-       // die();
+        // phpinfo();
+        // echo 1;
+        // die();
         $this->load->model('residentmodel');
         $this->load->model('contractmodel');
         $resident   = Residentmodel::find(3);
@@ -461,16 +459,16 @@ class Contract extends MY_Controller
         $phone      = $resident->phone;
         $cardNumber = $resident->card_number;
         $cardType   = $resident->card_type;
-       // var_dump($resident);
-       //申请用户证书
+        // var_dump($resident);
+        //申请用户证书
         $customerCA = $this->getCustomerCA(compact('name', 'phone', 'cardNumber', 'cardType'));
-   //  var_dump($customerCA);die();
+        //  var_dump($customerCA);die();
 
         //生成法大大合同
         $data=$this->generate($resident, [
             'type' => Contractmodel::TYPE_FDD,
             'customer_id'   => $customerCA,
-            ]);
+        ]);
 
 //       //生成纸质版合同
 //       $data   = $this->generate($resident, ['type' => Contractmodel::TYPE_NORMAL]);
@@ -589,7 +587,7 @@ class Contract extends MY_Controller
             // echo 1; die();
             $field = ['url'];
             $docUrl = Contracttemplatemodel::where('store_id', $apartment->id)->get($field);
-          //  $res1 =  Contracttemplatemodel::where('store_id', $apartment->id)->get(['rent_type']);
+            //  $res1 =  Contracttemplatemodel::where('store_id', $apartment->id)->get(['rent_type']);
             //var_dump($res1);die();
 //            foreach ($docUrl as $value){
 //                $docUrl['url'] = $value['url'];
@@ -641,47 +639,47 @@ class Contract extends MY_Controller
             );
 
 
-    } else {   //不是法大大类型的情况下
+        } else {   //不是法大大类型的情况下
 //            if (!isset($room->roomtype->contract_tpl_path[$rentType]['path'])) {    //找本地合同模板路径
 //                throw new Exception('合同模板不存在, 请稍后重试');
 //            }
-        $field = ['url'];
-        $docUrl = Contracttemplatemodel::where('store_id', $apartment->id)->get($field)->toArray();
-        if (!isset($docUrl)) {    //找本地合同模板路径
-             throw new Exception('合同模板不存在, 请稍后重试');
-        }
-        //用自己的方法生成合同
-        $outputFileName = "{$resident->id}.pdf";                                  //文件名.pdf
-        $outputDir = "contract/{$room->roomtype->id}/";                      //路径
-       // $templatePath = $room->roomtype->contract_tpl_path[$rentType]['path'];  //合同模板
-          $templatePath = $docUrl;
+            $field = ['url'];
+            $docUrl = Contracttemplatemodel::where('store_id', $apartment->id)->get($field)->toArray();
+            if (!isset($docUrl)) {    //找本地合同模板路径
+                throw new Exception('合同模板不存在, 请稍后重试');
+            }
+            //用自己的方法生成合同
+            $outputFileName = "{$resident->id}.pdf";                                  //文件名.pdf
+            $outputDir = "contract/{$room->roomtype->id}/";                      //路径
+            // $templatePath = $room->roomtype->contract_tpl_path[$rentType]['path'];  //合同模板
+            $templatePath = $docUrl;
 //        if (!file_exists($templatePath)) {                                     //合同模板文件是 否存在
 //            throw new Exception('合同模板不存在, 请稍后重试!');
 //        }
-        //    var_dump($templatePath);die();
+            //    var_dump($templatePath);die();
 //        if (!is_dir($outputDir)) {                                             //（文件名存在 是个目录） 不存在
 //            if (!mkdir(FCPATH . $outputDir, 0777)) {         //（尝试创建路径名指定的目录。）失败
 //                throw new Exception('无法创建目录, 请稍后重试');
 //            }
 //        }
-        $pdf = new Pdf($templatePath);                                 //生成一个新的pdf合同模板
-        $pdf->fillForm($parameters)
-            ->needAppearances()
-            ->saveAs(FCPATH . $outputDir . $outputFileName);            //路径到前端控制器 -- FCPATH
+            $pdf = new Pdf($templatePath);                                 //生成一个新的pdf合同模板
+            $pdf->fillForm($parameters)
+                ->needAppearances()
+                ->saveAs(FCPATH . $outputDir . $outputFileName);            //路径到前端控制器 -- FCPATH
 //            $contract->type = Contractmodel::TYPE_NORMAL;
 //            $contract->download_url = site_url($outputDir . $outputFileName);    //创建路径  合同下载路径
 //            $contract->view_url = site_url($outputDir . $outputFileName);        //创建路径  合同预览路径
 //            $contract->status = Contractmodel::STATUS_ARCHIVED;                  //合同状态//合同归档
-        return array(
-            'type' => Contractmodel::TYPE_NORMAL,                               //合同类型
-            'contract_id' => $contractId,                                       //合同编号
-            'doc_title' => $parameters['contract_number'],                      //合同标题
-            'download_url' => site_url($outputDir . $outputFileName),           //合同下载路径
-            'view_url' => site_url($outputDir . $outputFileName),               //合同预览路径
-            'status' => Contractmodel::STATUS_ARCHIVED,                         //给个状态//合同已经生成
-        );
-   }
-}
+            return array(
+                'type' => Contractmodel::TYPE_NORMAL,                               //合同类型
+                'contract_id' => $contractId,                                       //合同编号
+                'doc_title' => $parameters['contract_number'],                      //合同标题
+                'download_url' => site_url($outputDir . $outputFileName),           //合同下载路径
+                'view_url' => site_url($outputDir . $outputFileName),               //合同预览路径
+                'status' => Contractmodel::STATUS_ARCHIVED,                         //给个状态//合同已经生成
+            );
+        }
+    }
 
 
     /**
@@ -698,15 +696,14 @@ class Contract extends MY_Controller
 
     private function test()
     {
-                    return array(
-                'type' => 'FDD',
-                'contract_id' => 'JINDI123456789',
-                'fdd_customer_id'   => 'fdd_id',
-                'doc_title' => "title",
-                'download_url' => 'url_download',
-                'view_url' => 'url_view',
-                'status' => Contractmodel::STATUS_GENERATED,
-            );
+        return array(
+            'type' => 'FDD',
+            'contract_id' => 'JINDI123456789',
+            'doc_title' => "title",
+            'download_url' => 'url_download',
+            'view_url' => 'url_view',
+            'status' => Contractmodel::STATUS_GENERATED,
+        );
     }
 
 
