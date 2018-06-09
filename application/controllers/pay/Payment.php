@@ -33,6 +33,106 @@ class Payment extends MY_Controller
      * 接收微信支付的配置请求
      * 获取微信支付的js配置
      */
+//    public function config()
+//    {
+//        //住户id
+//        $residentId = trim($this->input->post('resident_id', true));
+//        //订单编号
+//        //$number     = trim($this->input->post('number', true));
+//        //使用的优惠券
+//        $couponIds  = $this->input->post('coupons[]', true)?$this->input->post('coupons[]', true):[];
+//
+//        $this->load->model('residentmodel');
+//        $this->load->model('newordermodel');
+//        $this->load->model('couponmodel');
+//        $this->load->helper('wechat');
+//
+//        $this->resident = Residentmodel::with('neworders', 'coupons')->findOrFail($residentId);
+//        //$this->checkUser($this->resident->uxid);
+//
+//        $orders         = $this->resident->neworders()->where('status', Newordermodel::STATE_PENDING)->get();
+//
+//        $coupons        = $this->resident->coupons()->whereIn('id', $couponIds)->get();
+//
+//        if (0 == count($orders)) {
+//            $this->api_res(10017);
+//            return;
+//        }
+//        //计算总金额
+//        $amount = $orders->sum('money');
+//
+//        if (0 == $amount) {
+//            $this->api_res(10018);
+//            return;
+//        }
+//
+//        try {
+//            DB::beginTransaction();
+//            //更新订单的付款方式和支付金额
+//            $this->updatePayWayAndPaid($orders);
+//
+//            if (count($coupons)) {
+//                $discount   = $this->amountOfDiscount($orders, $coupons);
+//                $amount     = $amount - $discount;
+//            }
+//
+//            $this->load->model('roomunionmodel');
+//            $this->load->model('storemodel');
+//            $this->load->model('roomtypemodel');
+//            $this->load->helper('url');
+//            $roomunion       = $this->resident->roomunion;
+//            $store      = $roomunion->store;
+//            $roomtype   = $roomunion->roomtype;
+//            $attach     = ['resident_id' => $residentId];
+//            $out_trade_no   = $residentId.'_'.mt_rand(10, 99);
+//            $attributes = [
+//                'trade_type'    => Ordermodel::PAYWAY_JSAPI,
+//                'body'          => $store->name . '-' . $roomtype->name,
+//                'detail'        => $store->name . '-' . $roomtype->name,
+//                'out_trade_no'  => $out_trade_no,
+//                'total_fee'     => $amount * 100,
+//                'notify_url'    => site_url("pay/payment/notify/".$store->id),
+//                'openid'        => $this->user->openid,
+//                'attach'        => serialize($attach),
+//            ];
+//
+//            $this->load->model('storepaymodel');
+//            $store_pay  = new Storepaymodel();
+//            $store_pay->out_trade_no    = $out_trade_no;
+//            $store_pay->store_id    = $store->id;
+//            $store_pay->amount  = $amount;
+//            $store_pay->data['orders']    = $orders->toArray();
+//            $store_pay->data['coupons']    = $coupons->toArray();
+//            $store_pay->save();
+//
+//            $wechatConfig   = getCustomerWechatConfig();
+////            $wechatConfig['payment']['merchant_id'] = $store->payment_merchant_id;
+////            $wechatConfig['payment']['key']         = $store->payment_key;
+//
+//            $app            = new Application($wechatConfig);
+//            $wechatOrder    = new Order($attributes);
+//            $payment        = $app->payment;
+//            $result         = $payment->prepare($wechatOrder);
+//
+//            if (!($result->return_code == 'SUCCESS' && $result->result_code == 'SUCCESS')) {
+//                throw new Exception($result->return_msg);
+//            }
+//            //生成js配置
+//            $json = $payment->configForPayment($result->prepay_id, false);
+//            DB::commit();
+//        } catch (Exception $e) {
+//            DB::rollBack();
+//            log_message('error', $e->getMessage());
+//            throw $e;
+//        }
+//
+//        $this->api_res(0,['json'=>$json]);
+//    }
+
+    /**
+     * 接收微信支付的配置请求
+     * 获取微信支付的js配置
+     */
     public function config()
     {
         //住户id
@@ -170,7 +270,7 @@ class Payment extends MY_Controller
     {
         $orderCollection->each(function ($order) {
             $order->update([
-                'pay_type'  => Ordermodel::PAYWAY_JSAPI,
+                'pay_type'  => Newordermodel::PAYWAY_JSAPI,
                 'paid'      => $order->money,
             ]);
         });
@@ -231,6 +331,102 @@ class Payment extends MY_Controller
 
         return $discount;
     }
+
+    /**
+     * 微信的回调
+     * 这里用户是使用微信进行支付,
+     * 可以判断用户是否支付成功, 是否还有必要让员工进行确认呢
+     */
+//    public function notify()
+//    {
+//
+//        $store_id    = $this->uri->segment(4);
+//
+//        $this->load->model('storemodel');
+//        $store      = Storemodel::findOrFail($store_id);
+//
+//        $this->load->helper('wechat');
+//        $customerWechatConfig   = getCustomerWechatConfig();
+////      $customerWechatConfig['payment']['merchant_id'] = $store->payment_merchant_id;
+////      $customerWechatConfig['payment']['key']         = $store->payment_key;
+//
+//        $app    = new Application($customerWechatConfig);
+//
+//        $response   = $app->payment->handleNotify(function($notify, $successful) use ($app) {
+//            try {
+//                DB::beginTransaction();
+//
+//                $data       = explode('_', $notify->out_trade_no);
+//                $number     = $data[0];
+//                $attach     = unserialize($notify->attach);
+//                $this->load->model('residentmodel');
+//                $resident   = Residentmodel::with('neworders')->find($attach['resident_id']);
+//
+//                log_message('error', 'notify-arrived' . $number);
+//
+//                if (!count($resident)) {
+//                    return true;
+//                }
+//
+//                if(!$successful){
+//                    return true;
+//                }
+//                $this->load->model('newordermodel');
+//                $orders     = $resident->neworders()->where('status', Newordermodel::STATE_PENDING)->get();
+//
+//                if (!count($orders)) {
+//                    return true;
+//                }
+//
+//                foreach ($orders as $order) {
+//                    $orderIds[]    = $order->id;
+//                    $order->status = Newordermodel::STATE_CONFIRM;
+//                    $order->save();
+//
+//                    if ($order->type == 'DEIVCE') {
+//                        $this->load->model('devicemodel');
+//                        $temp = Devicemodel::find($order->other_id);
+//                        if (!empty($temp)) {
+//                            $temp->status = Devicemodel::STATE_CONFIRM;
+//                            $temp->save();
+//                        }
+//                    }
+//
+//                    if ($order->type == 'UTILITY') {
+//                        $this->load->model('utilitymodel');
+//                        $temp = Utilitymodel::find($order->other_id);
+//                        if (!empty($temp)) {
+//                            $temp->status = Utilitymodel::STATE_CONFIRM;
+//                            $temp->save();
+//                        }
+//                    }
+//                }
+//                $this->load->model('couponmodel');
+//                Couponmodel::whereIn('order_id', $orderIds)->update(['status' => Couponmodel::STATUS_USED]);
+//
+//                try {
+//
+//
+//                    //发送模板消息
+////                    $this->sendTemplateMessages($resident, $number, Ordermodel::PAYWAY_JSAPI, $notify->total_fee / 100);
+//                    log_message('info','微信回调成功发送模板消息');
+//                } catch (Exception $e) {
+//                    log_message('error', '微信支付-模板消息通知失败：' . $e->getMessage());
+//                    throw $e;
+//                }
+//                DB::commit();
+//            } catch (Exception $e) {
+//                DB::rollBack();
+//                log_message('error', $e->getMessage());
+//                throw $e;
+//                // return false;
+//            }
+//
+//            return true;
+//        });
+//
+//        $response->send();
+//    }
 
     /**
      * 微信的回调

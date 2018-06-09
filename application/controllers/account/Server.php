@@ -404,7 +404,7 @@ class Server extends MY_Controller
             'title'         => $resident->roomunion->store->name,
             'description'   => "您预订的【{$resident->roomunion->number}】",
             'url'           => $url,
-            'image'         => ($this->fullAliossUrl(json_decode($resident->roomunion->roomtype->images,true),true))[0],
+            'image'         => $this->fullAliossUrl(json_decode($resident->roomunion->roomtype->images,true),true),
         ));
     }
 

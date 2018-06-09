@@ -10,4 +10,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Storepaymodel extends Basemodel{
 
     protected $table    = 'web_store_pay';
+
+    protected $casts    = ['data'=>'array'];
 }
