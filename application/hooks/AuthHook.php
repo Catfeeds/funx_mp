@@ -34,6 +34,8 @@ class AuthHook {
             'pay/payment/config',
             //微信支付回调
             'pay/payment/notify',
+            //合同签章结果
+            'resident/contract/signresult',
 
             'resident/resident/getresident',
             'resident/contract/index',

@@ -127,11 +127,11 @@ class Contract extends MY_Controller
         $phone          = trim(strip_tags($input['phone']));
 //        $code           = trim(strip_tags($input['code']));
         //验证短信验证码
-        $this->load->library('m_redis');
-        if(!$this->m_redis->verifyResidentPhoneCode($input['phone'],$input['code'])){
-            $this->api_res(10014);
-            return;
-        }
+//        $this->load->library('m_redis');
+//        if(!$this->m_redis->verifyResidentPhoneCode($input['phone'],$input['code'])){
+//            $this->api_res(10014);
+//            return;
+//        }
         $this->load->model('residentmodel');
         $resident   = Residentmodel::find($resident_id);
         if(!$resident){
@@ -162,6 +162,7 @@ class Contract extends MY_Controller
         //判断门店的合同类型选择调用哪个合同流程
         $this->load->model('storemodel');
         $contract   = $resident->contract;
+
         $contract_type  = $room->store->contract_type;
 
 
@@ -227,7 +228,7 @@ class Contract extends MY_Controller
             'address'             => $resident->address,            //地址
             'alternative_person'  => $resident->alternative,        //紧急联人
             'alternative_phone'   => $resident->alter_phone,        //紧急联系人电话
-            'room_number'         => $resident->room->number,       //房间号
+            'room_number'         => $resident->roomunion->number,       //房间号
             'year_start'          => "{$resident->begin_time->year}",           //起租年
             'month_start'         => "{$resident->begin_time->month}",          //起租月
             'day_start'           => "{$resident->begin_time->day}",            //起租日
@@ -251,14 +252,15 @@ class Contract extends MY_Controller
         );
 
 
-
         $data['name']=$resident->name;
         $data['phone']=$resident->phone;
         $data['cardNumber']=$resident->card_number;
         $data['cardType']=$resident->card_type;
 
         $CustomerCA= $this->getCustomerCA($data);
+
         $contractId   = 'JINDI'.date("YmdHis").mt_rand(10,60);
+
         $res2        = $this->fadada->generateContract(
             $parameters['contract_number'],
             $contract_template->fdd_tpl_id,
@@ -342,8 +344,9 @@ class Contract extends MY_Controller
 
         //生成调用该接口所需要的信息
 
+        $this->load->helper('url');
         $data2 = $this->fadada->signARequestData(
-            $contract['customer_id'],
+            $contract['fdd_customer_id'],
             $contract['contract_id'],
             $transactionId,
             $contract['doc_title'],
