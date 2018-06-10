@@ -210,11 +210,13 @@ class Order extends MY_Controller
             ];
         });
 
+        $store  = $room->store;
+
         $totalMoney = number_format($orders->sum('money'), 2);
 
         $coupons    = $this->getCouponsAvailable($resident, $orders);
 
-        $this->api_res(0,['orders'=>$orders,'list'=>$list,'coupons'=>$coupons,'resident'=>$resident,'room'=>$room,'totalMoeny'=>$totalMoney]);
+        $this->api_res(0,['orders'=>$orders,'list'=>$list,'store'=>$store,'coupons'=>$coupons,'resident'=>$resident,'room'=>$room,'totalMoeny'=>$totalMoney]);
 
     }
 
