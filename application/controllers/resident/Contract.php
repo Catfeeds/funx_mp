@@ -181,9 +181,9 @@ class Contract extends MY_Controller
         $contract_type  = $room->store->contract_type;
 
         //测试使用
-//        $data   = $this->test();
+        $data   = $this->test();
 
-        if(Storemodel::C_TYPE_NORMAL==$contract_type){
+       /* if(Storemodel::C_TYPE_NORMAL==$contract_type){
             if(empty($contract)){
                 $data   = $this->test();
                 //生成纸质版合同
@@ -237,7 +237,7 @@ class Contract extends MY_Controller
 //                $this->api_res(10016);
 //                return;
 //            }
-        }
+        }*/
 
 
         $contract   = new Contractmodel();
