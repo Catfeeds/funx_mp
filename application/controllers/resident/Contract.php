@@ -187,12 +187,7 @@ class Contract extends MY_Controller
 //                }
             }
 
-            elseif (Contractmodel::STATUS_ARCHIVED != $contract->status) {
-                //$targetUrl = $this->getSignUrl($contract);
-                $result = $this->signFddUrl($contract->toArray());
-                $this->api_res(10021,['result'=>$result]);
-                return;
-            }
+
             else{
                 $this->api_res(10016);
                 return;
@@ -202,7 +197,13 @@ class Contract extends MY_Controller
 
                 $data   = $this->signContract($resident);
 
-            }else{
+            }elseif (Contractmodel::STATUS_ARCHIVED != $contract->status) {
+                //$targetUrl = $this->getSignUrl($contract);
+                $result = $this->signFddUrl($contract->toArray());
+                $this->api_res(10021,['result'=>$result]);
+                return;
+            }
+            else{
                 $this->api_res(10016);
                 return;
             }
@@ -256,7 +257,7 @@ class Contract extends MY_Controller
         $roomtype   = $resident->roomunion->roomtype;
         $contract_template  = Contracttemplatemodel::where(['room_type_id'=>$roomtype->id,'rent_type'=>$resident->rent_type])->first();
         //测试
-        $this->fadada->uploadTemplate('http://tfunx.oss-cn-shenzhen.aliyuncs.com/'.$contract_template->fdd_tpl_path,$contract_template->fdd_tpl_id);
+        $this->fadada->uploadTemplate('http://tfunx.oss-cn-shenzhen.aliyuncs.com/'.$contract_template->contract_tpl_id,$contract_template->fdd_tpl_id);
         //签署合同需要准备的信息
         $contractNumber = $resident->store_id . '-' . $resident->begin_time->year .'-' . $resident->name . '-' . $resident->room_id;
         $parameters     = array(
@@ -304,7 +305,7 @@ class Contract extends MY_Controller
             $parameters,
             12
         );
-        $contract['contract_id']    = $contractId;
+
         $contract['type']          = Contractmodel::TYPE_FDD;
         $contract['customer_id']      = $CustomerCA;
         $contract['download_url']    = $res2['download_url'];
@@ -369,8 +370,79 @@ class Contract extends MY_Controller
     /**
      * 生成纸质版合同
      */
-    public function contractPaper($resident){
+    public function contractPaper($resident)
+    {
+        //获取合同模板
+        $room       = $resident->roomunion;
+        $rentType   = $resident->rent_type;
+        $roomtype   = $resident->roomunion->roomtype;
+        $contract_template  = Contracttemplatemodel::where(['room_type_id'=>$roomtype->id,'rent_type'=>$resident->rent_type])->first();
 
+        $contractId             = 'JINDI'.date("YmdHis").mt_rand(10,60);
+
+        //签署合同需要准备的信息
+        $contractNumber = $resident->store_id . '-' . $resident->begin_time->year .'-' . $resident->name . '-' . $resident->room_id;
+        $parameters     = array(
+            'contract_number'     => $contractNumber,               //合同号
+            'customer_name'       => $resident->name,               //租户姓名
+            'id_card'             => $resident->card_number,        //身份证号
+            'phone'               => $resident->phone,              //电话号码
+            'address'             => $resident->address,            //地址
+            'alternative_person'  => $resident->alternative,        //紧急联人
+            'alternative_phone'   => $resident->alter_phone,        //紧急联系人电话
+            'room_number'         => $resident->room->number,       //房间号
+            'year_start'          => "{$resident->begin_time->year}",           //起租年
+            'month_start'         => "{$resident->begin_time->month}",          //起租月
+            'day_start'           => "{$resident->begin_time->day}",            //起租日
+            'year_end'            => "{$resident->end_time->year}",             //结束年
+            'month_end'           => "{$resident->end_time->month}",            //结束月
+            'day_end'             => "{$resident->end_time->day}",              //接速日
+            'rent_money'          => "{$resident->real_rent_money}",            //租金
+            'rent_money_upper'    => num2rmb($resident->real_rent_money),       //租金确认
+            'service_money'       => "{$resident->real_property_costs}",        //服务费
+            'service_money_upper' => num2rmb($resident->real_property_costs),   //服务费确认
+            'deposit_money'       => "{$resident->deposit_money}",              //暂时不确定
+            'deposit_month'       => (string)$resident->deposit_month,          //金额确定
+            'deposit_money_upper' => num2rmb($resident->deposit_money),         //金额确定
+            'tmp_deposit'         => "{$resident->tmp_deposit}",                //临时租金
+            'tmp_deposit_upper'   => num2rmb($resident->tmp_deposit),           //零食租金确认
+            'special_term'        => $resident->special_term ? $resident->special_term : '无',
+            'year'                => date("Y"),                         //签约年
+            'month'               => date("m"),                         //签约月
+            'day'                 => date("d"),                         //签约日
+            'attachment_2_date'   => date("Y-m-d")                      //最终时间确认
+        );
+
+        if (!isset($room->roomtype->contract_tpl_path[$rentType]['path'])) {
+            throw new Exception('合同模板不存在, 请稍后重试');
+        }
+
+        $outputFileName = "{$resident->id}.pdf";
+        $outputDir      = "contract/{$room->roomtype->id}/";
+        $templatePath   = $room->roomtype->contract_tpl_path[$rentType]['path'];
+
+        if (!file_exists($templatePath)) {
+            throw new Exception('合同模板不存在, 请稍后重试!');
+        }
+
+        if (!is_dir($outputDir)) {
+            if (!mkdir(FCPATH.$outputDir, 0777)) {
+                throw new Exception('无法创建目录, 请稍后重试');
+            }
+        }
+
+        $pdf = new Pdf($templatePath);
+        $pdf->fillForm($parameters)
+            ->needAppearances()
+            ->saveAs(FCPATH . $outputDir . $outputFileName);
+
+        $contract['type']            = Contractmodel::TYPE_NORMAL;
+        $contract['download_url']    = site_url($outputDir.$outputFileName);
+        $contract['view_url']        = site_url($outputDir.$outputFileName);
+        $contract['status']          = Contractmodel::STATUS_ARCHIVED;
+        $contract['contract_id']     = $contractId;
+        $contract['doc_title']       = $parameters['contract_number'];
+        return $contract;
     }
 
 
