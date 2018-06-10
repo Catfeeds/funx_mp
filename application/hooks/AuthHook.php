@@ -37,8 +37,8 @@ class AuthHook {
 
             'resident/resident/getresident',
             'resident/contract/index',
-            'resident/contract/sendsms',
-            'resident/contract/confirm',
+            //'resident/contract/sendsms',
+            //'resident/contract/confirm',
             'resident/contract/signcontract',
             'resident/contract/test',
 
@@ -94,10 +94,10 @@ class AuthHook {
             'shop/order/orderux',
             'shop/order/order',
 
-            'resident/order/unpaid',
-            'resident/order/paid',
-            'resident/order/listunpaidorder',
-            'resident/order/listpaidorder',
+            //'resident/order/unpaid',
+            //'resident/order/paid',
+            //'resident/order/listunpaidorder',
+            //'resident/order/listpaidorder',
 
 
             'coupon/coupon/listcoupon',
