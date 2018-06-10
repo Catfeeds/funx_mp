@@ -177,20 +177,18 @@ class Contract extends MY_Controller
                 $this->load->model('ordermodel');
                 $this->ordermodel->firstCheckInOrders($resident, $room);
 
+                $orderUnpaidCount   = $resident->orders()
+                    ->whereIn('status', [Ordermodel::STATE_AUDITED, Ordermodel::STATE_PENDING, Ordermodel::STATE_CONFIRM])
+                    ->count();
 
-
-//                $orderUnpaidCount   = $resident->orders()
-//                    ->whereIn('status', [Ordermodel::STATE_AUDITED, Ordermodel::STATE_PENDING, Ordermodel::STATE_CONFIRM])
-//                    ->count();
-//
-//                if (0 == $orderUnpaidCount) {
-//                    $resident->update(['status' => Residentmodel::STATE_NORMAL]);
-//                    $resident->roomunion->update(['status' => Roomunionmodel::STATE_RENT]);
-//                    $this->api_res(0);
-//                    return;
-//                }
+                if (0 == $orderUnpaidCount) {
+                    $resident->update(['status' => Residentmodel::STATE_NORMAL]);
+                    $resident->roomunion->update(['status' => Roomunionmodel::STATE_RENT]);
+                }
             }
         }else{
+
+            $this->load->model('fddrecordmodel');
             if(empty($contract)){
 
                 $contract   = $this->signContract($resident);
@@ -199,13 +197,13 @@ class Contract extends MY_Controller
 
             if($contract->status!==Contractmodel::STATUS_ARCHIVED){
 
-                $signUrl    = $this->signFddUrl($contract);
+                $targetUrl    = $this->signFddUrl($contract);
 
             }
         }
 
 
-        $this->api_res(0,[compact('signUrl')]);
+        $this->api_res(0,[compact('targetUrl')]);
 
     }
 
@@ -332,16 +330,37 @@ class Contract extends MY_Controller
      * fdd签署
      */
     public function signFddUrl($contract){
+
+        $recordOld = $contract->transactions->where('role', Fddrecordmodel::ROLE_B)
+            ->where('status', Fddrecordmodel::STATUS_INITIATED)->first();
+
+        if (count($recordOld)) {
+            $transactionId = $recordOld->transaction_id;
+        }else{
+            $transactionId  = 'B'.date("Ymd His").mt_rand(10, 60);
+        }
+
         //生成调用该接口所需要的信息
-        $transactionId  = 'B'.date("Ymd His").mt_rand(10, 60);
+
         $data2 = $this->fadada->signARequestData(
             $contract['customer_id'],
             $contract['contract_id'],
             $transactionId,
             $contract['doc_title'],
             'http://tweb.funxdata.com/contract/signresult',    //return_url
-            'http://tapi.boss.funxdata.com/contract/notify'     //notify_url
+            'http://tapi.boss.funxdata.com/mini/contract/notify'     //notify_url
         );
+
+        //手动签署, 只有页面跳转到法大大平台交易才能生效, 因此, 若上一步骤失败, 就不该存储交易记录.
+        if (!$recordOld) {
+            $record = new Fddrecordmodel();
+            $record->role = Fddrecordmodel::ROLE_B;
+            $record->status = Fddrecordmodel::STATUS_INITIATED;
+            $record->remark = '乙方发起了签署动作';
+            $record->contract_id = $contract->id;
+            $record->transaction_id = $transactionId;
+            $record->save();
+        }
 
         $baseUrl = array_shift($data2);
 
@@ -409,7 +428,7 @@ class Contract extends MY_Controller
 
         //获取完参数之后进行校验
         $msgDigestData = array(
-            'sha1' => [FADADA_API_APP_SECRET, $input['transaction_id']],
+            'sha1' => [config_item('fadada_api_app_secret'), $input['transaction_id']],
             'md5'  => [$input['timestamp']],
         );
 
@@ -428,11 +447,21 @@ class Contract extends MY_Controller
             }
         } catch (Exception $e) {
             log_message('error', $e->getMessage());
-            redirect(site_url('center'));
+            //redirect(site_url('center'));
+            throw $e;
         }
 
+        $resident   = $contract->resident;
+        $room   = $contract->roomunion;
+
+        $this->load->model('ordermodel');
+        $this->ordermodel->firstCheckInOrders($resident, $room);
+
         //没有问题就跳转支付页面
-        redirect(site_url(['order', 'payment', $contract->resident->id]));
+
+        $this->api_res(0);
+
+        //redirect(site_url(['order', 'payment', $contract->resident->id]));
     }
 
 
