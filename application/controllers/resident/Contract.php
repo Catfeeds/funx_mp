@@ -212,11 +212,12 @@ class Contract extends MY_Controller
                 return;
             }
             //合同没归档就去签署页面
-//            if (Contractmodel::STATUS_ARCHIVED != $contract->status) {
-//                //$targetUrl = $this->getSignUrl($contract);
-//                $this->api_res(10016);
-//                return;
-//            }
+            if (Contractmodel::STATUS_ARCHIVED != $contract->status) {
+                //$targetUrl = $this->getSignUrl($contract);
+                $result = $this->signFdd($contract->toArray());
+                $this->api_res(0,['result'=>$result]);
+                return;
+            }
         }
 
 
@@ -251,7 +252,7 @@ class Contract extends MY_Controller
                 $this->api_res(1009);
                 return;
             }
-            $this->api_res(0,['resident_id'=>$resident->id,'order_number'=>$b]);
+            $this->api_res(0,['resident_id'=>$resident->id]);
         }catch (Exception $e){
             DB::rollBack();
             throw $e;
@@ -330,23 +331,6 @@ class Contract extends MY_Controller
 
         return $contract;
 
-
-        //生成调用该接口所需要的信息
-//        $transactionId  = 'B'.date("Ymd His").mt_rand(10, 60);
-//        $data2 = $this->fadada->signARequestData(
-//            $contract['customer_id'],
-//            $contract['contract_id'],
-//            $transactionId,
-//            $contract['doc_title'],
-//            'http://tweb.funxdata.com/contract/signresult',    //return_url
-//            'http://tapi.boss.funxdata.com/contract/notify'     //notify_url
-//        );
-//
-//        $baseUrl = array_shift($data2);
-//
-//        $result['signurl']=$baseUrl . '?' . http_build_query($data2);
-//
-//        return $result;
     }
 
 
@@ -375,6 +359,28 @@ class Contract extends MY_Controller
         }
 
         return $res['customer_id'];
+    }
+
+    /**
+     * fdd签署
+     */
+    public function signFdd($contract){
+        //生成调用该接口所需要的信息
+        $transactionId  = 'B'.date("Ymd His").mt_rand(10, 60);
+        $data2 = $this->fadada->signARequestData(
+            $contract['customer_id'],
+            $contract['contract_id'],
+            $transactionId,
+            $contract['doc_title'],
+            'http://tweb.funxdata.com/contract/signresult',    //return_url
+            'http://tapi.boss.funxdata.com/contract/notify'     //notify_url
+        );
+
+        $baseUrl = array_shift($data2);
+
+        $result['signurl']=$baseUrl . '?' . http_build_query($data2);
+
+        return $result;
     }
 
 
