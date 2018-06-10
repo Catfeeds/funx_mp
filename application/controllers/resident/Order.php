@@ -28,7 +28,7 @@ class Order extends MY_Controller
 
         $resident   = Residentmodel::with(['roomunion','orders'=>function($query){
             $query->where('status',Ordermodel::STATE_PENDING);
-        }])->where('customer_id',1349);
+        }])->where('customer_id',$this->user->id);
         $orders  = $resident->get()->map(function($query){
             $query->count  = count($query->orders);
             $query->amount = $query->orders->sum('money');
@@ -51,7 +51,7 @@ class Order extends MY_Controller
 
         $resident   = Residentmodel::with(['roomunion','orders'=>function($query){
             $query->whereIn('status',[Ordermodel::STATE_CONFIRM,Ordermodel::PAYTYPE_COMPENSATION]);
-        }])->where('customer_id',1349);
+        }])->where('customer_id',$this->user->id);
         $orders  = $resident->get()->map(function($query){
             $query->count  = count($query->orders);
             $query->amount = $query->orders->sum('money');

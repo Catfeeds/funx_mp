@@ -181,11 +181,13 @@ class Contract extends MY_Controller
         $contract_type  = $room->store->contract_type;
 
         //测试使用
-        $data   = $this->test();
-   /*     if(Storemodel::C_TYPE_NORMAL==$contract_type){
+//        $data   = $this->test();
+
+        if(Storemodel::C_TYPE_NORMAL==$contract_type){
             if(empty($contract)){
+                $data   = $this->test();
                 //生成纸质版合同
-                $data   = $this->generate($resident, ['type' => Contractmodel::TYPE_NORMAL]);
+               // $data   = $this->generate($resident, ['type' => Contractmodel::TYPE_NORMAL]);
 //                $orderUnpaidCount   = $resident->orders()
 //                    ->whereIn('status', [Ordermodel::STATE_AUDITED, Ordermodel::STATE_PENDING, Ordermodel::STATE_CONFIRM])
 //                    ->count();
@@ -201,18 +203,30 @@ class Contract extends MY_Controller
                 return;
             }
         }else{
+//            if(empty($contract)){
+//                //申请证书
+//                $name       = $resident->name;
+//                $phone      = $resident->phone;
+//                $cardNumber = $resident->card_number;
+//                $cardType   = $resident->card_type;
+//                $customerCA = $this->getCustomerCA(compact('name', 'phone', 'cardNumber', 'cardType'));
+//                //生成法大大合同
+//                $data=$this->generate($resident, [
+//                    'type' => Contractmodel::TYPE_FDD,
+//                    'customer_id'   => $customerCA,
+//                    ]);
+
             if(empty($contract)){
-                //申请证书
                 $name       = $resident->name;
                 $phone      = $resident->phone;
                 $cardNumber = $resident->card_number;
                 $cardType   = $resident->card_type;
                 $customerCA = $this->getCustomerCA(compact('name', 'phone', 'cardNumber', 'cardType'));
-                //生成法大大合同
-                $data=$this->generate($resident, [
-                    'type' => Contractmodel::TYPE_FDD,
+                $data   = $this->generateFdd($resident, [
+                    'type'          => Contractmodel::TYPE_FDD,
                     'customer_id'   => $customerCA,
-                    ]);
+                ]);
+
             }else{
                 $this->api_res(10016);
                 return;
@@ -223,7 +237,7 @@ class Contract extends MY_Controller
 //                $this->api_res(10016);
 //                return;
 //            }
-        }*/
+        }
 
 
         $contract   = new Contractmodel();
@@ -360,6 +374,105 @@ class Contract extends MY_Controller
             'view_url' => 'url_view',
             'status' => Contractmodel::STATUS_GENERATED,
         );
+    }
+
+    /**
+     * 申请用户证书
+     */
+    private function getCustomerCA($data)
+    {
+        $res = $this->fadada->getCustomerCA($data['name'], $data['phone'], $data['cardNumber'], $data['cardType']);
+
+        if ($res == false) {
+            throw new Exception($this->fadada->showError());
+        }
+
+        return $res['customer_id'];
+    }
+
+    /**
+     * 生成签署合同的页面
+     * */
+    public function generateFdd($resident,array $data){
+        //获取合同模板
+
+        $resident = Residentmodel::findOrFail($residentId);
+        $cont_template = Contracttemplatemodel::where(['room_type_id'=>($resident->room_id),'rent_type'=>$resident->rent_type])->first();
+        $this->fadada->uploadTemplate('http://tfunx.oss-cn-shenzhen.aliyuncs.com/'.$cont_template->fdd_tpl_path,$cont_template->fdd_tpl_id);
+        //签署合同需要准备的信息
+        $contractNumber = $resident->store_id . '-' . $resident->begin_time->year .'-' . $resident->name . '-' . $resident->room_id;
+        $parameters     = array(
+            'contract_number'     => $contractNumber,               //合同号
+            'customer_name'       => $resident->name,               //租户姓名
+            'id_card'             => $resident->card_number,        //身份证号
+            'phone'               => $resident->phone,              //电话号码
+            'address'             => $resident->address,            //地址
+            'alternative_person'  => $resident->alternative,        //紧急联人
+            'alternative_phone'   => $resident->alter_phone,        //紧急联系人电话
+            'room_number'         => $resident->room->number,       //房间号
+            'year_start'          => "{$resident->begin_time->year}",    //起租年
+            'month_start'         => "{$resident->begin_time->month}",     //起租月
+            'day_start'           => "{$resident->begin_time->day}",        //起租日
+            'year_end'            => "{$resident->end_time->year}",         //结束年
+            'month_end'           => "{$resident->end_time->month}",        //结束月
+            'day_end'             => "{$resident->end_time->day}",           //接速日
+            'rent_money'          => "{$resident->real_rent_money}",           //租金
+            'rent_money_upper'    => num2rmb($resident->real_rent_money),  //租金确认
+            'service_money'       => "{$resident->real_property_costs}",        //服务费
+            'service_money_upper' => num2rmb($resident->real_property_costs),// 服务费确认
+            'deposit_money'       => "{$resident->deposit_money}",                   //暂时不确定
+            'deposit_month'       => (string)$resident->deposit_month,               //金额确定
+            'deposit_money_upper' => num2rmb($resident->deposit_money),         //金额确定
+            'tmp_deposit'         => "{$resident->tmp_deposit}",                       //临时租金
+            'tmp_deposit_upper'   => num2rmb($resident->tmp_deposit),             //零食租金确认
+            'special_term'        => $resident->special_term ? $resident->special_term : '无',  //
+            'year'                => date("Y"),                                    //签约年
+            'month'               => date("m"),                                   //签约月
+            'day'                 => date("d"),                                     //签约日
+            'attachment_2_date'   => date("Y-m-d")                           //最终时间确认
+        );
+
+        $data['name']=$resident->name;
+        $data['phone']=$resident->phone;
+        $data['cardNumber']=$resident->card_number;
+        $data['cardType']='1';
+
+        $CustomerCA= $this->getCustomerCA($data);
+        $contractId   = 'JINDI'.date("YmdHis").mt_rand(10,60);
+
+        $res2        = $this->fadada->generateContract(
+            $parameters['contract_number'],
+            $cont_template->fdd_tpl_id,
+            $contractId,
+            $parameters,
+            12
+        );
+
+        $contract['type']          = 'FDD';
+        $contract['customer_id']      = $CustomerCA;
+        $contract['download_url']    = $res2['download_url'];
+        $contract['view_url']       = $res2['viewpdf_url'];
+        $contract['status']          = 'GENERATED';
+        $contract['contract_id']      = $contractId;
+        $contract['doc_title'] =    '电子合同';
+
+
+        //生成调用该接口所需要的信息
+        $transactionId  = 'B'.date("Ymd His").mt_rand(10, 60);
+        $data2 = $this->fadada->signARequestData(
+            $contract['customer_id'],
+            $contract['contract_id'],
+            $transactionId,
+            $contract['doc_title'],
+            'http://tweb.funxdata.com/contract/signresult',    //return_url
+            'http://tapi.boss.funxdata.com/contract/notify'     //notify_url
+        );
+
+        $baseUrl = array_shift($data2);
+
+        $result['signurl']=$baseUrl . '?' . http_build_query($data2);
+
+        return $result;
     }
 
 
