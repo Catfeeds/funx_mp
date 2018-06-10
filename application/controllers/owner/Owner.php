@@ -30,32 +30,5 @@ class Owner extends MY_Controller
         }
     }
 
-    /**
-     * 查看小业主账单
-     */
-    public function bill()
-    {
-        $this->load->model('ownerearningmodel');
-        $this->load->model('ownerhousemodel');
-        $post = $this->input->post(null, true);
-        $number = trim($post['number']);
-        $uxid = 3;
-        // echo 1;die();
-        $field = ['id', 'house_id'];
-        if (isset($uxid)) {
-            $aa = Ownerhousemodel::where('number', $number)->get()->map(function($id){
-                return $id->number;});
-            var_dump($aa);die();
-//            if (!empty($aa)){
-//                $bill = Ownermodel::with('earning')->with('house')->where('customer_id',$uxid)->get($field);
-//                //var_dump($bill);die();                           //CURRENT_ID
-//                $this->api_res(0, ['list' => $bill]);
-//            }else{
-//                $this->api_res(1005);
-//            }
-        } else {
-            $this->api_res(1005);
-        }
-
-    }
+   
 }
