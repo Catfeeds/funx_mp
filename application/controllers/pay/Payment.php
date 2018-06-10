@@ -475,6 +475,7 @@ class Payment extends MY_Controller
                     return true;
                 }
                 $this->load->model('ordermodel');
+
                 $orders     = $resident->orders()->where('status', Ordermodel::STATE_PENDING)->where('out_trade_no',$notify->out_trade_no)->get();
 
                 if (!count($orders)) {
@@ -482,6 +483,7 @@ class Payment extends MY_Controller
                 }
 
                 $pay_date   = date('Y-m-d H:i:s',time());
+
                 foreach ($orders as $order) {
                     $orderIds[]    = $order->id;
                     $order->pay_date    = $pay_date;
@@ -516,6 +518,7 @@ class Payment extends MY_Controller
                 //test
                 if(!empty($store_pay))
                 {
+                    $store_pay->notify_date = $pay_date;
                     $store_pay  ->status    = 'DONE';
                     $store_pay->save();
                 }
