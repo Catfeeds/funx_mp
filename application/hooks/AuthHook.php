@@ -34,11 +34,13 @@ class AuthHook {
             'pay/payment/config',
             //微信支付回调
             'pay/payment/notify',
+            //合同签章结果
+            'resident/contract/signresult',
 
             'resident/resident/getresident',
             'resident/contract/index',
-            //'resident/contract/sendsms',
-            //'resident/contract/confirm',
+            'resident/contract/sendsms',
+            'resident/contract/confirm',
             'resident/contract/signcontract',
             'resident/contract/test',
 
@@ -95,9 +97,9 @@ class AuthHook {
             'shop/order/order',
             'shop/goods/numorder',
             //'resident/order/unpaid',
-            //'resident/order/paid',
-            //'resident/order/listunpaidorder',
-            //'resident/order/listpaidorder',
+//            'resident/order/paid',
+//            'resident/order/listunpaidorder',
+//            'resident/order/listpaidorder',
 
 
             'coupon/coupon/listcoupon',

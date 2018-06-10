@@ -50,7 +50,7 @@ class Contractmodel extends Basemodel {
     }
 
     //房间号
-    public function roomnum(){
+    public function roomnuion(){
 
         return $this->belongsTo(Roomunionmodel::class,'room_id')->select('id','number');
     }
@@ -66,6 +66,14 @@ class Contractmodel extends Basemodel {
     public function resident(){
 
         return $this->belongsTo(Residentmodel::class,'resident_id');
+    }
+
+    /**
+     * 合同的签署交易记录
+     */
+    public function transactions()
+    {
+        return $this->hasMany(Fddrecordmodel::class, 'contract_id');
     }
 
 

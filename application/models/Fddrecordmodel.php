@@ -20,7 +20,7 @@ class Fddrecordmodel extends Basemodel
     const TYPE_NORMAL      = 'NORMAL';      //线下纸质合同
     const TYPE_FDD         = 'FDD';         //法大大电子合同
 
-    protected $table       = 'boss_fdd_record';
+    protected $table       = 'boss_fdd_transaction';
 
     protected $dates       = ['created_at', 'updated_at'];
 
