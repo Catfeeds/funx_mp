@@ -446,6 +446,7 @@ class Contract extends MY_Controller
             $this->load->model('fddrecordmodel');
             $this->load->model('contractmodel');
             $this->load->model('residentmodel');
+            $this->load->model('roomunionmodel');
             $this->load->model('ordermodel');
             //更新合同记录, 将合同状态设置为签署中
             $contract = Fddrecordmodel::where('transaction_id', $input['transaction_id'])->first()->contract;
