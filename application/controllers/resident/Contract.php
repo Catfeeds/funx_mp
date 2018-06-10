@@ -183,7 +183,7 @@ class Contract extends MY_Controller
         //测试使用
         $data   = $this->test();
 
-       /* if(Storemodel::C_TYPE_NORMAL==$contract_type){
+        if(Storemodel::C_TYPE_NORMAL==$contract_type){
             if(empty($contract)){
                 $data   = $this->test();
                 //生成纸质版合同
@@ -237,7 +237,7 @@ class Contract extends MY_Controller
 //                $this->api_res(10016);
 //                return;
 //            }
-        }*/
+        }
 
 
         $contract   = new Contractmodel();
@@ -395,6 +395,8 @@ class Contract extends MY_Controller
      * */
     public function generateFdd($resident,array $data){
         //获取合同模板
+
+
 
         $resident = Residentmodel::findOrFail($residentId);
         $cont_template = Contracttemplatemodel::where(['room_type_id'=>($resident->room_id),'rent_type'=>$resident->rent_type])->first();
