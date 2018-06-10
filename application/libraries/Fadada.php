@@ -44,14 +44,13 @@ class Fadada
             $url        = $this->getApiUrl('syncPerson_auto.api');
             $msgDigest  = array(
                 'md5'  => ['timestamp' => date('YmdHis'),],                  //请求时间
-                'sha1' => [config_item('fadada_api_app_secret')]                     // 秘钥
+                'sha1' => [config_item('fadada_api_app_secret')]                     //秘钥
             );
             $reqData    = array(
                 'customer_name' => $name,
                 'ident_type'    => $id_type,
                 'id_mobile'     => $id_mobile,
             );
-           // $res = $this->requestFdd($response, $reqData, $msgDigest);
             $res = $this->requestFdd($url, $reqData, $msgDigest);
         } catch (Exception $e) {
             $this->error = $e->getMessage();
@@ -78,13 +77,11 @@ class Fadada
     {
         try {
             $url        = $this->getApiUrl('contractFiling.api');
-
             $reqData    = ['contract_id' => $contractId];
             $msgDigest  = array(
                 'sha1' => [config_item('fadada_api_app_secret'), $contractId],
                 'md5'  => ['timestamp' => date('YmdHis')],
             );
-
             $res = $this->requestFdd($url, $reqData, $msgDigest);
         } catch (Exception $e) {
             $this->error = $e->getMessage();
@@ -101,24 +98,19 @@ class Fadada
     {
         try {
             $url        = $this->getApiUrl('uploadtemplate.api');
-
             $reqData    = array(
                 'doc_url'     => $docUrl,
                 'template_id' => $templateId,
             );
-          //  var_dump($reqData);die();
             $msgDigest  = array(
                 'md5'  => ['timestamp' => date('YmdHis')],
                 'sha1' => [config_item('fadada_api_app_secret'), $templateId],
-
             );
-            //var_dump($msgDigest);die();
             $res = $this->requestFdd($url, $reqData, $msgDigest);
         } catch (Exception $e) {
             $this->error = $e->getMessage();
             return false;
         }
-
         return $res;
     }
 
@@ -129,10 +121,8 @@ class Fadada
     public function generateContract($docTitle, $templateId, $contractId, array $parameters, $fontSize = 9)
     {
         try {
-            $url          = $this->getApiUrl('generate_contract.api');         // 生成各个接口的具体URL
-           // var_dump($url);die();
+            $url          = $this->getApiUrl('generate_contract.api');   //生成各个接口的具体URL
             $parameterMap = json_encode($parameters);
-           // var_dump($parameterMap);die();
             $reqData      = array(
                 'doc_title'     => $docTitle,
                 'template_id'   => $templateId,
@@ -152,7 +142,6 @@ class Fadada
             $this->error = $e->getMessage();
             return false;
         }
-
         return $res;
     }
 
@@ -221,7 +210,6 @@ class Fadada
             if (!empty($notifyUrl)) {
                 $reqData['notify_url'] = $notifyUrl;
             }
-
             $msgDigest  = array(
                 'sha1' => [config_item('fadada_api_app_secret'), $customerId],
                 'md5'  => [
@@ -229,13 +217,11 @@ class Fadada
                     'timestamp'      => date('YmdHis'),
                 ],
             );
-
             $res = $this->requestFdd($url, $reqData, $msgDigest);
         } catch (Exception $e) {
             $this->error = $e->getMessage();
             return false;
         }
-
         return $res;
     }
 
@@ -245,17 +231,14 @@ class Fadada
     private function requestFdd($url, $option, array $msgDigestArr, $method = 'POST')
     {
         $option['app_id']       = config_item('fadada_api_app_id');
-       // $option['app_id']       = FADADA_API_APP_ID;
         $option['timestamp']    = $msgDigestArr['md5']['timestamp'];
         $option['msg_digest']   = $this->getMsgDigest($msgDigestArr);
 
         $request = (new Client())->request($method, $url, ['form_params' => $option])->getBody()->getContents();
         $request = json_decode($request, true);
-
         if ($request['result'] != 'success') {
             throw new Exception($request['msg']);
         }
-        //var_dump($request);die();
         return $request;
     }
 
@@ -265,7 +248,6 @@ class Fadada
     private function getApiUrl($target)
     {
         return  config_item('fadada_api_base_url'). $target;
-       // return FADADA_API_BASE_URL . $target;
     }
 
     /**
@@ -276,25 +258,18 @@ class Fadada
     {
         $md5Str     = '';
         $sha1Str    = '';
-
         foreach ($msgDigestArr['md5'] as $str) {
             $md5Str .= $str;
         }
-
         foreach ($msgDigestArr['sha1'] as $str) {
             $sha1Str .= $str;
-           // var_dump($sha1Str);die();
         }
-
         $md5Str     = strtoupper(md5($md5Str));
         $sha1Str    = strtoupper(sha1($sha1Str));
-       // var_dump($sha1Str);die();
         $orgStr = config_item('fadada_api_app_id') . $md5Str . $sha1Str;
-
         if (isset($msgDigestArr['other'])) {
             $orgStr .= $msgDigestArr['other'];
         }
-        //var_dump(base64_encode(strtoupper(sha1($orgStr))));die();
         return base64_encode(strtoupper(sha1($orgStr)));
     }
 }

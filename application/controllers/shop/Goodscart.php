@@ -76,43 +76,43 @@ class Goodscart extends MY_Controller
         }
     }
 
-    /**
-     *购物车商品自增
-     */
-    public function quantityIncre()
-    {
-        $post = $this->input->post(null, true);
-        $cart_id = intval(strip_tags(trim($post['id'])));
-        $cart = Goodscartmodel::find($cart_id);
-        if (!$cart) {
-            $this->api_res(1007);
-            return;
-        }
-        if ($cart->increment('quantity')) {
-            $this->api_res(0);
-        } else {
-            $this->api_res(1009);
-        }
-    }
-
-    /**
-     * 购物车商品自减  -
-     */
-    public function quantityDecre()
-    {
-        $post = $this->input->post(null, true);
-        $cart_id = intval(strip_tags(trim($post['id'])));
-        $cart = Goodscartmodel::find($cart_id);
-        if (!$cart) {
-            $this->api_res(1007);
-            return;
-        }
-        if ($cart->decrement('quantity')) {
-            $this->api_res(0);
-        } else {
-            $this->api_res(1009);
-        }
-    }
+//    /**
+//     *购物车商品自增
+//     */
+//    public function quantityIncre()
+//    {
+//        $post = $this->input->post(null, true);
+//        $cart_id = intval(strip_tags(trim($post['id'])));
+//        $cart = Goodscartmodel::find($cart_id);
+//        if (!$cart) {
+//            $this->api_res(1007);
+//            return;
+//        }
+//        if ($cart->increment('quantity')) {
+//            $this->api_res(0);
+//        } else {
+//            $this->api_res(1009);
+//        }
+//    }
+//
+//    /**
+//     * 购物车商品自减  -
+//     */
+//    public function quantityDecre()
+//    {
+//        $post = $this->input->post(null, true);
+//        $cart_id = intval(strip_tags(trim($post['id'])));
+//        $cart = Goodscartmodel::find($cart_id);
+//        if (!$cart) {
+//            $this->api_res(1007);
+//            return;
+//        }
+//        if ($cart->decrement('quantity')) {
+//            $this->api_res(0);
+//        } else {
+//            $this->api_res(1009);
+//        }
+//    }
 
     /**
      * 购物车数量
