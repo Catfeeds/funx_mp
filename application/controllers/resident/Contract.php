@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 use Carbon\Carbon;
 use Illuminate\Database\Capsule\Manager as DB;
-use mikehaertl\pdftk\Pdf;
+//use mikehaertl\pdftk\Pdf;
 
 /**
  * User: wws
@@ -141,7 +141,7 @@ class Contract extends MY_Controller
         //验证短信验证码
         $this->load->library('m_redis');
         if(!$this->m_redis->verifyResidentPhoneCode($input['phone'],$input['code'])){
-            $this->api_res(10007);
+            $this->api_res(10014);
             return;
         }
         $this->load->model('residentmodel');
@@ -156,13 +156,14 @@ class Contract extends MY_Controller
         }
 
         //验证住户的uxid是不是当前ID
-        $this->checkUser($resident->uxid);
+        //$this->checkUser($resident->uxid);
         $this->load->model('roomunionmodel');
         $room   = $resident->roomunion;
         if($room->status!=Roomunionmodel::STATE_OCCUPIED){
             $this->api_res(10014);
             return;
         }
+
 
 //      判断住户合同是否已经归档，有已经归档的合同 就结束
         $this->load->model('contractmodel');
@@ -173,6 +174,7 @@ class Contract extends MY_Controller
             return;
         }
 
+
         //判断门店的合同类型选择调用哪个合同流程
         $this->load->model('storemodel');
         $contract   = $resident->contract;
@@ -180,7 +182,7 @@ class Contract extends MY_Controller
 
         //测试使用
         $data   = $this->test();
-        /*if(Storemodel::C_TYPE_NORMAL==$contract_type){
+   /*     if(Storemodel::C_TYPE_NORMAL==$contract_type){
             if(empty($contract)){
                 //生成纸质版合同
                 $data   = $this->generate($resident, ['type' => Contractmodel::TYPE_NORMAL]);
@@ -348,6 +350,17 @@ class Contract extends MY_Controller
         return $result;
     }
 
+    private function test()
+    {
+        return array(
+            'type' => 'FDD',
+            'contract_id' => 'JINDI123456789',
+            'doc_title' => "title",
+            'download_url' => 'url_download',
+            'view_url' => 'url_view',
+            'status' => Contractmodel::STATUS_GENERATED,
+        );
+    }
 
 
 }
