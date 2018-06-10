@@ -109,4 +109,8 @@ class Goodsordermodel extends Basemodel
         return$this->hasMany(Goodsordergoodsmodel::class,'order_id');
     }
 
+    public function address1(){
+        return $this->belongsTo(Goodsaddressmodel::class,'address_id')->select('id','apartment','building','room_number','name','phone');
+    }
+
 }

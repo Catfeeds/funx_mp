@@ -93,7 +93,7 @@ class AuthHook {
             'shop/order/orderlist',
             'shop/order/orderux',
             'shop/order/order',
-
+            'shop/goods/numorder',
             //'resident/order/unpaid',
             //'resident/order/paid',
             //'resident/order/listunpaidorder',
