@@ -152,8 +152,8 @@ class Contract extends MY_Controller
         }
 //      判断住户合同是否已经归档，有已经归档的合同 就结束
         $this->load->model('contractmodel');
-//        $has_contract = $resident->contract()->where('status', Contractmodel::STATUS_ARCHIVED);
-        $has_contract = $resident->contract();
+        $has_contract = $resident->contract()->where('status', Contractmodel::STATUS_ARCHIVED);
+//        $has_contract = $resident->contract();
         if ($has_contract->exists()) {
             $this->api_res(10015);
             return;
@@ -166,86 +166,47 @@ class Contract extends MY_Controller
 
 
         $this->load->model('roomtypemodel');
+        //默认跳转的页面 账单列表
+        $targetUrl  = 'mybill';
 
         if(Storemodel::C_TYPE_NORMAL==$contract_type){
             if(empty($contract)){
-                //测试使用
-                $data   = $this->test();
-                //$data   = $this->contractPaper($resident);
-
                 //生成纸质版合同
-                // $data   = $this->generate($resident, ['type' => Contractmodel::TYPE_NORMAL]);
+                $contract   = $this->contractPaper($resident);
+
+                $this->load->model('ordermodel');
+                $this->ordermodel->firstCheckInOrders($resident, $room);
+
+
+
 //                $orderUnpaidCount   = $resident->orders()
 //                    ->whereIn('status', [Ordermodel::STATE_AUDITED, Ordermodel::STATE_PENDING, Ordermodel::STATE_CONFIRM])
 //                    ->count();
 //
 //                if (0 == $orderUnpaidCount) {
 //                    $resident->update(['status' => Residentmodel::STATE_NORMAL]);
-//                    $resident->room->update(['status' => Roommodel::STATE_RENT]);
+//                    $resident->roomunion->update(['status' => Roomunionmodel::STATE_RENT]);
 //                    $this->api_res(0);
 //                    return;
 //                }
             }
-
-
-            else{
-                $this->api_res(10016);
-                return;
-            }
         }else{
             if(empty($contract)){
 
-                $data   = $this->signContract($resident);
+                $contract   = $this->signContract($resident);
 
-            }elseif (Contractmodel::STATUS_ARCHIVED != $contract->status) {
-                //$targetUrl = $this->getSignUrl($contract);
-                $result = $this->signFddUrl($contract->toArray());
-                $this->api_res(10021,['result'=>$result]);
-                return;
-            }
-            else{
-                $this->api_res(10016);
-                return;
             }
 
+            if($contract->status!==Contractmodel::STATUS_ARCHIVED){
+
+                $signUrl    = $this->signFddUrl($contract);
+
+            }
         }
 
-        $contract   = new Contractmodel();
-        //开始签约
-        try{
-            DB::beginTransaction();
-            //1,生成合同
-            $contract->store_id = $resident->store_id;
-            $contract->room_id  = $resident->room_id;
-            $contract->resident_id  = $resident->id;
-            $contract->uxid         = $resident->uxid;
-            $contract->customer_id  = $resident->customer_id;
-            $contract->fdd_customer_id  = isset($data['customer_id'])?$data['customer_id']:'';
-            $contract->type         = $data['type'];
-            $contract->employee_id  = $resident->employee_id;
-            $contract->contract_id  = $data['contract_id'];
-            $contract->doc_title    = $data['doc_title'];
-            $contract->download_url = $data['download_url'];
-            $contract->view_url     = $data['view_url'];
-            $contract->status       = $data['status'];
-//            $contract->sign_type       = Contractmodel::SIGN_NEW ;
-            $a  = $contract->save();
-            //2.生成订单
-            $this->load->model('ordermodel');
-            $b  = $this->ordermodel->firstCheckInOrders($resident, $room);
 
-            if($a && $b){
-                DB::commit();
-            }else{
-                DB::rollBack();
-                $this->api_res(1009);
-                return;
-            }
-            $this->api_res(0,['resident_id'=>$resident->id]);
-        }catch (Exception $e){
-            DB::rollBack();
-            throw $e;
-        }
+        $this->api_res(0,[compact('signUrl')]);
+
     }
 
     /**
@@ -257,7 +218,7 @@ class Contract extends MY_Controller
         $roomtype   = $resident->roomunion->roomtype;
         $contract_template  = Contracttemplatemodel::where(['room_type_id'=>$roomtype->id,'rent_type'=>$resident->rent_type])->first();
         //测试
-        $this->fadada->uploadTemplate('http://tfunx.oss-cn-shenzhen.aliyuncs.com/'.$contract_template->contract_tpl_id,$contract_template->fdd_tpl_id);
+        $this->fadada->uploadTemplate('http://tfunx.oss-cn-shenzhen.aliyuncs.com/'.$contract_template->contract_tpl_path,$contract_template->fdd_tpl_id);
         //签署合同需要准备的信息
         $contractNumber = $resident->store_id . '-' . $resident->begin_time->year .'-' . $resident->name . '-' . $resident->room_id;
         $parameters     = array(
@@ -291,6 +252,8 @@ class Contract extends MY_Controller
             'attachment_2_date'   => date("Y-m-d")                      //最终时间确认
         );
 
+
+
         $data['name']=$resident->name;
         $data['phone']=$resident->phone;
         $data['cardNumber']=$resident->card_number;
@@ -306,14 +269,35 @@ class Contract extends MY_Controller
             12
         );
 
-        $contract['type']          = Contractmodel::TYPE_FDD;
-        $contract['customer_id']      = $CustomerCA;
-        $contract['download_url']    = $res2['download_url'];
-        $contract['view_url']       = $res2['viewpdf_url'];
-        $contract['status']          = Contractmodel::STATUS_GENERATED;
-        $contract['contract_id']      = $contractId;
-        $contract['doc_title'] =    $parameters['contract_number'];
-        return $contract;
+        $data['type']          = Contractmodel::TYPE_FDD;
+        $data['customer_id']      = $CustomerCA;
+        $data['download_url']    = $res2['download_url'];
+        $data['view_url']       = $res2['viewpdf_url'];
+        $data['status']          = Contractmodel::STATUS_GENERATED;
+        $data['contract_id']      = $contractId;
+        $data['doc_title'] =    $parameters['contract_number'];
+
+        $contract   = new Contractmodel();
+
+            //1,生成合同
+            $contract->store_id = $resident->store_id;
+            $contract->room_id  = $resident->room_id;
+            $contract->resident_id  = $resident->id;
+            $contract->uxid         = $resident->uxid;
+            $contract->customer_id  = $resident->customer_id;
+            $contract->fdd_customer_id  = $data['customer_id'];
+            $contract->type         = $data['type'];
+            $contract->employee_id  = $resident->employee_id;
+            $contract->contract_id  = $data['contract_id'];
+            $contract->doc_title    = $data['doc_title'];
+            $contract->download_url = $data['download_url'];
+            $contract->view_url     = $data['view_url'];
+            $contract->status       = $data['status'];
+//            $contract->sign_type       = Contractmodel::SIGN_NEW ;
+            $contract->save();
+
+            return $contract;
+
 
     }
 
@@ -363,8 +347,94 @@ class Contract extends MY_Controller
 
         $result['signurl']=$baseUrl . '?' . http_build_query($data2);
 
-        return $result;
+        return $result['signurl'];
     }
+
+    /**
+     * 用户签署之后跳转的页面
+     * 获取签署结果, 更新合同状态为签署中
+     */
+    public function signResult()
+    {
+        $this->load->library('fadada');
+        $this->load->library('form_validation');
+
+        $config = array(
+            array(
+                'field' => 'transaction_id',
+                'label' => 'transaction_id',
+                'rules' => 'required',
+            ),
+            array(
+                'field' => 'result_code',
+                'label' => 'result_code',
+                'rules' => 'required',
+            ),
+            array(
+                'field' => 'result_desc',
+                'label' => 'result_desc',
+                'rules' => 'required',
+            ),
+            array(
+                'field' => 'timestamp',
+                'label' => 'timestamp',
+                'rules' => 'required',
+            ),
+            array(
+                'field' => 'msg_digest',
+                'label' => 'msg_digest',
+                'rules' => 'required',
+            )
+        );
+
+        $input = array(
+            'transaction_id' => trim($this->input->get('transaction_id', true)),
+            'result_code'    => trim($this->input->get('result_code', true)),
+            'result_desc'    => trim($this->input->get('result_desc', true)),
+            'download_url'   => trim($this->input->get('download_url', true)),
+            'viewpdf_url'    => trim($this->input->get('viewpdf_url', true)),
+            'timestamp'      => trim($this->input->get('timestamp', true)),
+            'msg_digest'     => trim($this->input->get('msg_digest', true)),
+        );
+
+        //CI 中的表单验证, 可能是只能验证 form 表单提交的数据, url-query 中携带的数据, 好像无法验证
+        $this->form_validation->set_data($input);
+        $this->form_validation->set_rules($config);
+
+        if ($this->form_validation->run() == FALSE) {
+            //redirect(site_url('center'));
+            $this->api_res(1002);
+            return;
+        }
+
+        //获取完参数之后进行校验
+        $msgDigestData = array(
+            'sha1' => [FADADA_API_APP_SECRET, $input['transaction_id']],
+            'md5'  => [$input['timestamp']],
+        );
+
+        try {
+            $msgDigestStr = $this->fadada->getMsgDigest($msgDigestData);
+
+            if ($msgDigestStr != $input['msg_digest']) {
+                throw new Exception('msg_digest 验证失败');
+            }
+
+            //更新合同记录, 将合同状态设置为签署中
+            $contract = Fddrecordmodel::where('transaction_id', $input['transaction_id'])->first()->contract;
+            if ($contract->status == Contractmodel::STATUS_GENERATED) {
+                $contract->status = Contractmodel::STATUS_SIGNING;
+                $contract->save();
+            }
+        } catch (Exception $e) {
+            log_message('error', $e->getMessage());
+            redirect(site_url('center'));
+        }
+
+        //没有问题就跳转支付页面
+        redirect(site_url(['order', 'payment', $contract->resident->id]));
+    }
+
 
 
     /**
@@ -372,10 +442,43 @@ class Contract extends MY_Controller
      */
     public function contractPaper($resident)
     {
+
+
+       // $data   = $this->uploadContractPaper($resident);
+
+
+        $data   = $this->test();
+
+        //1,生成合同
+        $contract   = new Contractmodel();
+        $contract->store_id = $resident->store_id;
+        $contract->room_id  = $resident->room_id;
+        $contract->resident_id  = $resident->id;
+        $contract->uxid         = $resident->uxid;
+        $contract->customer_id  = $resident->customer_id;
+        $contract->type         = $data['type'];
+        $contract->employee_id  = $resident->employee_id;
+        $contract->contract_id  = $data['contract_id'];
+        $contract->doc_title    = $data['doc_title'];
+        $contract->download_url = $data['download_url'];
+        $contract->view_url     = $data['view_url'];
+        $contract->status       = $data['status'];
+//            $contract->sign_type       = Contractmodel::SIGN_NEW ;
+        $contract->save();
+
+        return $contract;
+    }
+
+    /**
+     * 生成上传纸质合同
+     */
+    public function uploadContractPaper($resident){
+
         //获取合同模板
         $room       = $resident->roomunion;
         $rentType   = $resident->rent_type;
         $roomtype   = $resident->roomunion->roomtype;
+
         $contract_template  = Contracttemplatemodel::where(['room_type_id'=>$roomtype->id,'rent_type'=>$resident->rent_type])->first();
 
         $contractId             = 'JINDI'.date("YmdHis").mt_rand(10,60);
@@ -413,13 +516,13 @@ class Contract extends MY_Controller
             'attachment_2_date'   => date("Y-m-d")                      //最终时间确认
         );
 
-        if (!isset($room->roomtype->contract_tpl_path[$rentType]['path'])) {
-            throw new Exception('合同模板不存在, 请稍后重试');
-        }
 
         $outputFileName = "{$resident->id}.pdf";
         $outputDir      = "contract/{$room->roomtype->id}/";
-        $templatePath   = $room->roomtype->contract_tpl_path[$rentType]['path'];
+        $templatePath   = $this->fullAliossUrl($contract_template->contract_tpl_path);
+
+        //$temp= file_get_contents($templatePath);
+
 
         if (!file_exists($templatePath)) {
             throw new Exception('合同模板不存在, 请稍后重试!');
@@ -436,13 +539,16 @@ class Contract extends MY_Controller
             ->needAppearances()
             ->saveAs(FCPATH . $outputDir . $outputFileName);
 
-        $contract['type']            = Contractmodel::TYPE_NORMAL;
-        $contract['download_url']    = site_url($outputDir.$outputFileName);
-        $contract['view_url']        = site_url($outputDir.$outputFileName);
-        $contract['status']          = Contractmodel::STATUS_ARCHIVED;
-        $contract['contract_id']     = $contractId;
-        $contract['doc_title']       = $parameters['contract_number'];
-        return $contract;
+        $data['type']            = Contractmodel::TYPE_NORMAL;
+        $data['download_url']    = site_url($outputDir.$outputFileName);
+        $data['view_url']        = site_url($outputDir.$outputFileName);
+        $data['status']          = Contractmodel::STATUS_ARCHIVED;
+        $data['contract_id']     = $contractId;
+        $data['doc_title']       = $parameters['contract_number'];
+
+        return $data;
+
+
     }
 
 
