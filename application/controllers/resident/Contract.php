@@ -3,7 +3,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 use Carbon\Carbon;
 use Illuminate\Database\Capsule\Manager as DB;
 //use mikehaertl\pdftk\Pdf;
-
 /**
  * User: wws
  * Date: 2018-05-23
@@ -21,16 +20,11 @@ class Contract extends MY_Controller
         $this->load->helper('common');
         $this->load->model('contractmodel');
         $this->load->model('contracttemplatemodel');
-        // $this->load->model('roomtypemodel');
-
     }
-
-
     /**
-     1.身份证 2.护照 6.社会保障卡 A.武装警察身份证 B.港澳通行证 C.台湾居民来往大陆通行证 E.户口本
-        F.临时身份证 P外国人永久居留证 BL.营业执照 OTHERE.其它
+    1.身份证 2.护照 6.社会保障卡 A.武装警察身份证 B.港澳通行证 C.台湾居民来往大陆通行证 E.户口本
+    F.临时身份证 P外国人永久居留证 BL.营业执照 OTHERE.其它
      **/
-
     /**
      * 合同的状态
      *  'GENERATED';       //合同已经生成
@@ -44,7 +38,6 @@ class Contract extends MY_Controller
     /**
      * 合同的类型, 电子合同还是纸质合同
      */
-
 
     /**
      * 合同信息确认页面
@@ -83,16 +76,13 @@ class Contract extends MY_Controller
         $this->api_res(0,['contract'=>$contract]);
     }
 
-
-
-    /*********************************以下为重写的内容，上面是原来的内容****************************************/
     /**
      * 合同确认页面-发送短信验证码
      */
     public function sendSms(){
 
         $phone        = trim(strip_tags($this->input->post('phone')));            //手机号
-        $resident_id  = trim(strip_tags($this->input->post('resident_id')));    //用户id
+        $resident_id  = trim(strip_tags($this->input->post('resident_id')));      //用户id
         $this->load->model('residentmodel');
         $resident   = Residentmodel::find($resident_id);                          //租户信息
         if(!$resident){
@@ -105,21 +95,18 @@ class Contract extends MY_Controller
         }
         //验证住户的uxid是不是当前ID
 //        $this->checkUser($resident->uxid);
-
         $this->load->model('roomunionmodel');
         $room   = $resident->roomunion;
         if($room->status!=Roomunionmodel::STATE_OCCUPIED){          //不是房间被占用的状态  //房间空着 结束
             $this->api_res(10014);
             return;
         }
-
         $this->load->library('m_redis');
         if(!$this->m_redis->ttlResidentPhoneCode($phone))
         {
             $this->api_res(10007);
             return;
         }
-
         $this->load->library('sms');                        //使用云片发送短信验证码 //STR_PAD_LEFT  0
         $code   = str_pad(rand(1,9999),4,0,STR_PAD_LEFT);
         $str    = SMSTEXT.$code;                            //SMSTEXT.$code  //SMSTEXT 指定信息
@@ -154,7 +141,6 @@ class Contract extends MY_Controller
             $this->api_res(10010);
             return;
         }
-
         //验证住户的uxid是不是当前ID
         //$this->checkUser($resident->uxid);
         $this->load->model('roomunionmodel');
@@ -163,8 +149,6 @@ class Contract extends MY_Controller
             $this->api_res(10014);
             return;
         }
-
-
 //      判断住户合同是否已经归档，有已经归档的合同 就结束
         $this->load->model('contractmodel');
 //        $has_contract = $resident->contract()->where('status', Contractmodel::STATUS_ARCHIVED);
@@ -173,7 +157,6 @@ class Contract extends MY_Controller
             $this->api_res(10015);
             return;
         }
-
 
         //判断门店的合同类型选择调用哪个合同流程
         $this->load->model('storemodel');
@@ -187,7 +170,7 @@ class Contract extends MY_Controller
             if(empty($contract)){
                 $data   = $this->test();
                 //生成纸质版合同
-               // $data   = $this->generate($resident, ['type' => Contractmodel::TYPE_NORMAL]);
+                // $data   = $this->generate($resident, ['type' => Contractmodel::TYPE_NORMAL]);
 //                $orderUnpaidCount   = $resident->orders()
 //                    ->whereIn('status', [Ordermodel::STATE_AUDITED, Ordermodel::STATE_PENDING, Ordermodel::STATE_CONFIRM])
 //                    ->count();
@@ -219,7 +202,6 @@ class Contract extends MY_Controller
                 return;
             }
         }
-
 
         $contract   = new Contractmodel();
         //开始签约
@@ -259,15 +241,13 @@ class Contract extends MY_Controller
         }
     }
 
-
     /**
      * 生成签署合同的页面
      * */
-    public function signContract($resident){
+    public function signContract($resident)
+    {
         //获取合同模板
-
         $roomtype   = $resident->roomunion->roomtype;
-
         $contract_template  = Contracttemplatemodel::where(['room_type_id'=>$roomtype->id,'rent_type'=>$resident->rent_type])->first();
         //测试
         $this->fadada->uploadTemplate('http://tfunx.oss-cn-shenzhen.aliyuncs.com/'.$contract_template->fdd_tpl_path,$contract_template->fdd_tpl_id);
@@ -282,26 +262,26 @@ class Contract extends MY_Controller
             'alternative_person'  => $resident->alternative,        //紧急联人
             'alternative_phone'   => $resident->alter_phone,        //紧急联系人电话
             'room_number'         => $resident->room->number,       //房间号
-            'year_start'          => "{$resident->begin_time->year}",    //起租年
-            'month_start'         => "{$resident->begin_time->month}",     //起租月
-            'day_start'           => "{$resident->begin_time->day}",        //起租日
-            'year_end'            => "{$resident->end_time->year}",         //结束年
-            'month_end'           => "{$resident->end_time->month}",        //结束月
-            'day_end'             => "{$resident->end_time->day}",           //接速日
-            'rent_money'          => "{$resident->real_rent_money}",           //租金
-            'rent_money_upper'    => num2rmb($resident->real_rent_money),  //租金确认
+            'year_start'          => "{$resident->begin_time->year}",           //起租年
+            'month_start'         => "{$resident->begin_time->month}",          //起租月
+            'day_start'           => "{$resident->begin_time->day}",            //起租日
+            'year_end'            => "{$resident->end_time->year}",             //结束年
+            'month_end'           => "{$resident->end_time->month}",            //结束月
+            'day_end'             => "{$resident->end_time->day}",              //接速日
+            'rent_money'          => "{$resident->real_rent_money}",            //租金
+            'rent_money_upper'    => num2rmb($resident->real_rent_money),       //租金确认
             'service_money'       => "{$resident->real_property_costs}",        //服务费
-            'service_money_upper' => num2rmb($resident->real_property_costs),// 服务费确认
-            'deposit_money'       => "{$resident->deposit_money}",                   //暂时不确定
-            'deposit_month'       => (string)$resident->deposit_month,               //金额确定
+            'service_money_upper' => num2rmb($resident->real_property_costs),   //服务费确认
+            'deposit_money'       => "{$resident->deposit_money}",              //暂时不确定
+            'deposit_month'       => (string)$resident->deposit_month,          //金额确定
             'deposit_money_upper' => num2rmb($resident->deposit_money),         //金额确定
-            'tmp_deposit'         => "{$resident->tmp_deposit}",                       //临时租金
-            'tmp_deposit_upper'   => num2rmb($resident->tmp_deposit),             //零食租金确认
-            'special_term'        => $resident->special_term ? $resident->special_term : '无',  //
-            'year'                => date("Y"),                                    //签约年
-            'month'               => date("m"),                                   //签约月
-            'day'                 => date("d"),                                     //签约日
-            'attachment_2_date'   => date("Y-m-d")                           //最终时间确认
+            'tmp_deposit'         => "{$resident->tmp_deposit}",                //临时租金
+            'tmp_deposit_upper'   => num2rmb($resident->tmp_deposit),           //零食租金确认
+            'special_term'        => $resident->special_term ? $resident->special_term : '无',
+            'year'                => date("Y"),                         //签约年
+            'month'               => date("m"),                         //签约月
+            'day'                 => date("d"),                         //签约日
+            'attachment_2_date'   => date("Y-m-d")                      //最终时间确认
         );
 
         $data['name']=$resident->name;
@@ -311,7 +291,6 @@ class Contract extends MY_Controller
 
         $CustomerCA= $this->getCustomerCA($data);
         $contractId   = 'JINDI'.date("YmdHis").mt_rand(10,60);
-
         $res2        = $this->fadada->generateContract(
             $parameters['contract_number'],
             $contract_template->fdd_tpl_id,
@@ -319,7 +298,6 @@ class Contract extends MY_Controller
             $parameters,
             12
         );
-
         $contract['contract_id']    = $contractId;
         $contract['type']          = Contractmodel::TYPE_FDD;
         $contract['customer_id']      = $CustomerCA;
@@ -328,11 +306,9 @@ class Contract extends MY_Controller
         $contract['status']          = Contractmodel::STATUS_GENERATED;
         $contract['contract_id']      = $contractId;
         $contract['doc_title'] =    $parameters['contract_number'];
-
         return $contract;
 
     }
-
 
     private function test()
     {

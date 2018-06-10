@@ -65,7 +65,6 @@ class Store extends MY_Controller
         $this->api_res(0,['list'=>$store]);
     }
 
-
     /**
      * 获取门店和门店下房型信息
      */
@@ -78,7 +77,6 @@ class Store extends MY_Controller
         $store  = Storemodel::select($field)->find($store_id);
         /*$rent_type  = $store->rent_type;
         if($rent_type=='UNION'){
-
         }*/
         if(!$store)
         {
@@ -96,5 +94,26 @@ class Store extends MY_Controller
         $this->api_res(0,['store'=>$store,'price'=>compact('min_price','max_price'),'room_types'=>$room_types]);
     }
 
+    /**
+     * 预约看房
+     */
+    public function appoint()
+    {
+        $this->load->model('reserveordermodel');
+        $post = $this->input->post(null, true);
+
+        $order = new Reserveordermodel();
+        $order->customer_id  = 7;
+        $order->store_id     = trim($post['store_id']);
+        $order->room_type_id = trim($post['room_type_id']);
+        $order->name         = trim($post['name']);
+        $order->phone        = trim($post['phone']);
+        $order->visit_time   = trim($post['visit_time']);
+        if ($order->save()) {
+            $this->api_res(0);
+        } else {
+            $this->api_res(1009);
+        }
+    }
 
 }
