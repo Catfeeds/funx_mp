@@ -180,7 +180,11 @@ class Order extends MY_Controller
             $query->where('status',Ordermodel::STATE_PENDING)/*->orderBy('year','ASC')->orderBy('month','ASC')*/;
         }])
             //->where('customer_id',$this->user->id)
-            ->findOrFail($resident_id);
+            ->find($resident_id);
+        if(!$resident){
+            $this->api_res(1007);
+            return;
+        }
 
         $room   = $resident->roomunion;
         $orders   = $resident->orders;

@@ -48,6 +48,8 @@ class Ordermodel extends Basemodel{
     const PAYTYPE_ELECTRICITY   = 'ELECTRICITY';    // 电费
     const PAYTYPE_COMPENSATION  = 'COMPENSATION';   // 物品赔偿费
     const PAYTYPE_REPAIR        = 'REPAIR';         // 维修服务费
+    const PAYTYPE_OVERDUE       = 'OVERDUE';        // 滞纳金·
+    const PAYTYPE_WATER_HOT     = 'HOT_WATER';      // 热水水费
 
     /**
      * 首次 续费
@@ -183,7 +185,7 @@ class Ordermodel extends Basemodel{
             self::PAYTYPE_DEPOSIT_R     => '住宿押金',
             self::PAYTYPE_DEPOSIT_O     => '其他押金',
             self::PAYTYPE_OTHER         => '其他服务费',
-            self::PAYTYPE_ELECTRIC      => '用电服务费',
+            self::PAYTYPE_ELECTRICITY      => '用电服务费',
             self::PAYTYPE_WATER         => '冷水服务费',
             self::PAYTYPE_WATER_HOT     => '热水服务费',
             self::PAYTYPE_CLEAN         => '清洁服务费',
