@@ -26,7 +26,7 @@ class M_jwt
             "iss" => config_item('jwt_iss'),
             "exp" => config_item('jwt_exp'),
             "nbf" => config_item('jwt_nbf'),
-            "bxid" => $uxid,  //自添加字段，
+            "uxid" => $uxid,  //自添加字段，
             "company_id"    =>$company_id
         );
 
