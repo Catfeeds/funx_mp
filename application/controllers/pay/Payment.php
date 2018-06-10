@@ -277,7 +277,7 @@ class Payment extends MY_Controller
     {
         $orderCollection->each(function ($order) {
             $order->update([
-                'pay_type'  => Newordermodel::PAYWAY_JSAPI,
+                'pay_type'  => Ordermodel::PAYWAY_JSAPI,
                 'paid'      => $order->money,
             ]);
         });
