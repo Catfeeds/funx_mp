@@ -350,7 +350,8 @@ class Contract extends MY_Controller
             $contract['contract_id'],
             $transactionId,
             $contract['doc_title'],
-            site_url('resident/contract/signresult'),   //return_url
+//            site_url('resident/contract/signresult'),   //return_url
+            'http://tapi.web.funxdata.com/resident/contract/signresult',
             'http://tapi.boss.funxdata.com/mini/contract/notify'     //notify_url
         );
 
@@ -442,6 +443,11 @@ class Contract extends MY_Controller
                 throw new Exception('msg_digest 验证失败');
             }
 
+            $this->load->model('fddrecordmodel');
+            $this->load->model('contractmodel');
+            $this->load->model('residentmodel');
+            $this->load->model('roomunionmodel');
+            $this->load->model('ordermodel');
             //更新合同记录, 将合同状态设置为签署中
             $contract = Fddrecordmodel::where('transaction_id', $input['transaction_id'])->first()->contract;
             if ($contract->status == Contractmodel::STATUS_GENERATED) {
@@ -462,7 +468,7 @@ class Contract extends MY_Controller
 
         //没有问题就跳转支付页面
 
-        redirect('mybill');
+        header('Location:http://tweb.funxdata.com/');
 
         //$this->api_res(0);
 
