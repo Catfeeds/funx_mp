@@ -443,6 +443,10 @@ class Contract extends MY_Controller
                 throw new Exception('msg_digest 验证失败');
             }
 
+            $this->load->model('fddrecordmodel');
+            $this->load->model('contractmodel');
+            $this->load->model('residentmodel');
+            $this->load->model('ordermodel');
             //更新合同记录, 将合同状态设置为签署中
             $contract = Fddrecordmodel::where('transaction_id', $input['transaction_id'])->first()->contract;
             if ($contract->status == Contractmodel::STATUS_GENERATED) {
