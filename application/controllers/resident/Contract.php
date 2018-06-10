@@ -350,7 +350,8 @@ class Contract extends MY_Controller
             $contract['contract_id'],
             $transactionId,
             $contract['doc_title'],
-            site_url('resident/contract/signresult'),   //return_url
+//            site_url('resident/contract/signresult'),   //return_url
+            'http://tapi.web.funxdata.com/resident/contract/signresult',
             'http://tapi.boss.funxdata.com/mini/contract/notify'     //notify_url
         );
 
