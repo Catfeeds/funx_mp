@@ -176,6 +176,8 @@ class Order extends MY_Controller
 
         $resident_id    = $this->input->post('resident_id',true);
 
+        log_message('error',$this->user->id);
+
         $resident   = Residentmodel::with(['roomunion','orders'=>function($query){
             $query->where('status',Ordermodel::STATE_PENDING)/*->orderBy('year','ASC')->orderBy('month','ASC')*/;
         }])
