@@ -347,7 +347,7 @@ class Contract extends MY_Controller
             $contract['contract_id'],
             $transactionId,
             $contract['doc_title'],
-            'http://tweb.funxdata.com/contract/signresult',    //return_url
+            site_url('resident/contract/signresult'),   //return_url
             'http://tapi.boss.funxdata.com/mini/contract/notify'     //notify_url
         );
 
@@ -459,7 +459,9 @@ class Contract extends MY_Controller
 
         //没有问题就跳转支付页面
 
-        $this->api_res(0);
+        redirect('mybill');
+
+        //$this->api_res(0);
 
         //redirect(site_url(['order', 'payment', $contract->resident->id]));
     }
