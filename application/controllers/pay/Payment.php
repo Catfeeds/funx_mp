@@ -15,9 +15,6 @@ use Illuminate\Database\Capsule\Manager as DB;
 
 class Payment extends MY_Controller
 {
-    protected $resident;
-
-    protected $user;
 
     /**
      * 构造方法
