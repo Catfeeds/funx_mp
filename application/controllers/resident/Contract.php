@@ -2,7 +2,8 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 use Carbon\Carbon;
 use Illuminate\Database\Capsule\Manager as DB;
-//use mikehaertl\pdftk\Pdf;
+use mikehaertl\pdftk\Pdf;
+
 /**
  * User: wws
  * Date: 2018-05-23
@@ -163,12 +164,15 @@ class Contract extends MY_Controller
         $contract   = $resident->contract;
         $contract_type  = $room->store->contract_type;
 
-        //测试使用
+
         $this->load->model('roomtypemodel');
 
         if(Storemodel::C_TYPE_NORMAL==$contract_type){
             if(empty($contract)){
-                $data   = $this->test();
+                //测试使用
+                //$data   = $this->test();
+                $data   = $this->contractPaper($resident);
+
                 //生成纸质版合同
                 // $data   = $this->generate($resident, ['type' => Contractmodel::TYPE_NORMAL]);
 //                $orderUnpaidCount   = $resident->orders()
@@ -181,7 +185,15 @@ class Contract extends MY_Controller
 //                    $this->api_res(0);
 //                    return;
 //                }
-            }else{
+            }
+
+            elseif (Contractmodel::STATUS_ARCHIVED != $contract->status) {
+                //$targetUrl = $this->getSignUrl($contract);
+                $result = $this->signFddUrl($contract->toArray());
+                $this->api_res(10021,['result'=>$result]);
+                return;
+            }
+            else{
                 $this->api_res(10016);
                 return;
             }
@@ -190,13 +202,7 @@ class Contract extends MY_Controller
 
                 $data   = $this->signContract($resident);
 
-            }elseif (Contractmodel::STATUS_ARCHIVED != $contract->status) {
-                    //$targetUrl = $this->getSignUrl($contract);
-                    $result = $this->signFddUrl($contract->toArray());
-                    $this->api_res(10021,['result'=>$result]);
-                    return;
-                }
-            else{
+            }else{
                 $this->api_res(10016);
                 return;
             }
@@ -357,6 +363,14 @@ class Contract extends MY_Controller
         $result['signurl']=$baseUrl . '?' . http_build_query($data2);
 
         return $result;
+    }
+
+
+    /**
+     * 生成纸质版合同
+     */
+    public function contractPaper($resident){
+
     }
 
 
