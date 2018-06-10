@@ -204,6 +204,7 @@ class Payment extends MY_Controller
             $store_pay->discount  = $discount;
             $store_pay->status  = 'UNDONE';
             $store_pay->resident_id  = $residentId;
+            $store_pay->start_date  = date('Y-m-d H-i-s',time());
             $store_pay->data=['orders'=>$orders,'coupons'=>$coupons];
             $store_pay->save();
 
@@ -474,7 +475,7 @@ class Payment extends MY_Controller
                     return true;
                 }
                 $this->load->model('ordermodel');
-                $orders     = $resident->orders()->where('status', Ordermodel::STATE_PENDING)->get();
+                $orders     = $resident->orders()->where('status', Ordermodel::STATE_PENDING)->where('out_trade_no',$notify->out_trade_no)->get();
 
                 if (!count($orders)) {
                     return true;
