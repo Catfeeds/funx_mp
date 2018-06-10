@@ -96,7 +96,7 @@ class AuthHook {
             'shop/order/orderux',
             'shop/order/order',
             'shop/goods/numorder',
-            'resident/order/unpaid',
+//            'resident/order/unpaid',
 //            'resident/order/paid',
 //            'resident/order/listunpaidorder',
 //            'resident/order/listpaidorder',
@@ -131,6 +131,7 @@ class AuthHook {
                 define('COMPANY_ID',$d_company_id);
 
                 $this->CI->load->model('customermodel');
+                log_message('error','current_id='.CURRENT_ID);
                 $this->CI->user = Customermodel::where('uxid',CURRENT_ID)->first();
 
 
