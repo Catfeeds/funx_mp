@@ -75,33 +75,31 @@ class Goods extends MY_Controller
         }
     }
 
-    /**
-     * 个人中心 商城订单 通过订单号点击查看订单
-     */
-    public function numorder()
-    {
-        $this->load->model('goodsordermodel');
-        $this->load->model('goodscartmodel');
-        $this->load->model('Goodsaddressmodel');
-        $post = $this->input->post(null, true);
-        $number = trim($post['number']);
-        $cart_id = $post['cart_id'];
-        $field = ['id','uxid','number','address_id','goods_money','goods_quantity'];
-        $order = Goodsordermodel::with('address1')->where('uxid',7)->where('number',$number)->get($field);
-        $id         = isset($cart_id)?explode(',',$cart_id):NULL;
-        $goodscarts = Goodscartmodel::with('goods')->find($id)->map(function ($cart) {
-            if ($cart->uxid != 7) { //CURRENT_ID
-                log_message('error', '当前用户不匹配');
-                throw new Exception();
-            }
-            return $cart;
-        });
-        foreach ($goodscarts as $key => $value) {
-            $goodscarts[$key]['goods']['goods_thumb'] = $this->fullAliossUrl(($goodscarts[$key]['goods']['goods_thumb']));
-        }
-        $this->api_res(0, ['goods'=>$goodscarts,'info'=>$order]);
-
-
-    }
+//    /**
+//     * 个人中心 商城订单 通过订单号点击查看订单
+//     */
+//    public function numorder()
+//    {
+//        $this->load->model('goodsordermodel');
+//        $this->load->model('goodscartmodel');
+//        $this->load->model('goodsaddressmodel');
+//        $post = $this->input->post(null, true);
+//        $number = trim($post['number']);
+//        $cart_id = $post['cart_id'];
+//        $field = ['id','uxid','number','address_id','goods_money','goods_quantity'];
+//        $order = Goodsordermodel::with('address1')->where('uxid',7)->where('number',$number)->get($field);
+//        $id         = isset($cart_id)?explode(',',$cart_id):NULL;
+//        $goodscarts = Goodscartmodel::with('goods')->find($id)->map(function ($cart) {
+//            if ($cart->uxid != 7) { //CURRENT_ID
+//                log_message('error', '当前用户不匹配');
+//                throw new Exception();
+//            }
+//            return $cart;
+//        });
+//        foreach ($goodscarts as $key => $value) {
+//            $goodscarts[$key]['goods']['goods_thumb'] = $this->fullAliossUrl(($goodscarts[$key]['goods']['goods_thumb']));
+//        }
+//        $this->api_res(0, ['goods'=>$goodscarts,'info'=>$order]);
+//    }
 
 }
