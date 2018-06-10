@@ -207,6 +207,7 @@ class Payment extends MY_Controller
 
             $orders->each(function ($query) use($out_trade_no,$store_pay){
                 $query->update(['out_trade_no'=>$out_trade_no,'store_pay_id'=>$store_pay->id]);
+                $query->save();
             });
 
             $wechatConfig   = getCustomerWechatConfig();
