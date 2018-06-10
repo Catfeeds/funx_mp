@@ -103,7 +103,7 @@ class Store extends MY_Controller
         $post = $this->input->post(null, true);
 
         $order = new Reserveordermodel();
-        $order->customer_id  = COMPANY_ID;
+        $order->customer_id  = 7;
         $order->store_id     = trim($post['store_id']);
         $order->room_type_id = trim($post['room_type_id']);
         $order->name         = trim($post['name']);

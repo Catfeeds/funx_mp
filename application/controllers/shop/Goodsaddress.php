@@ -35,7 +35,7 @@ class Goodsaddress extends MY_Controller
         $address->name          = trim($post['name']);
         $address->phone         = trim($post['phone']);
         $address->uxid   = 35;
-                        //CURRENT_ID;
+
         if($address->save()){
             $this->api_res(0,['id' => $address->id]);
         }else{
