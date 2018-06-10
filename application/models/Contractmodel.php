@@ -50,7 +50,7 @@ class Contractmodel extends Basemodel {
     }
 
     //房间号
-    public function roomnuion(){
+    public function roomunion(){
 
         return $this->belongsTo(Roomunionmodel::class,'room_id')->select('id','number');
     }
