@@ -190,17 +190,17 @@ class Contract extends MY_Controller
 
                 $data   = $this->signContract($resident);
 
-            }else{
+            }elseif (Contractmodel::STATUS_ARCHIVED != $contract->status) {
+                    //$targetUrl = $this->getSignUrl($contract);
+                    $result = $this->signFddUrl($contract->toArray());
+                    $this->api_res(10021,['result'=>$result]);
+                    return;
+                }
+            else{
                 $this->api_res(10016);
                 return;
             }
-            //合同没归档就去签署页面
-            if (Contractmodel::STATUS_ARCHIVED != $contract->status) {
-                //$targetUrl = $this->getSignUrl($contract);
-                $result = $this->signFdd($contract->toArray());
-                $this->api_res(0,['result'=>$result]);
-                return;
-            }
+
         }
 
         $contract   = new Contractmodel();
@@ -340,7 +340,7 @@ class Contract extends MY_Controller
     /**
      * fdd签署
      */
-    public function signFdd($contract){
+    public function signFddUrl($contract){
         //生成调用该接口所需要的信息
         $transactionId  = 'B'.date("Ymd His").mt_rand(10, 60);
         $data2 = $this->fadada->signARequestData(
