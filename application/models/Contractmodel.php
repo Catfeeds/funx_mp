@@ -46,13 +46,13 @@ class Contractmodel extends Basemodel {
     //社区名
     public function store(){
 
-        return $this->belongsTo(Storemodel::class,'store_id')->select('id','name');
+        return $this->belongsTo(Storemodel::class,'store_id');
     }
 
     //房间号
     public function roomunion(){
 
-        return $this->belongsTo(Roomunionmodel::class,'room_id')->select('id','number');
+        return $this->belongsTo(Roomunionmodel::class,'room_id');
     }
 
 
