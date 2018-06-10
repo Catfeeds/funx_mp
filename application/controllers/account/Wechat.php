@@ -62,7 +62,8 @@ class Wechat extends MY_Controller
             $customer   = Customermodel::where(['company_id'=>$company_id,'openid'=>$openid])->first();
         }else{
             $customer   = new Customermodel();
-            $customer->uxid         = Customermodel::max('uxid')+1;
+            //需要核实修改
+            $customer->uxid         = $customer->id;
             $customer->company_id   = $company_id;
             $customer->openid       = $openid;
         }
