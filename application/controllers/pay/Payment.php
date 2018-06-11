@@ -148,7 +148,7 @@ class Payment extends MY_Controller
 
         $this->resident = Residentmodel::with('orders', 'coupons')->findOrFail($residentId);
 
-        if(!$this->resident->roomunion->store->pay_online){
+        if(!$this->resident->roomunion->store->pay_online) {
             $this->api_res(10020);
             return;
         }
@@ -197,8 +197,8 @@ class Payment extends MY_Controller
                 'body'          => $store->name . '-' . $roomtype->name,
                 'detail'        => $store->name . '-' . $roomtype->name,
                 'out_trade_no'  => $out_trade_no,
-                'total_fee'     => $amount * 100,
-//                'total_fee'     => 1,
+//                'total_fee'     => $amount * 100,
+                'total_fee'     => 1,
 //                'notify_url'    => site_url("pay/payment/notify/".$store->id),
                 'notify_url'    => "http://tapi.web.funxdata.com/pay/payment/notify/".$store->id,
                 'openid'        => $this->user->openid,
