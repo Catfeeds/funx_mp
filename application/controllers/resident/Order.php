@@ -210,13 +210,13 @@ class Order extends MY_Controller
         $list   = $orders->groupBy('type')->map(function ($items, $type) {
             return [
                 'name'   => Ordermodel::getTypeName($type),
-                'amount' => number_format($items->sum('paid'), 2),
+                'amount' => $items->sum('paid'),
             ];
         });
 
         $store  = $room->store;
 
-        $totalMoney = number_format($orders->sum('money'), 2);
+        $totalMoney = $orders->sum('money');
 
         $coupons    = $this->getCouponsAvailable($resident, $orders);
 
