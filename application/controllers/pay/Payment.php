@@ -189,7 +189,8 @@ class Payment extends MY_Controller
                 'out_trade_no'  => $out_trade_no,
                 'total_fee'     => $amount * 100,
                 'notify_url'    => site_url("pay/payment/notify/".$store->id),
-                'openid'        => $this->user->openid,
+//                'openid'        => $this->user->openid,
+                'openid'        => 'ob4npwrTaxXkI5TzCN6MYFC4tblY',
                 'attach'        => serialize($attach),
             ];
 
