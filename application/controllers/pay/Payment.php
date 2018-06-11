@@ -16,6 +16,8 @@ use Illuminate\Database\Capsule\Manager as DB;
 class Payment extends MY_Controller
 {
 
+    protected $resident;
+
     /**
      * 构造方法
      */
@@ -149,6 +151,7 @@ class Payment extends MY_Controller
 
         $orders         = $this->resident->orders()->where('status', Ordermodel::STATE_PENDING)->get();
 
+
         $coupons        = $this->resident->coupons()->whereIn('id', $couponIds)->get();
 
         if (0 == count($orders)) {
@@ -209,7 +212,10 @@ class Payment extends MY_Controller
 
             $orders->each(function ($query) use($out_trade_no,$store_pay){
                 $query->update(['out_trade_no'=>$out_trade_no,'store_pay_id'=>$store_pay->id]);
+                log_message('error',json_decode($query));
             });
+
+            //log_message('error',json_decode($orders));
 
             $wechatConfig   = getCustomerWechatConfig();
 //            $wechatConfig['payment']['merchant_id'] = $store->payment_merchant_id;
