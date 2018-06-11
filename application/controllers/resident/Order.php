@@ -51,7 +51,7 @@ class Order extends MY_Controller
         $this->load->model('roomunionmodel');
 
         $resident   = Residentmodel::with(['roomunion','orders'=>function($query){
-            $query->whereIn('status',[Ordermodel::STATE_CONFIRM,Ordermodel::PAYTYPE_COMPENSATION]);
+            $query->whereIn('status',[Ordermodel::STATE_CONFIRM,Ordermodel::STATE_COMPLETED]);
 //        }])->where('customer_id',$this->user->id);
         }])->where('customer_id',5373);
         $orders  = $resident->get()->map(function($query){
