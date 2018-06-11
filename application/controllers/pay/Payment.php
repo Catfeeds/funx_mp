@@ -190,7 +190,7 @@ class Payment extends MY_Controller
                 'total_fee'     => $amount * 100,
                 'notify_url'    => site_url("pay/payment/notify/".$store->id),
 //                'openid'        => $this->user->openid,
-                'openid'        => 'ob4npwrTaxXkI5TzCN6MYFC4tblY',
+                'openid'        => 'ob4npwr_tU8D-XHmgXPMxEqcrj6c',
                 'attach'        => serialize($attach),
             ];
 
