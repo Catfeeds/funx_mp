@@ -229,7 +229,7 @@ class Payment extends MY_Controller
                 throw new Exception($result->return_msg);
             }
 //            //生成js配置
-            $json = $payment->configForPayment($result->prepay_id, false);
+            $all_result['json'] = $payment->configForPayment($result->prepay_id, false);
 //            log_message('error',$json);
             DB::commit();
         } catch (Exception $e) {
@@ -238,9 +238,7 @@ class Payment extends MY_Controller
             log_message('error', $e->getMessage());
             throw $e;
         }
-        var_dump($json);
-    echo "aa";
-//        $this->api_res(0,['json'=>$json]);
+        $this->api_res(0,$all_result);
     }
 
 
