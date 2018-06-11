@@ -369,7 +369,7 @@ class Server extends MY_Controller
                     $customer->openid   = $message->FromUserName;
                     //$customer->openid   =1;
 //                    $customer->uxid         = Customermodel::max('uxid')+1;
-                    $customer->uxid         = $customer->id;
+                    $customer->uxid         = $customer->max('id')+1;
                     $customer->save();
                 }
 

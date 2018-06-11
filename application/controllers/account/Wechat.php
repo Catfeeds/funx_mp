@@ -63,7 +63,7 @@ class Wechat extends MY_Controller
         }else{
             $customer   = new Customermodel();
             //需要核实修改
-            $customer->uxid         = $customer->id;
+            $customer->uxid         = $customer->max('id')+1;
             $customer->company_id   = $company_id;
             $customer->openid       = $openid;
         }
