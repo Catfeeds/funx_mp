@@ -168,7 +168,7 @@ class Contract extends MY_Controller
 
         $this->load->model('roomtypemodel');
         //默认跳转的页面 账单列表
-        $targetUrl  = 'mybill';
+        $targetUrl  = 'http://tweb.funxdata.com/#/generate';
 
         if(Storemodel::C_TYPE_NORMAL==$contract_type){
             if(empty($contract)){
@@ -219,7 +219,7 @@ class Contract extends MY_Controller
         //测试
         $this->fadada->uploadTemplate('http://tfunx.oss-cn-shenzhen.aliyuncs.com/'.$contract_template->contract_tpl_path,$contract_template->fdd_tpl_id);
         //签署合同需要准备的信息
-        $contractNumber = $resident->store_id . '-' . $resident->begin_time->year .'-' . $resident->name . '-' . $resident->room_id;
+        $contractNumber = $resident->store->abbreviation . '-' . $resident->begin_time->year .'-' . $resident->name . '-' . $resident->room_id;
         $parameters     = array(
             'contract_number'     => $contractNumber,               //合同号
             'customer_name'       => $resident->name,               //租户姓名
@@ -468,7 +468,7 @@ class Contract extends MY_Controller
 
         //没有问题就跳转支付页面
 
-        header('Location:http://tweb.funxdata.com/');
+        header('Location:http://tweb.funxdata.com/#/generate');
 
         //$this->api_res(0);
 
@@ -524,7 +524,7 @@ class Contract extends MY_Controller
         $contractId             = 'JINDI'.date("YmdHis").mt_rand(10,60);
 
         //签署合同需要准备的信息
-        $contractNumber = $resident->store_id . '-' . $resident->begin_time->year .'-' . $resident->name . '-' . $resident->room_id;
+        $contractNumber = $resident->store->abbreviation . '-' . $resident->begin_time->year .'-' . $resident->name . '-' . $resident->room_id;
         $parameters     = array(
             'contract_number'     => $contractNumber,               //合同号
             'customer_name'       => $resident->name,               //租户姓名
