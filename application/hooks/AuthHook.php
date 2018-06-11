@@ -31,7 +31,7 @@ class AuthHook {
 
             'resident/order/getorderbynumber',
 
-            'pay/payment/config',
+//            'pay/payment/config',
             //微信支付回调
             'pay/payment/notify',
             //合同签章结果
@@ -101,10 +101,10 @@ class AuthHook {
             'shop/order/orderux',
             'shop/order/order',
             'shop/goods/numorder',
-            'resident/order/unpaid',
+//            'resident/order/unpaid',
 //            'resident/order/paid',
-            'resident/order/listunpaidorder',
-            'resident/order/listpaidorder',
+//            'resident/order/listunpaidorder',
+//            'resident/order/listpaidorder',
 
 
             'coupon/coupon/listcoupon',

@@ -28,8 +28,8 @@ class Order extends MY_Controller
 
         $resident   = Residentmodel::with(['roomunion','orders'=>function($query){
             $query->where('status',Ordermodel::STATE_PENDING);
-//        }])->where('customer_id',$this->user->id);
-        }])->where('customer_id',9594);
+        }])->where('customer_id',$this->user->id);
+//        }])->where('customer_id',9594);
         $orders  = $resident->get()->map(function($query){
             $query->count  = count($query->orders);
             $query->amount = $query->orders->sum('money');
@@ -52,8 +52,8 @@ class Order extends MY_Controller
 
         $resident   = Residentmodel::with(['roomunion','orders'=>function($query){
             $query->whereIn('status',[Ordermodel::STATE_CONFIRM,Ordermodel::STATE_COMPLETED]);
-//        }])->where('customer_id',$this->user->id);
-        }])->where('customer_id',5373);
+        }])->where('customer_id',$this->user->id);
+//        }])->where('customer_id',5373);
         $orders  = $resident->get()->map(function($query){
             $query->count  = count($query->orders);
             $query->amount = $query->orders->sum('money');
@@ -183,10 +183,10 @@ class Order extends MY_Controller
         $resident   = Residentmodel::with(['roomunion','orders'=>function($query){
             $query->where('status',Ordermodel::STATE_PENDING)/*->orderBy('year','ASC')->orderBy('month','ASC')*/;
         }])
-//            ->where('customer_id',$this->user->id)
-            ->where('customer_id',9594)
-//            ->find($resident_id);
-            ->find(2640);
+            ->where('customer_id',$this->user->id)
+//            ->where('customer_id',9594)
+            ->find($resident_id);
+//            ->find(2640);
         if(!$resident){
             $this->api_res(1007);
             return;
