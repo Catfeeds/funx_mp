@@ -14,6 +14,7 @@ class Center extends MY_Controller
         parent::__construct();
         $this->load->model('customermodel');
         $this->load->library('m_redis');
+        define('CURRENT_ID',1);
     }
 
     /**
