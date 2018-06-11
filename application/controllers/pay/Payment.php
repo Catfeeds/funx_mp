@@ -146,6 +146,8 @@ class Payment extends MY_Controller
         $this->load->model('couponmodel');
         $this->load->model('roomunionmodel');
         $this->load->helper('wechat');
+        $this->load->model('storemodel');
+        $this->load->model('roomtypemodel');
 
         $this->resident = Residentmodel::with('orders', 'coupons')->findOrFail($residentId);
 
@@ -185,8 +187,6 @@ class Payment extends MY_Controller
             }
 
 
-            $this->load->model('storemodel');
-            $this->load->model('roomtypemodel');
             $this->load->helper('url');
             $roomunion       = $this->resident->roomunion;
             $store      = $roomunion->store;
