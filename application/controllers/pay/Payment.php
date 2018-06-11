@@ -181,7 +181,7 @@ class Payment extends MY_Controller
             $store      = $roomunion->store;
             $roomtype   = $roomunion->roomtype;
             $attach     = ['resident_id' => $residentId];
-            $out_trade_no   = $residentId.'_'.mt_rand(10, 99);
+            $out_trade_no   = $residentId.'_'.date('YmdHis',time()).mt_rand(10, 99);
             $attributes = [
                 'trade_type'    => Ordermodel::PAYWAY_JSAPI,
                 'body'          => $store->name . '-' . $roomtype->name,
