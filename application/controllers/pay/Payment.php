@@ -450,7 +450,7 @@ class Payment extends MY_Controller
      */
     public function notify()
     {
-        log_message('error','AA');exit;
+        log_message('error','AA');
 
         $store_id    = $this->uri->segment(4);
 
