@@ -129,6 +129,7 @@ class AuthHook {
         if(!in_array($full_path,$authArr)) {
             try {
                 $token = $this->CI->input->get_request_header('token');
+                log_message('error','TOKEN'.$token);
                 $decoded = $this->CI->m_jwt->decodeJwtToken($token);
                 $d_uxid   = $decoded->uxid;
                 $d_company_id   = $decoded->company_id;
