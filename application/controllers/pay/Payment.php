@@ -168,6 +168,7 @@ class Payment extends MY_Controller
         }
 
         try {
+            echo "cc";
             DB::beginTransaction();
             //更新订单的付款方式和支付金额
             $this->updatePayWayAndPaid($orders);
