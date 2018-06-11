@@ -209,14 +209,15 @@ class Payment extends MY_Controller
             $store_pay->start_date  = date('Y-m-d H-i-s',time());
             $store_pay->data=['orders'=>$orders,'coupons'=>$coupons];
             $store_pay->save();
-            var_dump($store_pay);
-            exit;
 
-//            $orders->each(function ($query) use($out_trade_no,$store_pay){
-//                $query->out_trade_no = $out_trade_no;
-//                $query->store_pay_id = $store_pay->id;
-//                $query->save();
-//            });
+            $orders->each(function ($query) use($out_trade_no,$store_pay){
+                $query->out_trade_no = $out_trade_no;
+                $query->store_pay_id = $store_pay->id;
+                $query->save();
+                echo 'aa';
+                exit;
+            });
+            exit;
 
 //            $wechatConfig   = getCustomerWechatConfig();
 ////            $wechatConfig['payment']['merchant_id'] = $store->payment_merchant_id;
