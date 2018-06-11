@@ -105,10 +105,11 @@ class Server extends MY_Controller
                                 $id = (int)$message->EventKey;
 
 
-                                if (10 == strlen($id) && 1 == substr($id, 0, 1)) {
-                                    return $this->helpFriend($app, $message, $id);
-                                }
+//                                if (10 == strlen($id) && 1 == substr($id, 0, 1)) {
+//                                    return $this->helpFriend($app, $message, $id);
+//                                }
 
+                                log_message('error',1);
                                 return $this->checkInOrBookingEvent($message, $id);
 
                             } catch (Exception $e) {
