@@ -473,6 +473,7 @@ class Payment extends MY_Controller
                 //$residentId     = $data[0];
                 $attach     = unserialize($notify->attach);
                 $this->load->model('residentmodel');
+                $this->load->model('ordermodel');
                 $resident   = Residentmodel::with('orders')->find($attach['resident_id']);
 
                 log_message('error', 'notify-arrived--->' . $notify->out_trade_no);
@@ -484,7 +485,6 @@ class Payment extends MY_Controller
                 if(!$successful){
                     return true;
                 }
-                $this->load->model('ordermodel');
 
                 $orders     = $resident->orders()->where('status', Ordermodel::STATE_PENDING)->where('out_trade_no',$notify->out_trade_no)->get();
 
