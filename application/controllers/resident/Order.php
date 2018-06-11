@@ -29,7 +29,7 @@ class Order extends MY_Controller
         $resident   = Residentmodel::with(['roomunion','orders'=>function($query){
             $query->where('status',Ordermodel::STATE_PENDING);
         }])->where('customer_id',9590);
-        log_message('error','UNPAID-->'.$this->user->id);
+//        log_message('error','UNPAID-->'.$this->user->id);
 //        }])->where('customer_id',9604);
         $orders  = $resident->get()->map(function($query){
             $query->count  = count($query->orders);
