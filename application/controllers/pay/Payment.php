@@ -225,13 +225,12 @@ class Payment extends MY_Controller
             $wechatOrder    = new Order($attributes);
             $payment        = $app->payment;
             $result         = $payment->prepare($wechatOrder);
-            var_dump($result);
-            exit;
-//            if (!($result->return_code == 'SUCCESS' && $result->result_code == 'SUCCESS')) {
-//                throw new Exception($result->return_msg);
-//            }
+            if (!($result->return_code == 'SUCCESS' && $result->result_code == 'SUCCESS')) {
+                throw new Exception($result->return_msg);
+            }
 //            //生成js配置
-//            $json = $payment->configForPayment($result->prepay_id, false);
+            $json = $payment->configForPayment($result->prepay_id, false);
+            var_dump($json);
 //            log_message('error',$json);
 //            DB::commit();
         } catch (Exception $e) {
