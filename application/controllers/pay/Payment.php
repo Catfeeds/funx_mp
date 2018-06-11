@@ -147,6 +147,11 @@ class Payment extends MY_Controller
         $this->load->helper('wechat');
 
         $this->resident = Residentmodel::with('orders', 'coupons')->findOrFail($residentId);
+
+        if(!$this->resident->roomunion->store->pay_online){
+            $this->api_res(10020);
+            return;
+        }
         //$this->checkUser($this->resident->uxid);
 
         $orders         = $this->resident->orders()->where('status', Ordermodel::STATE_PENDING)->get();
@@ -158,6 +163,7 @@ class Payment extends MY_Controller
             $this->api_res(10017);
             return;
         }
+
 
         //计算总金额
         $amount = $orders->sum('money');
