@@ -198,7 +198,7 @@ class Payment extends MY_Controller
                 'openid'        => 'ob4npwr_tU8D-XHmgXPMxEqcrj6c',
                 'attach'        => serialize($attach),
             ];
-
+            var_dump($attributes);
             $this->api_res(0,$attributes);
             exit;
             $this->load->model('storepaymodel');
