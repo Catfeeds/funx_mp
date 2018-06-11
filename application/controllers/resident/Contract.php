@@ -127,11 +127,11 @@ class Contract extends MY_Controller
         $phone          = trim(strip_tags($input['phone']));
 //        $code           = trim(strip_tags($input['code']));
         //验证短信验证码
-//        $this->load->library('m_redis');
-//        if(!$this->m_redis->verifyResidentPhoneCode($input['phone'],$input['code'])){
-//            $this->api_res(10014);
-//            return;
-//        }
+        $this->load->library('m_redis');
+        if(!$this->m_redis->verifyResidentPhoneCode($input['phone'],$input['code'])){
+            $this->api_res(10014);
+            return;
+        }
         $this->load->model('residentmodel');
         $resident   = Residentmodel::find($resident_id);
         if(!$resident){
@@ -193,6 +193,9 @@ class Contract extends MY_Controller
             if(empty($contract)){
 
                 $contract   = $this->signContract($resident);
+
+                $this->load->model('ordermodel');
+                $this->ordermodel->firstCheckInOrders($resident, $room);
 
             }
 
@@ -462,9 +465,6 @@ class Contract extends MY_Controller
 
         $resident   = $contract->resident;
         $room   = $contract->roomunion;
-
-        $this->load->model('ordermodel');
-        $this->ordermodel->firstCheckInOrders($resident, $room);
 
         //没有问题就跳转支付页面
 
