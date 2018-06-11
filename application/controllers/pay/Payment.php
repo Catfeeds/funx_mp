@@ -214,26 +214,26 @@ class Payment extends MY_Controller
                 $query->out_trade_no = $out_trade_no;
                 $query->store_pay_id = $store_pay->id;
                 $query->save();
-                echo 'aa';
             });
-            exit;
 
-//            $wechatConfig   = getCustomerWechatConfig();
-////            $wechatConfig['payment']['merchant_id'] = $store->payment_merchant_id;
-////            $wechatConfig['payment']['key']         = $store->payment_key;
-//
-//            $app            = new Application($wechatConfig);
-//            $wechatOrder    = new Order($attributes);
-//            $payment        = $app->payment;
-//            $result         = $payment->prepare($wechatOrder);
-//
+
+            $wechatConfig   = getCustomerWechatConfig();
+//            $wechatConfig['payment']['merchant_id'] = $store->payment_merchant_id;
+//            $wechatConfig['payment']['key']         = $store->payment_key;
+
+            $app            = new Application($wechatConfig);
+            $wechatOrder    = new Order($attributes);
+            $payment        = $app->payment;
+            $result         = $payment->prepare($wechatOrder);
+            var_dump($result);
+            exit;
 //            if (!($result->return_code == 'SUCCESS' && $result->result_code == 'SUCCESS')) {
 //                throw new Exception($result->return_msg);
 //            }
 //            //生成js配置
 //            $json = $payment->configForPayment($result->prepay_id, false);
 //            log_message('error',$json);
-            DB::commit();
+//            DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
