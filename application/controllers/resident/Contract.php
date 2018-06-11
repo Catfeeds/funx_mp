@@ -168,7 +168,7 @@ class Contract extends MY_Controller
 
         $this->load->model('roomtypemodel');
         //默认跳转的页面 账单列表
-        $targetUrl  = 'http://tweb.funxdata.com/#/myBill';
+        $targetUrl  = '';
 
         if(Storemodel::C_TYPE_NORMAL==$contract_type){
             if(empty($contract)){
