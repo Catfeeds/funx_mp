@@ -22,7 +22,7 @@ class Center extends MY_Controller
     public function showInfo()
     {
         $filed = ['id', 'name', 'avatar', 'nickname', 'phone'];
-        $customer = Customermodel::where('uxid', CURRENT_ID)->get($filed);
+        $customer = Customermodel::where('uxid', CURRENT_ID)->first($filed);
         if ($customer) {
             $this->api_res(0, $customer);
         } else {
