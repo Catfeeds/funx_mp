@@ -134,6 +134,7 @@ class Payment extends MY_Controller
      */
     public function config()
     {
+        log_message('error','enter_config');
         //住户id
         $residentId = trim($this->input->post('resident_id', true));
         //订单编号
