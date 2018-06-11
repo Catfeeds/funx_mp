@@ -215,7 +215,6 @@ class Payment extends MY_Controller
                 $query->store_pay_id = $store_pay->id;
                 $query->save();
                 echo 'aa';
-                exit;
             });
             exit;
 
