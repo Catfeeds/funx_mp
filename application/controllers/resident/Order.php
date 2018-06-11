@@ -185,7 +185,8 @@ class Order extends MY_Controller
         }])
 //            ->where('customer_id',$this->user->id)
             ->where('customer_id',9594)
-            ->find($resident_id);
+//            ->find($resident_id);
+            ->find(2640);
         if(!$resident){
             $this->api_res(1007);
             return;
