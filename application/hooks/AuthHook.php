@@ -39,8 +39,8 @@ class AuthHook {
 
             'resident/resident/getresident',
             'resident/contract/index',
-            'resident/contract/sendsms',
-            'resident/contract/confirm',
+//            'resident/contract/sendsms',
+//            'resident/contract/confirm',
             'resident/contract/signcontract',
             'resident/contract/test',
 
