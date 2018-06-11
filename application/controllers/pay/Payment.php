@@ -198,9 +198,6 @@ class Payment extends MY_Controller
                 'openid'        => 'ob4npwr_tU8D-XHmgXPMxEqcrj6c',
                 'attach'        => serialize($attach),
             ];
-            var_dump($attributes);
-            $this->api_res(0,$attributes);
-            exit;
             $this->load->model('storepaymodel');
             $store_pay  = new Storepaymodel();
             $store_pay->out_trade_no    = $out_trade_no;
@@ -212,6 +209,8 @@ class Payment extends MY_Controller
             $store_pay->start_date  = date('Y-m-d H-i-s',time());
             $store_pay->data=['orders'=>$orders,'coupons'=>$coupons];
             $store_pay->save();
+            var_dump($store_pay);
+            exit;
 
 //            $orders->each(function ($query) use($out_trade_no,$store_pay){
 //                $query->out_trade_no = $out_trade_no;
