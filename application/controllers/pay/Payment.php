@@ -230,16 +230,16 @@ class Payment extends MY_Controller
             }
 //            //生成js配置
             $json = $payment->configForPayment($result->prepay_id, false);
-            var_dump($json);
 //            log_message('error',$json);
-//            DB::commit();
+            DB::commit();
         } catch (Exception $e) {
 
             DB::rollBack();
             log_message('error', $e->getMessage());
             throw $e;
         }
-
+        var_dump($json);
+    echo "aa";
 //        $this->api_res(0,['json'=>$json]);
     }
 
