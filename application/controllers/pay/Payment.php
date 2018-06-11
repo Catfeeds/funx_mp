@@ -160,6 +160,8 @@ class Payment extends MY_Controller
             $this->api_res(10017);
             return;
         }
+        echo "a1aaaa";
+        exit;
         //计算总金额
         $amount = $orders->sum('money');
 
