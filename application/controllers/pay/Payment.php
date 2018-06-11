@@ -134,6 +134,8 @@ class Payment extends MY_Controller
      */
     public function config()
     {
+        echo "a1aaaa";
+        exit;
         log_message('error','enter_config');
         //住户id
         //$residentId = trim($this->input->post('resident_id', true));
