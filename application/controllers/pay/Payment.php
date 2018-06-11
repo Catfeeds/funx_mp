@@ -211,13 +211,13 @@ class Payment extends MY_Controller
             $store_pay->start_date  = date('Y-m-d H-i-s',time());
             $store_pay->data=['orders'=>$orders,'coupons'=>$coupons];
             $store_pay->save();
-
+            echo "a1";
             $orders->each(function ($query) use($out_trade_no,$store_pay){
                 $query->out_trade_no = $out_trade_no;
                 $query->store_pay_id = $store_pay->id;
                 $query->save();
             });
-
+            echo "a2";
             $wechatConfig   = getCustomerWechatConfig();
 //            $wechatConfig['payment']['merchant_id'] = $store->payment_merchant_id;
 //            $wechatConfig['payment']['key']         = $store->payment_key;
@@ -226,7 +226,7 @@ class Payment extends MY_Controller
             $wechatOrder    = new Order($attributes);
             $payment        = $app->payment;
             $result         = $payment->prepare($wechatOrder);
-
+            echo "a3";
             if (!($result->return_code == 'SUCCESS' && $result->result_code == 'SUCCESS')) {
                 throw new Exception($result->return_msg);
             }
@@ -235,11 +235,12 @@ class Payment extends MY_Controller
             log_message('error',$json);
             DB::commit();
         } catch (Exception $e) {
+            echo "a4";
             DB::rollBack();
             log_message('error', $e->getMessage());
             throw $e;
         }
-
+        echo "a5";
         $this->api_res(0,['json'=>$json]);
     }
 
