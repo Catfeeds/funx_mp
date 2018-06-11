@@ -191,12 +191,12 @@ class Payment extends MY_Controller
                 'body'          => $store->name . '-' . $roomtype->name,
                 'detail'        => $store->name . '-' . $roomtype->name,
                 'out_trade_no'  => $out_trade_no,
-//                'total_fee'     => $amount * 100,
-                'total_fee'     => 1,
+                'total_fee'     => $amount * 100,
+//                'total_fee'     => 1,
 //                'notify_url'    => site_url("pay/payment/notify/".$store->id),
                 'notify_url'    => "http://tapi.web.funxdata.com/pay/payment/notify/".$store->id,
-//                'openid'        => $this->user->openid,
-                'openid'        => 'ob4npwr_tU8D-XHmgXPMxEqcrj6c',
+                'openid'        => $this->user->openid,
+//                'openid'        => 'ob4npwr_tU8D-XHmgXPMxEqcrj6c',
                 'attach'        => serialize($attach),
             ];
             $this->load->model('storepaymodel');
