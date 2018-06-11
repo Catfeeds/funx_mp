@@ -134,14 +134,10 @@ class Payment extends MY_Controller
      */
     public function config()
     {
-        echo "a1aaaa";
-        exit;
-        log_message('error','enter_config');
+
         //住户id
-        //$residentId = trim($this->input->post('resident_id', true));
-        $residentId = 2640;
-        //订单编号
-        //$number     = trim($this->input->post('number', true));
+        $residentId = trim($this->input->post('resident_id', true));
+//        $residentId = 2640;
         //使用的优惠券
         $couponIds  = $this->input->post('coupons[]', true)?$this->input->post('coupons[]', true):[];
 
@@ -162,8 +158,7 @@ class Payment extends MY_Controller
             $this->api_res(10017);
             return;
         }
-        echo "a1aaaa";
-        exit;
+
         //计算总金额
         $amount = $orders->sum('money');
 
@@ -171,8 +166,6 @@ class Payment extends MY_Controller
             $this->api_res(10018);
             return;
         }
-        echo "a1aaa";
-        exit;
 
         try {
             DB::beginTransaction();
@@ -217,13 +210,13 @@ class Payment extends MY_Controller
             $store_pay->start_date  = date('Y-m-d H-i-s',time());
             $store_pay->data=['orders'=>$orders,'coupons'=>$coupons];
             $store_pay->save();
-            echo "a1";
+
             $orders->each(function ($query) use($out_trade_no,$store_pay){
                 $query->out_trade_no = $out_trade_no;
                 $query->store_pay_id = $store_pay->id;
                 $query->save();
             });
-            echo "a2";
+
             $wechatConfig   = getCustomerWechatConfig();
 //            $wechatConfig['payment']['merchant_id'] = $store->payment_merchant_id;
 //            $wechatConfig['payment']['key']         = $store->payment_key;
@@ -232,7 +225,7 @@ class Payment extends MY_Controller
             $wechatOrder    = new Order($attributes);
             $payment        = $app->payment;
             $result         = $payment->prepare($wechatOrder);
-            echo "a3";
+
             if (!($result->return_code == 'SUCCESS' && $result->result_code == 'SUCCESS')) {
                 throw new Exception($result->return_msg);
             }
@@ -241,12 +234,12 @@ class Payment extends MY_Controller
             log_message('error',$json);
             DB::commit();
         } catch (Exception $e) {
-            echo "a4";
+
             DB::rollBack();
             log_message('error', $e->getMessage());
             throw $e;
         }
-        echo "a5";
+
         $this->api_res(0,['json'=>$json]);
     }
 
