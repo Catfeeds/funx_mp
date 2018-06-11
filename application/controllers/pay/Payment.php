@@ -464,6 +464,7 @@ class Payment extends MY_Controller
 
         $response   = $app->payment->handleNotify(function($notify, $successful) use ($app) {
             try {
+                log_message('error','---->1');
                 DB::beginTransaction();
 
                 $data       = explode('_', $notify->out_trade_no);
@@ -489,6 +490,7 @@ class Payment extends MY_Controller
                     return true;
                 }
 
+                log_message('error','---->2');
                 $pay_date   = date('Y-m-d H:i:s',time());
 
                 foreach ($orders as $order) {
@@ -517,6 +519,8 @@ class Payment extends MY_Controller
                         }
                     }
                 }
+
+                log_message('error','---->3');
                 $this->load->model('couponmodel');
                 Couponmodel::whereIn('order_id', $orderIds)->update(['status' => Couponmodel::STATUS_USED]);
 
@@ -529,6 +533,7 @@ class Payment extends MY_Controller
                     $store_pay  ->status    = 'DONE';
                     $store_pay->save();
                 }
+                log_message('error','---->1');
 
                 DB::commit();
                 try {
