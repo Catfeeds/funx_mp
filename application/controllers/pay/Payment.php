@@ -166,81 +166,82 @@ class Payment extends MY_Controller
             $this->api_res(10018);
             return;
         }
-
-        try {
-            DB::beginTransaction();
-            //更新订单的付款方式和支付金额
-            $this->updatePayWayAndPaid($orders);
-            $discount   = 0;
-            if (count($coupons)) {
-                $discount   = $this->amountOfDiscount($orders, $coupons);
-                $amount     = $amount - $discount;
-            }
-
-            $this->load->model('roomunionmodel');
-            $this->load->model('storemodel');
-            $this->load->model('roomtypemodel');
-            $this->load->helper('url');
-            $roomunion       = $this->resident->roomunion;
-            $store      = $roomunion->store;
-            $roomtype   = $roomunion->roomtype;
-            $attach     = ['resident_id' => $residentId];
-            $out_trade_no   = $residentId.'_'.date('YmdHis',time()).mt_rand(10, 99);
-            $attributes = [
-                'trade_type'    => Ordermodel::PAYWAY_JSAPI,
-                'body'          => $store->name . '-' . $roomtype->name,
-                'detail'        => $store->name . '-' . $roomtype->name,
-                'out_trade_no'  => $out_trade_no,
-//                'total_fee'     => $amount * 100,
-                'total_fee'     => 1,
-                'notify_url'    => site_url("pay/payment/notify/".$store->id),
-//                'openid'        => $this->user->openid,
-                'openid'        => 'ob4npwr_tU8D-XHmgXPMxEqcrj6c',
-                'attach'        => serialize($attach),
-            ];
-
-            $this->load->model('storepaymodel');
-            $store_pay  = new Storepaymodel();
-            $store_pay->out_trade_no    = $out_trade_no;
-            $store_pay->store_id    = $store->id;
-            $store_pay->amount  = $amount;
-            $store_pay->discount  = $discount;
-            $store_pay->status  = 'UNDONE';
-            $store_pay->resident_id  = $residentId;
-            $store_pay->start_date  = date('Y-m-d H-i-s',time());
-            $store_pay->data=['orders'=>$orders,'coupons'=>$coupons];
-            $store_pay->save();
-
-            $orders->each(function ($query) use($out_trade_no,$store_pay){
-                $query->out_trade_no = $out_trade_no;
-                $query->store_pay_id = $store_pay->id;
-                $query->save();
-            });
-
-            $wechatConfig   = getCustomerWechatConfig();
-//            $wechatConfig['payment']['merchant_id'] = $store->payment_merchant_id;
-//            $wechatConfig['payment']['key']         = $store->payment_key;
-
-            $app            = new Application($wechatConfig);
-            $wechatOrder    = new Order($attributes);
-            $payment        = $app->payment;
-            $result         = $payment->prepare($wechatOrder);
-
-            if (!($result->return_code == 'SUCCESS' && $result->result_code == 'SUCCESS')) {
-                throw new Exception($result->return_msg);
-            }
-            //生成js配置
-            $json = $payment->configForPayment($result->prepay_id, false);
-            log_message('error',$json);
-            DB::commit();
-        } catch (Exception $e) {
-
-            DB::rollBack();
-            log_message('error', $e->getMessage());
-            throw $e;
-        }
-
-        $this->api_res(0,['json'=>$json]);
+        echo "aa";
+        exit;
+//        try {
+//            DB::beginTransaction();
+//            //更新订单的付款方式和支付金额
+//            $this->updatePayWayAndPaid($orders);
+//            $discount   = 0;
+//            if (count($coupons)) {
+//                $discount   = $this->amountOfDiscount($orders, $coupons);
+//                $amount     = $amount - $discount;
+//            }
+//
+//            $this->load->model('roomunionmodel');
+//            $this->load->model('storemodel');
+//            $this->load->model('roomtypemodel');
+//            $this->load->helper('url');
+//            $roomunion       = $this->resident->roomunion;
+//            $store      = $roomunion->store;
+//            $roomtype   = $roomunion->roomtype;
+//            $attach     = ['resident_id' => $residentId];
+//            $out_trade_no   = $residentId.'_'.date('YmdHis',time()).mt_rand(10, 99);
+//            $attributes = [
+//                'trade_type'    => Ordermodel::PAYWAY_JSAPI,
+//                'body'          => $store->name . '-' . $roomtype->name,
+//                'detail'        => $store->name . '-' . $roomtype->name,
+//                'out_trade_no'  => $out_trade_no,
+////                'total_fee'     => $amount * 100,
+//                'total_fee'     => 1,
+//                'notify_url'    => site_url("pay/payment/notify/".$store->id),
+////                'openid'        => $this->user->openid,
+//                'openid'        => 'ob4npwr_tU8D-XHmgXPMxEqcrj6c',
+//                'attach'        => serialize($attach),
+//            ];
+//
+//            $this->load->model('storepaymodel');
+//            $store_pay  = new Storepaymodel();
+//            $store_pay->out_trade_no    = $out_trade_no;
+//            $store_pay->store_id    = $store->id;
+//            $store_pay->amount  = $amount;
+//            $store_pay->discount  = $discount;
+//            $store_pay->status  = 'UNDONE';
+//            $store_pay->resident_id  = $residentId;
+//            $store_pay->start_date  = date('Y-m-d H-i-s',time());
+//            $store_pay->data=['orders'=>$orders,'coupons'=>$coupons];
+//            $store_pay->save();
+//
+//            $orders->each(function ($query) use($out_trade_no,$store_pay){
+//                $query->out_trade_no = $out_trade_no;
+//                $query->store_pay_id = $store_pay->id;
+//                $query->save();
+//            });
+//
+//            $wechatConfig   = getCustomerWechatConfig();
+////            $wechatConfig['payment']['merchant_id'] = $store->payment_merchant_id;
+////            $wechatConfig['payment']['key']         = $store->payment_key;
+//
+//            $app            = new Application($wechatConfig);
+//            $wechatOrder    = new Order($attributes);
+//            $payment        = $app->payment;
+//            $result         = $payment->prepare($wechatOrder);
+//
+//            if (!($result->return_code == 'SUCCESS' && $result->result_code == 'SUCCESS')) {
+//                throw new Exception($result->return_msg);
+//            }
+//            //生成js配置
+//            $json = $payment->configForPayment($result->prepay_id, false);
+//            log_message('error',$json);
+//            DB::commit();
+//        } catch (Exception $e) {
+//
+//            DB::rollBack();
+//            log_message('error', $e->getMessage());
+//            throw $e;
+//        }
+//
+//        $this->api_res(0,['json'=>$json]);
     }
 
 
