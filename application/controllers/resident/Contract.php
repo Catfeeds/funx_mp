@@ -468,7 +468,7 @@ class Contract extends MY_Controller
 
         //没有问题就跳转支付页面
 
-        header('Location:http://tweb.funxdata.com/#/generate');
+        header('Location:http://tweb.funxdata.com/#/myBill');
 
         //$this->api_res(0);
 
