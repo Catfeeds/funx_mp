@@ -136,7 +136,8 @@ class Payment extends MY_Controller
     {
         log_message('error','enter_config');
         //住户id
-        $residentId = trim($this->input->post('resident_id', true));
+        //$residentId = trim($this->input->post('resident_id', true));
+        $residentId = 2640;
         //订单编号
         //$number     = trim($this->input->post('number', true));
         //使用的优惠券
