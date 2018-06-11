@@ -168,6 +168,8 @@ class Payment extends MY_Controller
             return;
         }
         echo "a1aaa";
+        exit;
+
         try {
             DB::beginTransaction();
             //更新订单的付款方式和支付金额
