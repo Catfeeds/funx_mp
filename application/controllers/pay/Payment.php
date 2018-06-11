@@ -473,7 +473,7 @@ class Payment extends MY_Controller
 
                 log_message('error', 'notify-arrived--->' . $notify->out_trade_no);
 
-                if (!count($resident)) {
+                if (empty($resident)) {
                     return true;
                 }
 
