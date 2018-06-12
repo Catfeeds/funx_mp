@@ -312,7 +312,7 @@ class Contract extends MY_Controller
             'doc_title' => "title",
             'download_url' => 'url_download',
             'view_url' => 'url_view',
-            'status' => Contractmodel::STATUS_GENERATED,
+            'status' => Contractmodel::STATUS_ARCHIVED,
             //'customer_id' => null,
         );
     }

@@ -358,7 +358,7 @@ class Server extends MY_Controller
         //$eventKey=182;
         $resident   = Residentmodel::findOrFail($eventKey);
 
-        if (0 == $resident->uxid) {
+        if (0 == $resident->uxid ) {
             try{
                 DB::beginTransaction();
                 $customer   = Customermodel::where('openid', $message->FromUserName)->first();
@@ -388,7 +388,6 @@ class Server extends MY_Controller
 
             return new Text(['content' => '该入住信息已经被确认']);
         }
-
         //根据住户状态分别进行处理
         //扫码的来源: 1,办理入住; 2,预订房间的支付
         //如果是办理入住,将用户带到合同信息确认的页面
@@ -412,7 +411,6 @@ class Server extends MY_Controller
             'image'         => $this->fullAliossUrl(json_decode($resident->roomunion->roomtype->images,true),true),
         ));
     }
-
 
 
 }
