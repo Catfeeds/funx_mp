@@ -384,6 +384,9 @@ class Server extends MY_Controller
                 DB::rollBack();
                 throw  $e;
             }
+        }else{
+
+            return new Text(['content' => '该入住信息已经被确认']);
         }
 
         //根据住户状态分别进行处理
