@@ -28,7 +28,7 @@ class Order extends MY_Controller
 
         $resident   = Residentmodel::with(['roomunion','orders'=>function($query){
             $query->where('status',Ordermodel::STATE_PENDING);
-        }])->where('customer_id',9750);
+        }])->where('customer_id',$this->user->id);
 //        log_message('error','UNPAID-->'.$this->user->id);
 //        echo $this->user->id;
 
