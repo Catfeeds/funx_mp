@@ -204,6 +204,8 @@ class Order extends MY_Controller
             ->find(2720);
 //            ->find(2640);
 //        log_message('error')
+
+        var_dump($resident->toArray());exit;
         if(!$resident){
             $this->api_res(1007);
             return;
