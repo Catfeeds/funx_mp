@@ -71,6 +71,11 @@ class Order extends MY_Controller
             return $query;
         })->where('amount','>',0);
 
+        $arr=[];
+        foreach ($orders as $order){
+            $arr[]=$order;
+        }
+
         $this->api_res(0,['residents'=>$orders]);
 
     }
