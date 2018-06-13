@@ -199,7 +199,7 @@ class Order extends MY_Controller
         $resident   = Residentmodel::with(['roomunion','orders'=>function($query){
             $query->where('status',Ordermodel::STATE_PENDING)/*->orderBy('year','ASC')->orderBy('month','ASC')*/;
         }])
-            ->where('customer_id',$this->user->id)
+            ->where('customer_id',9750)
 //            ->where('customer_id',9594)
             ->find($resident_id);
 //            ->find(2640);
