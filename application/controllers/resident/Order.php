@@ -30,7 +30,7 @@ class Order extends MY_Controller
             $query->where('status',Ordermodel::STATE_PENDING);
         }])->where('customer_id',$this->user->id);
 //        log_message('error','UNPAID-->'.$this->user->id);
-        //echo $this->user->id;exit;
+        echo $this->user->id;exit;
 
         var_dump($resident->get()->toArray());exit;
 
