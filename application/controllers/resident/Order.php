@@ -203,7 +203,7 @@ class Order extends MY_Controller
 //            ->where('customer_id',9594)
             ->find($resident_id);
 //            ->find(2640);
-        log_message('error',$resident_id.$this->user->id);
+//        log_message('error',$resident_id.$this->user->id);
 
        // var_dump($resident->toArray());exit;
         if(!$resident){
