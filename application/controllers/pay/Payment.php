@@ -471,7 +471,7 @@ class Payment extends MY_Controller
         if(isset($res)){
             Ordermodel::whereIn('id', $orderIds)->update(['sequence_number' => $bill->sequence_number]);
         }
-        return $orders;
+        return $res;
     }
 
 
