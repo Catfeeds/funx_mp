@@ -462,7 +462,6 @@ class Payment extends MY_Controller
             }
         }
         if($change_resident){
-
             $Resident=Residentmodel::find($orders[0]->resident_id);
             $Resident_time=substr($Resident['begin_time'],0,7);
             if($Resident_time==substr($orders[0]->pay_type,0,7)){
@@ -470,8 +469,6 @@ class Payment extends MY_Controller
             }
 
         }
-
-
 
         $bill->pay_type            =    $orders[0]->pay_type;
         $bill->confirm             =    '';
