@@ -105,10 +105,11 @@ class Server extends MY_Controller
                                 $id = (int)$message->EventKey;
 
 
-                                if (10 == strlen($id) && 1 == substr($id, 0, 1)) {
-                                    return $this->helpFriend($app, $message, $id);
-                                }
+//                                if (10 == strlen($id) && 1 == substr($id, 0, 1)) {
+//                                    return $this->helpFriend($app, $message, $id);
+//                                }
 
+                                log_message('error',1);
                                 return $this->checkInOrBookingEvent($message, $id);
 
                             } catch (Exception $e) {
@@ -357,7 +358,7 @@ class Server extends MY_Controller
         //$eventKey=182;
         $resident   = Residentmodel::findOrFail($eventKey);
 
-        if (0 == $resident->uxid) {
+        if (0 == $resident->uxid ) {
             try{
                 DB::beginTransaction();
                 $customer   = Customermodel::where('openid', $message->FromUserName)->first();
@@ -366,9 +367,10 @@ class Server extends MY_Controller
                 if (empty($customer)) {
                     $customer           = new Customermodel();
                     $customer->openid   = $message->FromUserName;
+                    $customer->company_id   = 1;
                     //$customer->openid   =1;
 //                    $customer->uxid         = Customermodel::max('uxid')+1;
-                    $customer->uxid         = $customer->id;
+                    $customer->uxid         = $customer->max('id')+1;
                     $customer->save();
                 }
 
@@ -382,8 +384,10 @@ class Server extends MY_Controller
                 DB::rollBack();
                 throw  $e;
             }
-        }
+        }else{
 
+            return new Text(['content' => '该入住信息已经被确认']);
+        }
         //根据住户状态分别进行处理
         //扫码的来源: 1,办理入住; 2,预订房间的支付
         //如果是办理入住,将用户带到合同信息确认的页面
@@ -407,7 +411,6 @@ class Server extends MY_Controller
             'image'         => $this->fullAliossUrl(json_decode($resident->roomunion->roomtype->images,true),true),
         ));
     }
-
 
 
 }

@@ -16,6 +16,8 @@ use Illuminate\Database\Capsule\Manager as DB;
 class Payment extends MY_Controller
 {
 
+    protected $resident;
+
     /**
      * 构造方法
      */
@@ -33,22 +35,31 @@ class Payment extends MY_Controller
      */
     public function config()
     {
+
         //住户id
         $residentId = trim($this->input->post('resident_id', true));
-        //订单编号
-        //$number     = trim($this->input->post('number', true));
+//        $residentId = 2640;
         //使用的优惠券
         $couponIds  = $this->input->post('coupons[]', true)?$this->input->post('coupons[]', true):[];
 
         $this->load->model('residentmodel');
         $this->load->model('ordermodel');
         $this->load->model('couponmodel');
+        $this->load->model('roomunionmodel');
         $this->load->helper('wechat');
+        $this->load->model('storemodel');
+        $this->load->model('roomtypemodel');
 
         $this->resident = Residentmodel::with('orders', 'coupons')->findOrFail($residentId);
+
+        if(!$this->resident->roomunion->store->pay_online) {
+            $this->api_res(10020);
+            return;
+        }
         //$this->checkUser($this->resident->uxid);
 
         $orders         = $this->resident->orders()->where('status', Ordermodel::STATE_PENDING)->get();
+        //$orders         = Ordermodel::get();
 
         $coupons        = $this->resident->coupons()->whereIn('id', $couponIds)->get();
 
@@ -56,6 +67,8 @@ class Payment extends MY_Controller
             $this->api_res(10017);
             return;
         }
+
+
         //计算总金额
         $amount = $orders->sum('money');
 
@@ -74,27 +87,26 @@ class Payment extends MY_Controller
                 $amount     = $amount - $discount;
             }
 
-            $this->load->model('roomunionmodel');
-            $this->load->model('storemodel');
-            $this->load->model('roomtypemodel');
+
             $this->load->helper('url');
             $roomunion       = $this->resident->roomunion;
             $store      = $roomunion->store;
             $roomtype   = $roomunion->roomtype;
             $attach     = ['resident_id' => $residentId];
-            $out_trade_no   = $residentId.'_'.mt_rand(10, 99);
+            $out_trade_no   = $residentId.'_'.date('YmdHis',time()).mt_rand(10, 99);
             $attributes = [
                 'trade_type'    => Ordermodel::PAYWAY_JSAPI,
                 'body'          => $store->name . '-' . $roomtype->name,
                 'detail'        => $store->name . '-' . $roomtype->name,
                 'out_trade_no'  => $out_trade_no,
-                'total_fee'     => $amount * 100,
-                'notify_url'    => site_url("pay/payment/notify/".$store->id),
-//                'openid'        => $this->user->openid,
-                'openid'        => 'ob4npwrTaxXkI5TzCN6MYFC4tblY',
+//                'total_fee'     => $amount * 100,
+                'total_fee'     => 1,
+//                'notify_url'    => site_url("pay/payment/notify/".$store->id),
+                'notify_url'    => "http://tapi.web.funxdata.com/pay/payment/notify/".$store->id,
+                'openid'        => $this->user->openid,
+//                'openid'        => 'ob4npwr_tU8D-XHmgXPMxEqcrj6c',
                 'attach'        => serialize($attach),
             ];
-
             $this->load->model('storepaymodel');
             $store_pay  = new Storepaymodel();
             $store_pay->out_trade_no    = $out_trade_no;
@@ -108,8 +120,11 @@ class Payment extends MY_Controller
             $store_pay->save();
 
             $orders->each(function ($query) use($out_trade_no,$store_pay){
-                $query->update(['out_trade_no'=>$out_trade_no,'store_pay_id'=>$store_pay->id]);
+                $query->out_trade_no = $out_trade_no;
+                $query->store_pay_id = $store_pay->id;
+                $query->save();
             });
+
 
             $wechatConfig   = getCustomerWechatConfig();
 //            $wechatConfig['payment']['merchant_id'] = $store->payment_merchant_id;
@@ -119,20 +134,20 @@ class Payment extends MY_Controller
             $wechatOrder    = new Order($attributes);
             $payment        = $app->payment;
             $result         = $payment->prepare($wechatOrder);
-
             if (!($result->return_code == 'SUCCESS' && $result->result_code == 'SUCCESS')) {
                 throw new Exception($result->return_msg);
             }
-            //生成js配置
-            $json = $payment->configForPayment($result->prepay_id, false);
+//            //生成js配置
+            $all_result['json'] = $payment->configForPayment($result->prepay_id, false);
+//            log_message('error',$json);
             DB::commit();
         } catch (Exception $e) {
+
             DB::rollBack();
             log_message('error', $e->getMessage());
             throw $e;
         }
-
-        $this->api_res(0,['json'=>$json]);
+        $this->api_res(0,$all_result);
     }
 
 
@@ -247,6 +262,7 @@ class Payment extends MY_Controller
      */
     public function notify()
     {
+        log_message('error','AA');
 
         $store_id    = $this->uri->segment(4);
 
@@ -262,24 +278,25 @@ class Payment extends MY_Controller
 
         $response   = $app->payment->handleNotify(function($notify, $successful) use ($app) {
             try {
+                log_message('error','---->1');
                 DB::beginTransaction();
 
                 $data       = explode('_', $notify->out_trade_no);
                 //$residentId     = $data[0];
                 $attach     = unserialize($notify->attach);
                 $this->load->model('residentmodel');
+                $this->load->model('ordermodel');
                 $resident   = Residentmodel::with('orders')->find($attach['resident_id']);
 
                 log_message('error', 'notify-arrived--->' . $notify->out_trade_no);
 
-                if (!count($resident)) {
+                if (empty($resident)) {
                     return true;
                 }
 
                 if(!$successful){
                     return true;
                 }
-                $this->load->model('ordermodel');
 
                 $orders     = $resident->orders()->where('status', Ordermodel::STATE_PENDING)->where('out_trade_no',$notify->out_trade_no)->get();
 
@@ -287,6 +304,7 @@ class Payment extends MY_Controller
                     return true;
                 }
 
+                log_message('error','---->2');
                 $pay_date   = date('Y-m-d H:i:s',time());
 
                 foreach ($orders as $order) {
@@ -315,6 +333,8 @@ class Payment extends MY_Controller
                         }
                     }
                 }
+
+                log_message('error','---->3');
                 $this->load->model('couponmodel');
                 Couponmodel::whereIn('order_id', $orderIds)->update(['status' => Couponmodel::STATUS_USED]);
 
@@ -327,6 +347,7 @@ class Payment extends MY_Controller
                     $store_pay  ->status    = 'DONE';
                     $store_pay->save();
                 }
+                log_message('error','---->333');
 
                 DB::commit();
                 try {
