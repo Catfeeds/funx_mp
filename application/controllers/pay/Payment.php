@@ -431,6 +431,8 @@ class Payment extends MY_Controller
 
     private function createBill($orders)
     {
+
+        $this->load->model('billmodel');
         $bill       = new Billmodel();
         $bill->id     =    '';
         $count      = $this->billmodel->ordersConfirmedToday()+1;
