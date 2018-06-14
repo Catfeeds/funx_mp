@@ -351,7 +351,7 @@ class Payment extends MY_Controller
 
                 DB::commit();
                 try {
-
+                    log_message('error','---->111');
                     $this->createBill($orders);
 
                     //发送模板消息
@@ -445,6 +445,7 @@ class Payment extends MY_Controller
         $bill->room_id             =    $orders[0]->room_id;
         $orderIds=array();
         foreach($orders as $order){
+            log_message('error',$order->id.'||biLLTEST');
             $orderIds[]=$order->id;
             $bill->money               =    $bill->money+$order->paid;
             if($order->pay_type=='REFUND'){
@@ -470,7 +471,6 @@ class Payment extends MY_Controller
         }
         return $orders;
     }
-
 
 
 
