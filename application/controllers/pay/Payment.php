@@ -447,7 +447,7 @@ class Payment extends MY_Controller
         $bill->room_id             =    $orders[0]->room_id;
         $orderIds=array();
 
-        $change_resident=fasle;
+        $change_resident = false;
         foreach($orders as $order){
 
             $orderIds[]=$order->id;
