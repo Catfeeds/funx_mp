@@ -14,7 +14,7 @@ class Customermodel extends Basemodel
         parent::__construct($attributes);
     }
 
-    protected $table    = 'web_customer';
+    protected $table    = 'boss_customer';
 
     protected $fillable = [];
 
