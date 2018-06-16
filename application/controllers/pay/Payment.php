@@ -452,11 +452,11 @@ class Payment extends MY_Controller
 
             $orderIds[]=$order->id;
             $bill->money               =    $bill->money+$order->paid;
-            if($order->pay_type=='REFUND'){
-                $bill->type                =    'OUTPUT';
-            }else{
-                $bill->type                =    'INPUT';
-            }
+//            if($order->pay_type=='REFUND'){
+//                $bill->type                =    'OUTPUT';
+//            }else{
+//                $bill->type                =    'INPUT';
+//            }
             if($order->pay_type=='ROOM'){
                 $change_resident=true;
             }
