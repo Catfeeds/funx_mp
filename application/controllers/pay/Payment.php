@@ -349,7 +349,7 @@ class Payment extends MY_Controller
                 DB::commit();
                 try {
                     log_message('error','---->111');
-                    $this->createBill($orders);
+//                    $this->createBill($orders);
 
                     //发送模板消息
 //                    $this->sendTemplateMessages($resident, $number, Ordermodel::PAYWAY_JSAPI, $notify->total_fee / 100);
