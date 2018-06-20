@@ -361,29 +361,32 @@ class Server extends MY_Controller
 //        if (0 == $resident->uxid ) {
             try{
                 DB::beginTransaction();
-                $customer   = Customermodel::where('openid', $message->FromUserName)->first();
-                //$customer   = Customermodel::where('openid', 1)->first();
+                if (0 == $resident->uxid ) {
+                    $customer = Customermodel::where('openid', $message->FromUserName)->first();
+                    //$customer   = Customermodel::where('openid', 1)->first();
 
-                if (empty($customer)) {
-                    $customer           = new Customermodel();
-                    $customer->openid   = $message->FromUserName;
-                    $customer->company_id   = 1;
-                    //$customer->openid   =1;
+                    if (empty($customer)) {
+                        $customer = new Customermodel();
+                        $customer->openid = $message->FromUserName;
+                        $customer->company_id = 1;
+                        //$customer->openid   =1;
 //                    $customer->uxid         = Customermodel::max('uxid')+1;
-                    $customer->uxid         = $customer->max('id')+1;
-                    $customer->save();
-                }
+                        $customer->uxid = $customer->max('id') + 1;
+                        $customer->save();
+                    }
 
-                $resident->customer_id  = $customer->id;
-                $resident->uxid  = $customer->uxid;
-                $resident->save();
-                $resident->orders()->where('uxid', 0)->update(['customer_id' => $customer->id,'uxid'=>$customer->uxid]);
+                    $resident->customer_id = $customer->id;
+                    $resident->uxid = $customer->uxid;
+                    $resident->save();
+                    $resident->orders()->where('uxid', 0)->update(['customer_id' => $customer->id, 'uxid' => $customer->uxid]);
+                }
                 DB::commit();
             }catch (Exception $e){
                 log_message('error',$e->getMessage());
                 DB::rollBack();
                 throw  $e;
             }
+
 //        }else{
 //
 //            return new Text(['content' => '该入住信息已经被确认']);
