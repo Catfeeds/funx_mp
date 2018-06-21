@@ -62,7 +62,7 @@ class AuthHook {
 //            'store/store/appoint',
 
             'service/servicetype/servicetype',
-            'service/serviceorder/order',
+            //'service/serviceorder/order',
             'service/serviceorder/serviceorder',
             'service/serviceorder/cleanorder',
             'service/reserve/reserve',
