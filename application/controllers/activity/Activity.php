@@ -13,9 +13,4 @@ class Activity extends MY_Controller
         parent::__construct();
         $this->load->model('activitymodel');
     }
-
-    public function activity()
-    {
-
-    }
 }
