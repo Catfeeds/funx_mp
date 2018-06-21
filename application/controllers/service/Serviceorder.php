@@ -103,11 +103,11 @@ class Serviceorder extends MY_Controller
         $field       = ['id','uxid','number','store_id','room_id','sequence_number','employee_id','service_type_id','name',
             'phone','addr_from','addr_to','estimate_money','pay_money','money','status','deal','time','remark','paths','created_at','updated_at'];
 
-        $listorder = Serviceordermodel::with('roomunion')->where('uxid',4)->whereIn('status',["SUBMITTED","PENDING","PAID","SERVING"])->orderBy('id','desc')->get($field);
+        $listorder = Serviceordermodel::with('roomunion')->where('uxid',CURRENT_ID)->whereIn('status',["SUBMITTED","PENDING","PAID","SERVING"])->orderBy('id','desc')->get($field);
         foreach ($listorder as $key=>$value){
             $listorder[$key]['paths'] = $this->fullAliossUrl($value['paths']);
         }
-        $listordered = Serviceordermodel::with('roomunion')->where('uxid',4)->whereIn('status',["COMPLETED","CANCELED"])->orderBy('id','desc')->get($field);
+        $listordered = Serviceordermodel::with('roomunion')->where('uxid',CURRENT_ID)->whereIn('status',["COMPLETED","CANCELED"])->orderBy('id','desc')->get($field);
         foreach ($listordered as $key=>$value){
             $listordered[$key]['paths'] = $this->fullAliossUrl($value['paths']);
         }
