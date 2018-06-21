@@ -28,6 +28,7 @@ class Coupon extends MY_Controller
         }else{
             $where['status']    = Couponmodel::STATUS_UNUSED;
         }
+        log_message('error',$this->user->customer_id);
         $coupon = Couponmodel::with('coupontype')
             ->orderBy('created_at','DESC')
             ->where('customer_id',$this->user->customer_id)
