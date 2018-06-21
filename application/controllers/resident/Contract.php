@@ -220,7 +220,7 @@ class Contract extends MY_Controller
         $roomtype   = $resident->roomunion->roomtype;
         $contract_template  = Contracttemplatemodel::where(['room_type_id'=>$roomtype->id,'rent_type'=>$resident->rent_type])->first();
         //测试
-        $this->fadada->uploadTemplate('http://tfunx.oss-cn-shenzhen.aliyuncs.com/'.$contract_template->contract_tpl_path,$contract_template->fdd_tpl_id);
+//        $this->fadada->uploadTemplate('http://tfunx.oss-cn-shenzhen.aliyuncs.com/'.$contract_template->contract_tpl_path,$contract_template->fdd_tpl_id);
         //签署合同需要准备的信息
         $contractNumber = $resident->store->abbreviation . '-' . $resident->begin_time->year .'-' . $resident->name . '-' . $resident->room_id;
         $parameters     = array(
@@ -307,8 +307,8 @@ class Contract extends MY_Controller
     private function test()
     {
         return array(
-            'type' => 'FDD',
-            'contract_id' => 'JINDI123456789',
+            'type' => 'NORMAL',
+            'contract_id' => 'JINDI'.date("YmdHis").mt_rand(10,60),
             'doc_title' => "title",
             'download_url' => 'url_download',
             'view_url' => 'url_view',
@@ -354,8 +354,8 @@ class Contract extends MY_Controller
             $transactionId,
             $contract['doc_title'],
 //            site_url('resident/contract/signresult'),   //return_url
-            'http://tapi.web.funxdata.com/resident/contract/signresult',
-            'http://tapi.boss.funxdata.com/mini/contract/notify'     //notify_url
+            config_item('base_url').'resident/contract/signresult',
+            config_item('fdd_notify_url')     //notify_url
         );
 
         //手动签署, 只有页面跳转到法大大平台交易才能生效, 因此, 若上一步骤失败, 就不该存储交易记录.
@@ -468,7 +468,7 @@ class Contract extends MY_Controller
 
         //没有问题就跳转支付页面
 
-        header('Location:http://tweb.funxdata.com/#/myBill');
+        header('Location:'.config_item('my_bill_url'));
 
         //$this->api_res(0);
 

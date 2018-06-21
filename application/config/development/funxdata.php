@@ -18,6 +18,10 @@ $config['time_zone']    = date_default_timezone_get();
 //梵响数据系统相关文件的整理配置
 */
 
+$config['base_url'] = 'http://tapi.web.funxdata.com/';
+$config['fdd_notify_url'] = 'http://tapi.boss.funxdata.com/mini/contract/notify';
+$config['my_bill_url'] = 'http://tweb.funxdata.com/#/myBill';
+
 //微信网页授权的信息
 $config['wx_web_appid']     = 'wx75fd74e2316b2355';
 $config['wx_web_secret']    = '70fa3a7fe658be97552788fc764f5434';
