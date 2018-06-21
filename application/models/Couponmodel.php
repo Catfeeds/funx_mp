@@ -32,7 +32,7 @@ class Couponmodel extends Basemodel
     public function coupontype()
     {
         return $this->belongsTo(Coupontypemodel::class,'coupon_type_id')
-                    ->select('id','name','discount');
+                    ->select('id','name','discount','type');
     }
 
 
