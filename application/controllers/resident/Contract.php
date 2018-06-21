@@ -512,7 +512,7 @@ class Contract extends MY_Controller
     /**
      * 生成上传纸质合同
      */
-    public function uploadContractPaper($resident){
+    private function uploadContractPaper($resident){
 
         //获取合同模板
         $room       = $resident->roomunion;
