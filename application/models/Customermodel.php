@@ -19,4 +19,9 @@ class Customermodel extends Basemodel
     protected $fillable = [];
 
     protected $hidden   = ['created_at','updated_at','deleted_at'];
+
+    public function coupons(){
+
+        return $this->belongsTo(Couponmodel::class,'customer_id');
+    }
 }
