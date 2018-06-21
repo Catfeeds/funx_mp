@@ -57,7 +57,7 @@ class Goods extends MY_Controller
     public function goodsSta()
     {
         $this->load->model('goodsordermodel');
-        $uxid = 7;
+        $uxid = CURRENT_ID;
         $field = ['number','goods_money','created_at','status'];
         if(isset($uxid)){
             $goods = Goodsordermodel::where('uxid',$uxid)->whereIn(

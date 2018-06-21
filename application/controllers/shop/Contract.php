@@ -19,7 +19,7 @@ class Contract extends MY_Controller
         $this->load->model('roomunionmodel');
         $post = $this->input->post(null, true);
         //$uxid = intval(strip_tags(trim($post['uxid'])));
-        $uxid = 7;
+        $uxid = CURRENT_ID;
         $field = ['id','store_id', 'room_id','view_url'];
 
         if (isset($uxid)) {
