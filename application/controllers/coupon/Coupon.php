@@ -33,7 +33,7 @@ class Coupon extends MY_Controller
     /**
      * 优惠券使用
      */
-    /*public function coupon()
+    public function coupon()
     {
         $post = $this->input->post(null,true);
         if($post['status']){
@@ -51,5 +51,5 @@ class Coupon extends MY_Controller
                     return $coupon;
                 })->toArray();
         $this->api_res(0,$coupon);
-    }*/
+    }
 }
