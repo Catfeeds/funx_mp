@@ -108,7 +108,7 @@ class AuthHook {
 
 
             'coupon/coupon/listcoupon',
-            'coupon/coupon/coupon',
+//            'coupon/coupon/coupon',
 
             'smartlock/smartlock/rooms',
             'smartlock/smartlock/getstore',
