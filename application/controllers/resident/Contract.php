@@ -220,7 +220,7 @@ class Contract extends MY_Controller
         $roomtype   = $resident->roomunion->roomtype;
         $contract_template  = Contracttemplatemodel::where(['room_type_id'=>$roomtype->id,'rent_type'=>$resident->rent_type])->first();
         //测试
-//        $this->fadada->uploadTemplate('http://tfunx.oss-cn-shenzhen.aliyuncs.com/'.$contract_template->contract_tpl_path,$contract_template->fdd_tpl_id);
+        $this->fadada->uploadTemplate('http://tfunx.oss-cn-shenzhen.aliyuncs.com/'.$contract_template->contract_tpl_path,$contract_template->fdd_tpl_id);
         //签署合同需要准备的信息
         $contractNumber = $resident->store->abbreviation . '-' . $resident->begin_time->year .'-' . $resident->name . '-' . $resident->room_id;
         $parameters     = array(
