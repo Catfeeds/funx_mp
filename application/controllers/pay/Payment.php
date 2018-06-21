@@ -157,7 +157,7 @@ class Payment extends MY_Controller
      */
     private function amountOfDiscount($orderCollection, $coupons)
     {
-        $coupons    = $coupons->groupBy('coupon_type.limit');
+        $coupons    = $coupons->groupBy('coupontype.limit');
         $orders     = $orderCollection->groupBy('type');
 
         $discount   = 0;
@@ -225,7 +225,7 @@ class Payment extends MY_Controller
 
         //遍历优惠券列表, 计算优惠金额
         foreach ($coupons[$typeName] as $key => $item) {
-            $couponType = $item->coupon_type;
+            $couponType = $item->coupontype;
 
             switch ($couponType->type) {
                 case Coupontypemodel::TYPE_CASH:

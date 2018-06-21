@@ -200,12 +200,9 @@ class Order extends MY_Controller
             $query->where('status',Ordermodel::STATE_PENDING)/*->orderBy('year','ASC')->orderBy('month','ASC')*/;
         }])
             ->where('customer_id',$this->user->id)
-//            ->where('customer_id',9594)
             ->find($resident_id);
-//            ->find(2640);
-//        log_message('error',$resident_id.$this->user->id);
+//            ->find(2724);
 
-       // var_dump($resident->toArray());exit;
         if(!$resident){
             $this->api_res(1007);
             return;
@@ -229,8 +226,7 @@ class Order extends MY_Controller
         $list   = $orders->groupBy('type')->map(function ($items, $type) {
             return [
                 'name'   => Ordermodel::getTypeName($type),
-//                'amount' => number_format($items->sum('paid'), 2)
-                'amount'    => $items->sum('paid'),
+                'amount' => number_format($items->sum('paid'), 2)
             ];
         });
 
@@ -249,7 +245,9 @@ class Order extends MY_Controller
      */
     private function getCouponsAvailable($resident, $orderCollection)
     {
+
         $orders = $orderCollection->groupBy('type');
+
         //优惠券的使用目前仅限于房租和代金券
         if (!isset($orders[Ordermodel::PAYTYPE_ROOM]) && !isset($orders[Ordermodel::PAYTYPE_MANAGEMENT])) {
             return false;
@@ -263,8 +261,9 @@ class Order extends MY_Controller
             }
         }
 
+
         $couopnCollection   = $resident->coupons()->where('status', Couponmodel::STATUS_UNUSED)->get();
-        $usageList          = $couopnCollection->groupBy('coupon_type.limit');
+        $usageList          = $couopnCollection->groupBy('coupontype.limit');
 
         //找出房租可用的代金券
         $forRent    = $this
@@ -321,13 +320,13 @@ class Order extends MY_Controller
         })->take($couponNumber);
 
         foreach ($list as $coupon) {
-            $couponType = $coupon->coupon_type;
+            $couponType = $coupon->coupontype;
             $coupons[] = [
                 'id'        => $coupon->id,
                 'type'      => $couponType->type,
                 'usage'     => $typeName,
                 'name'      => $couponType->name,
-                'deadline'  => $coupon->deadline->toDateString(),
+                'deadline'  => Carbon::parse($coupon->deadline)->toDateString(),
                 'value'     => $couponType->discount,
                 'discount'  => $this->calcDiscount($price, $coupon, $couponType),
             ];
@@ -342,7 +341,7 @@ class Order extends MY_Controller
      */
     private function calcDiscount($price, $coupon, $couponType)
     {
-        $couponType = $coupon->coupon_type;
+        $couponType = $coupon->coupontype;
 
         switch ($couponType->type) {
             case Coupontypemodel::TYPE_CASH:
