@@ -102,7 +102,7 @@ class Payment extends MY_Controller
 //                'total_fee'     => $amount * 100,
                 'total_fee'     => 1,
 //                'notify_url'    => site_url("pay/payment/notify/".$store->id),
-                'notify_url'    => "http://tapi.web.funxdata.com/pay/payment/notify/".$store->id,
+                'notify_url'    => config_item('base_url')."pay/payment/notify/".$store->id,
                 'openid'        => $this->user->openid,
 //                'openid'        => 'ob4npwr_tU8D-XHmgXPMxEqcrj6c',
                 'attach'        => serialize($attach),
