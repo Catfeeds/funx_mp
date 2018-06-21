@@ -22,6 +22,6 @@ class Customermodel extends Basemodel
 
     public function coupons(){
 
-        return $this->belongsTo(Couponmodel::class,'customer_id');
+        return $this->hasMany(Couponmodel::class,'customer_id');
     }
 }
