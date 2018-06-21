@@ -36,7 +36,7 @@ class Coupon extends MY_Controller
     public function coupon()
     {
         $post = $this->input->post(null,true);
-        if($post['status']){
+        if(isset($post['status'])){
             $status = trim($post['status']);
         }else{
             $status = 'UNUSED';
