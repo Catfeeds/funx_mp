@@ -262,8 +262,8 @@ class Order extends MY_Controller
         }
 
         //之前是查找住户的优惠券，这里改为查找用户customer下的优惠券
-//        $couopnCollection   = $resident->coupons()->where('status', Couponmodel::STATUS_UNUSED)->get();
-        $couopnCollection   = $this->user->coupons()->where('status', Couponmodel::STATUS_UNUSED)->get();
+        $couopnCollection   = $resident->coupons()->where('status', Couponmodel::STATUS_UNUSED)->get();
+//        $couopnCollection   = $this->user->coupons()->where('status', Couponmodel::STATUS_UNUSED)->get();
         $usageList          = $couopnCollection->groupBy('coupontype.limit');
 
         //找出房租可用的代金券
