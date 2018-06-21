@@ -107,8 +107,8 @@ class AuthHook {
 //            'resident/order/listpaidorder',
 
 
-//            'coupon/coupon/listcoupon',
-//            'coupon/coupon/coupon',
+            'coupon/coupon/listcoupon',
+            'coupon/coupon/coupon',
 
             'smartlock/smartlock/rooms',
             'smartlock/smartlock/getstore',
