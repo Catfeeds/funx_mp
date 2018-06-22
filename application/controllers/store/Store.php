@@ -95,7 +95,7 @@ class Store extends MY_Controller
         $room_types = $store->roomtype()->get(['id','name','feature','images',])->map(function($room_type){
             $room_type->images  = $this->fullAliossUrl(json_decode($room_type->images,true),true);
             $room_type->min_price   = $room_type->roomunion()->min('rent_price');
-            $room_type->min_price   = $room_type->roomunion()->max('rent_price');
+            $room_type->max_price   = $room_type->roomunion()->max('rent_price');
             return $room_type;
         });
         $this->api_res(0,['store'=>$store,'price'=>compact('min_price','max_price'),'room_types'=>$room_types]);
