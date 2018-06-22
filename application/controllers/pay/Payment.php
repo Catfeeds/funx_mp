@@ -49,6 +49,7 @@ class Payment extends MY_Controller
         $this->load->helper('wechat');
         $this->load->model('storemodel');
         $this->load->model('roomtypemodel');
+        $this->load->model('coupontypemodel');
 
         $this->resident = Residentmodel::with('orders', 'coupons')->findOrFail($residentId);
 
