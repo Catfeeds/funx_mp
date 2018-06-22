@@ -200,8 +200,8 @@ class Order extends MY_Controller
             $query->where('status',Ordermodel::STATE_PENDING)/*->orderBy('year','ASC')->orderBy('month','ASC')*/;
         }])
 //            ->where('customer_id',$this->user->id)
-            ->find($resident_id);
-//            ->find(2724);
+//            ->find($resident_id);
+            ->find(2745);
 
         if(!$resident){
             $this->api_res(1007);
