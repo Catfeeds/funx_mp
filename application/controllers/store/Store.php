@@ -63,8 +63,8 @@ class Store extends MY_Controller
         isset($post['city'])?$where['city']=trim(strip_tags($post['city'])):null;
         $stores  = Storemodel::where('name','like',"%$name%")->where($where)->get($field)
         ->map(function($store){
-//            $store->images  = $this->fullAliossUrl(json_decode(json_decode($store->images,true),true),true);
-            $store->images  = $this->fullAliossUrl((json_decode($store->images,true)),true);
+            $store->images  = $this->fullAliossUrl(json_decode(json_decode($store->images,true),true),true);
+//            $store->images  = $this->fullAliossUrl((json_decode($store->images,true)),true);
             return $store;
         });
         $this->api_res(0,['list'=>$stores]);
