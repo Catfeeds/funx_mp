@@ -56,13 +56,17 @@ class Store extends MY_Controller
      */
     public function listStore()
     {
-        $field  = ['id','name','province','city','district','theme',];
+        $field  = ['id','name','province','city','district','theme','images'];
         $post   = $this->input->post(null,true);
         $name   = isset($post['name'])?trim(strip_tags($post['name'])):'';
         $where  = [];
         isset($post['city'])?$where['city']=trim(strip_tags($post['city'])):null;
-        $store  = Storemodel::where('name','like',"%$name%")->where($where)->get($field);
-        $this->api_res(0,['list'=>$store]);
+        $stores  = Storemodel::where('name','like',"%$name%")->where($where)->get($field)
+        ->map(function($store){
+            $store->images  = $this->fullAliossUrl(json_decode(json_decode($store->images,true),true),true);
+            return $store;
+        });
+        $this->api_res(0,['list'=>$stores]);
     }
 
     /**
