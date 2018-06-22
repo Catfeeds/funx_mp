@@ -251,7 +251,7 @@ class Order extends MY_Controller
 
         //优惠券的使用目前仅限于房租和代金券
         if (!isset($orders[Ordermodel::PAYTYPE_ROOM]) && !isset($orders[Ordermodel::PAYTYPE_MANAGEMENT])) {
-            return false;
+            return null;
         }
 
         //月付用户首次支付不能使用优惠券
@@ -301,7 +301,7 @@ class Order extends MY_Controller
             }
         }
 
-        return $coupons;
+        return isset($coupons)?$coupons:null;
     }
 
     /**
