@@ -28,8 +28,8 @@ class Order extends MY_Controller
 
         $resident   = Residentmodel::with(['roomunion','orders'=>function($query){
             $query->where('status',Ordermodel::STATE_PENDING);
-//        }])->where('customer_id',$this->user->id);
-        }])->where('customer_id',9861);
+        }])->where('customer_id',$this->user->id);
+//        }])->where('customer_id',9861);
 //        log_message('error','UNPAID-->'.$this->user->id);
 //        echo $this->user->id;
 
@@ -200,9 +200,9 @@ class Order extends MY_Controller
         $resident   = Residentmodel::with(['roomunion','orders'=>function($query){
             $query->where('status',Ordermodel::STATE_PENDING)/*->orderBy('year','ASC')->orderBy('month','ASC')*/;
         }])
-//            ->where('customer_id',$this->user->id)
-//            ->find($resident_id);
-            ->find(2745);
+            ->where('customer_id',$this->user->id)
+            ->find($resident_id);
+//            ->find(2745);
 
         if(!$resident){
             $this->api_res(1007);
