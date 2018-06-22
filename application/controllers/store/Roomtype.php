@@ -32,7 +32,7 @@ class Roomtype extends MY_Controller
         $max_price  = $room_type->roomunion()->max('rent_price');
         $room_type->images  = $this->fullAliossUrl(json_decode($room_type->images,true),true);
         //$room_type->store->describe = strip_tags(htmlspecialchars_decode($room_type->store->description));
-        $room_type->store->describe = $room_type->store->description;
+//        $room_type->store->describe = $room_type->store->description;
 
         $this->api_res(0,['room_type'=>$room_type,'price'=>compact('min_price','max_price')]);
     }
