@@ -101,8 +101,8 @@ class Payment extends MY_Controller
                 'body'          => $store->name . '-' . $roomtype->name,
                 'detail'        => $store->name . '-' . $roomtype->name,
                 'out_trade_no'  => $out_trade_no,
-//                'total_fee'     => $amount * 100,
-                'total_fee'     => 1,
+                'total_fee'     => $amount * 100,
+//                'total_fee'     => 1,
 //                'notify_url'    => site_url("pay/payment/notify/".$store->id),
                 'notify_url'    => config_item('base_url')."pay/payment/notify/".$store->id,
                 'openid'        => $this->user->openid,
@@ -129,8 +129,8 @@ class Payment extends MY_Controller
 
 
             $wechatConfig   = getCustomerWechatConfig();
-//            $wechatConfig['payment']['merchant_id'] = $store->payment_merchant_id;
-//            $wechatConfig['payment']['key']         = $store->payment_key;
+            $wechatConfig['payment']['merchant_id'] = $store->payment_merchant_id;
+            $wechatConfig['payment']['key']         = $store->payment_key;
 
             $app            = new Application($wechatConfig);
             $wechatOrder    = new Order($attributes);
