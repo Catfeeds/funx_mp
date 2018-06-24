@@ -22,13 +22,17 @@ class Reserve extends MY_Controller
         $post = $this->input->post(NULL,true);
         if(!$this->validation())
         {
-            $fieldarr= ['store_id','room_type_id','name','phone','time'];
+            $fieldarr= ['store_id','room_type_id','name','phone','visit_time'];
             $this->api_res(1002,['errmsg'=>$this->form_first_error($fieldarr)]);
             return;
         }
 
         $reserve = new Reserveordermodel();
         $reserve->fill($post);
+        $reserve->customer_id = CURRENT_ID;
+        $reserve->visit_by = 'WECHAT';
+        $reserve->status = 'WAIT';
+
         if ($reserve->save()) {
             $this->api_res(0);
         }else{

@@ -75,9 +75,6 @@ class Store extends MY_Controller
         $post   = $this->input->post(null,true);
         $store_id   = intval($post['store_id']);
         $store  = Storemodel::select($field)->find($store_id);
-        /*$rent_type  = $store->rent_type;
-        if($rent_type=='UNION'){
-        }*/
         if(!$store)
         {
             $this->api_res(1007);
