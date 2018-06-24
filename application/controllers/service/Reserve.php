@@ -71,7 +71,7 @@ class Reserve extends MY_Controller
         $this->load->model('employeemodel');
         $filed = ['id','room_type_id','room_id','employee_id'];
         $precontract = Reserveordermodel::with('room')->with('room_type')->with('employee')
-            ->where('customer_id',1)
+            ->where('customer_id',CURRENT_ID)
             ->where('status','END')->get($filed)
             ->map(function ($item){
                 if (isset($item->room_type->images)){
