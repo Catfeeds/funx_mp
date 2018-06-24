@@ -110,7 +110,7 @@ class Reserve extends MY_Controller
                 'rules' => 'trim|required|max_length[13]',
             ),
         array(
-                'field' => 'time',
+                'field' => 'visit_time',
                 'label' => '预约时间',
                 'rules' => 'trim|required',
             ),
