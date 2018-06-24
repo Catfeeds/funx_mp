@@ -49,6 +49,7 @@ class Payment extends MY_Controller
         $this->load->helper('wechat');
         $this->load->model('storemodel');
         $this->load->model('roomtypemodel');
+        $this->load->model('coupontypemodel');
 
         $this->resident = Residentmodel::with('orders', 'coupons')->findOrFail($residentId);
 
@@ -61,8 +62,8 @@ class Payment extends MY_Controller
         $orders         = $this->resident->orders()->where('status', Ordermodel::STATE_PENDING)->get();
         //$orders         = Ordermodel::get();
         //之前是查找住户的优惠券，这里改为查找用户的优惠券
-//        $coupons        = $this->resident->coupons()->whereIn('id', $couponIds)->get();
-        $coupons        = $this->user->coupons()->whereIn('id', $couponIds)->get();
+        $coupons        = $this->resident->coupons()->whereIn('id', $couponIds)->get();
+//        $coupons        = $this->user->coupons()->whereIn('id', $couponIds)->get();
 
         if (0 == count($orders)) {
             $this->api_res(10017);

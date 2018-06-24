@@ -12,6 +12,8 @@ class Storemodel extends Basemodel{
 
     protected $table    = 'boss_store';
 
+    protected $casts    = ['images'=>'array'];
+
     /**
      * 该公寓签署合同的类型
      */

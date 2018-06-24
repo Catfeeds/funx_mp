@@ -29,6 +29,7 @@ class Order extends MY_Controller
         $resident   = Residentmodel::with(['roomunion','orders'=>function($query){
             $query->where('status',Ordermodel::STATE_PENDING);
         }])->where('customer_id',$this->user->id);
+//        }])->where('customer_id',9861);
 //        log_message('error','UNPAID-->'.$this->user->id);
 //        echo $this->user->id;
 
@@ -201,7 +202,7 @@ class Order extends MY_Controller
         }])
             ->where('customer_id',$this->user->id)
             ->find($resident_id);
-//            ->find(2724);
+//            ->find(2745);
 
         if(!$resident){
             $this->api_res(1007);
@@ -250,7 +251,7 @@ class Order extends MY_Controller
 
         //优惠券的使用目前仅限于房租和代金券
         if (!isset($orders[Ordermodel::PAYTYPE_ROOM]) && !isset($orders[Ordermodel::PAYTYPE_MANAGEMENT])) {
-            return false;
+            return null;
         }
 
         //月付用户首次支付不能使用优惠券
@@ -262,8 +263,8 @@ class Order extends MY_Controller
         }
 
         //之前是查找住户的优惠券，这里改为查找用户customer下的优惠券
-//        $couopnCollection   = $resident->coupons()->where('status', Couponmodel::STATUS_UNUSED)->get();
-        $couopnCollection   = $this->user->coupons()->where('status', Couponmodel::STATUS_UNUSED)->get();
+        $couopnCollection   = $resident->coupons()->where('status', Couponmodel::STATUS_UNUSED)->get();
+//        $couopnCollection   = $this->user->coupons()->where('status', Couponmodel::STATUS_UNUSED)->get();
         $usageList          = $couopnCollection->groupBy('coupontype.limit');
 
         //找出房租可用的代金券
@@ -300,7 +301,7 @@ class Order extends MY_Controller
             }
         }
 
-        return $coupons;
+        return isset($coupons)?$coupons:null;
     }
 
     /**
@@ -332,7 +333,6 @@ class Order extends MY_Controller
                 'discount'  => $this->calcDiscount($price, $coupon, $couponType),
             ];
         }
-
         return $coupons;
     }
 
