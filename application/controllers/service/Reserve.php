@@ -92,12 +92,12 @@ class Reserve extends MY_Controller
             array(
                 'field' => 'store_id',
                 'label' => '门店ID',
-                'rules' => 'trim|required|integer',
+                'rules' => 'trim|required',
             ),
         array(
                 'field' => 'room_type_id',
                 'label' => '房型ID',
-                'rules' => 'trim|required|integer',
+                'rules' => 'trim|required',
             ),
         array(
                 'field' => 'name',
