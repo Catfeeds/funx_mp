@@ -79,7 +79,7 @@ class Reserve extends MY_Controller
                 }
                 return $item;
             })->toArray();
-        $this->api_res(0,$precontract);
+        $this->api_res(0,['list'=>$precontract]);
     }
 
     /**
