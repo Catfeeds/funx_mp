@@ -61,13 +61,13 @@ class AuthHook {
             'store/roomtype/get',
 //            'store/store/appoint',
 
-            'service/servicetype/servicetype',
+//            'service/servicetype/servicetype',
             //'service/serviceorder/order',
-            'service/serviceorder/serviceorder',
-            'service/serviceorder/cleanorder',
+//            'service/serviceorder/serviceorder',
+//            'service/serviceorder/cleanorder',
             //'service/reserve/reserve',
-            'service/reserve/precontract',
-            'service/reserve/visited',
+//            'service/reserve/precontract',
+//            'service/reserve/visited',
 
             'customer/contract/checksign',
             'customer/contract/generate',
