@@ -10,7 +10,7 @@ class Reserveordermodel extends Basemodel
 {
     protected $table = 'boss_reserve_order';
     protected $hidden= ['created_at','updated_at','deleted_at'];
-    protected $fillable = ['store_id','room_type_id','name','phone','time'];
+    protected $fillable = ['store_id','room_type_id','name','phone','time','visit_time'];
 
     public function room(){
         return $this->belongsTo(Roomunionmodel::class,'room_id')
