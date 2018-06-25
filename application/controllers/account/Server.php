@@ -187,7 +187,7 @@ class Server extends MY_Controller
                         case 'CXDJQ':
                             return $this->inquireCoupon($message);
                             break;
-                        case '优城wifi':
+                        case 'WIFI':
                             return new Text(['content' => '点击<a href="http://wportal.tpauth.cn:8080/portal/wechat_auth/?token=48b9d3b1 ">免费上网</a>']);
                             break;
                         default:
