@@ -51,16 +51,16 @@ class Reserve extends MY_Controller
         $filed = ['id','room_type_id','room_id','employee_id'];
         $precontract = Reserveordermodel::with('room')->with('room_type')->with('employee')
             ->where('customer_id',CURRENT_ID)
-            ->whereIn('status',['BEGIN','WAIT'])->get($filed)
+            ->where('status','END')->get($filed)
             ->map(function ($item){
                 if (isset($item->room_type->images)){
-
                     $item->room_type->images = $this->fullAliossUrl(json_decode($item->room_type->images,true),true);
                 }
                 return $item;
             })->toArray();
-        $this->api_res(0,$precontract);
+        $this->api_res(0,['list'=>$precontract]);
     }
+
 
     /**
      * 看过的房源
@@ -71,7 +71,6 @@ class Reserve extends MY_Controller
         $this->load->model('roomtypemodel');
         $this->load->model('employeemodel');
         $filed = ['id','room_type_id','room_id','employee_id'];
-        var_dump(CURRENT_ID);
         $precontract = Reserveordermodel::with('room')->with('room_type')->with('employee')
             ->where('customer_id',CURRENT_ID)
             ->where('status','END')->get($filed)
