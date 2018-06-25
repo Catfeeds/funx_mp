@@ -137,4 +137,17 @@ class Resident extends MY_Controller
 //        $this->api_res(0);
 //    }
 
+    public function count()
+    {
+        $this->load->model('reserveordermodel');
+        $count['reserve'] = Reserveordermodel::where('status','WAIT')->where('customer_id',CURRENT_ID)->count();
+        $this->load->model('ordermodel');
+        $count['order'] = Ordermodel::whereIn('status',['GENERATE','AUDITED','PENDING'])->where('customer_id',CURRENT_ID)->count();
+        $this->load->model('couponmodel');
+        $count['coupon'] = Couponmodel::where('status','UNUSED')->where('customer_id',CURRENT_ID)->count();
+        //$this->load->model('shopmodel');
+        $count['shop'] = 0;/*Couponmodel::where('status','UNUSED')->where('customer_id',CURRENT_ID)->count();*/
+
+        $this->api_res(0,$count);
+    }
 }

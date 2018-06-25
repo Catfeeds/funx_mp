@@ -106,6 +106,7 @@ class AuthHook {
 //            'resident/order/listunpaidorder',
 //            'resident/order/listpaidorder',
 //        ' resident/contract/watchcontract',
+        ' resident/resident/count',
 
 
 //            'coupon/coupon/listcoupon',
