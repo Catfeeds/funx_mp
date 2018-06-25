@@ -52,7 +52,7 @@ class Reserve extends MY_Controller
         var_dump(CURRENT_ID);
         $precontract = Reserveordermodel::with('room')->with('room_type')->with('employee')
             ->where('customer_id',CURRENT_ID)
-            ->whereIn('status',['WAIT','BEGIN'])->get($filed)
+            ->where('status','WAIT')->get($filed)
             ->map(function ($item){
                 if (isset($item->room_type->images)){
                     var_dump($item->room_type->images);
