@@ -591,6 +591,20 @@ class Contract extends MY_Controller
 
     }
 
-
-
+    /**
+     * 查看合同
+     */
+    public function watchContract()
+    {
+        $this->load->model('storemodel');
+        $this->load->model('roomunionmodel');
+        $uxid = CURRENT_ID;
+        $field = ['id','store_id', 'room_id','view_url'];
+        if (isset($uxid)) {
+            $contract = Contractmodel::with('store')->with('roomnum')->where('uxid',$uxid)->get($field);
+            $this->api_res(0,[ 'contract'=>$contract]);
+        } else {
+            $this->api_res(1005);
+        }
+    }
 }
