@@ -52,16 +52,16 @@ class Reserve extends MY_Controller
         var_dump(CURRENT_ID);
         $precontract = Reserveordermodel::with('room')->with('room_type')->with('employee')
             ->where('customer_id',CURRENT_ID)
-            ->where('status','WAIT')->get($filed)
+            ->where('status','END')->get($filed)
             ->map(function ($item){
                 if (isset($item->room_type->images)){
-                    var_dump($item->room_type->images);
                     $item->room_type->images = $this->fullAliossUrl(json_decode($item->room_type->images,true),true);
                 }
                 return $item;
             })->toArray();
         $this->api_res(0,['list'=>$precontract]);
     }
+
 
     /**
      * 看过的房源
