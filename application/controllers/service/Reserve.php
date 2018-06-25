@@ -49,7 +49,6 @@ class Reserve extends MY_Controller
         $this->load->model('roomtypemodel');
         $this->load->model('employeemodel');
         $filed = ['id','room_type_id','room_id','employee_id'];
-        var_dump(CURRENT_ID);
         $precontract = Reserveordermodel::with('room')->with('room_type')->with('employee')
             ->where('customer_id',CURRENT_ID)
             ->where('status','END')->get($filed)
@@ -72,7 +71,6 @@ class Reserve extends MY_Controller
         $this->load->model('roomtypemodel');
         $this->load->model('employeemodel');
         $filed = ['id','room_type_id','room_id','employee_id'];
-        var_dump(CURRENT_ID);
         $precontract = Reserveordermodel::with('room')->with('room_type')->with('employee')
             ->where('customer_id',CURRENT_ID)
             ->where('status','END')->get($filed)
