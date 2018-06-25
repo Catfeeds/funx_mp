@@ -508,7 +508,7 @@ class Server extends MY_Controller
                     [
                         'name' => '个人中心',
                         'type' => 'view',
-                        'url'  => config_item('wechat_url').'%23/userIndex',
+                        'url'  => config_item('wechat_url').'#/userIndex',
                     ],
                     [
                         'name' => '生活服务',
@@ -520,7 +520,7 @@ class Server extends MY_Controller
                         'name' => '金地商城',
                         'type' => 'view',
 //                        'url'  => config_item('wechat_url').'shopping',
-                        'url'  => 'http://web.strongberry.cn/#/shopping',
+                        'url'  => config_item('wechat_url').'#/shopping',
                     ],
                     [
                         'name' => '投诉信箱',
