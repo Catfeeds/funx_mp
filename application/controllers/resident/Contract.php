@@ -324,8 +324,8 @@ class Contract extends MY_Controller
      */
     private function getCustomerCA($data)
     {
-        $res = $this->fadada->getCustomerCA($data['name'], $data['phone'], $data['cardNumber'], $data['cardType']);
-
+        $res = $this->fadada->getCustomerCA($data['name'], $data['phone'], $data['cardNumber'], $data[' cardType']);
+        var_dump($res);
         if ($res == false) {
             throw new Exception($this->fadada->showError());
         }
@@ -372,7 +372,9 @@ class Contract extends MY_Controller
         }
 
         $baseUrl = array_shift($data2);
+
         $result['signurl']=$baseUrl . '?' . http_build_query($data2);
+
         return $result['signurl'];
     }
 
