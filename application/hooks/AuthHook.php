@@ -69,8 +69,8 @@ class AuthHook {
 //            'service/reserve/precontract',
 //            'service/reserve/visited',
 
-            'customer/contract/checksign',
-            'customer/contract/generate',
+//            'customer/contract/checksign',
+//            'customer/contract/generate',
             /*'customer/center/showinfo',
             'customer/center/shownickname',
             'customer/center/setnickname',
@@ -106,21 +106,21 @@ class AuthHook {
 //            'resident/order/listunpaidorder',
 //            'resident/order/listpaidorder',
 //        ' resident/contract/watchcontract',
-        ' resident/resident/count',
+//        ' resident/resident/count',
 
 
 //            'coupon/coupon/listcoupon',
 //            'coupon/coupon/coupon',
 
-            'smartlock/smartlock/rooms',
-            'smartlock/smartlock/getstore',
-            'smartlock/smartlock/withsmart',
-            'smartlock/smartlock/temporarypwd',
-            'smartlock/smartlock/updatepwd',
-            'smartlock/smartlock/lockrecord',
+//            'smartlock/smartlock/rooms',
+//            'smartlock/smartlock/getstore',
+//            'smartlock/smartlock/withsmart',
+//            'smartlock/smartlock/temporarypwd',
+//            'smartlock/smartlock/updatepwd',
+//            'smartlock/smartlock/lockrecord',
 
-            'owner/owner/ownerlist',
-            'owner/owner/bill',
+//            'owner/owner/ownerlist',
+//            'owner/owner/bill',
         );
 
         $directory  = $this->CI->router->fetch_directory();
