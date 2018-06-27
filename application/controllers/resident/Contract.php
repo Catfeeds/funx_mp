@@ -263,7 +263,6 @@ class Contract extends MY_Controller
         if($resident->card_type=="0"||$resident->card_type==0||$resident->card_type=='IDCARD'){
             $data['cardType']='IDCARD';
         }
-        $data['cardType']=$resident->card_type;
 
         $CustomerCA= $this->getCustomerCA($data);
 
