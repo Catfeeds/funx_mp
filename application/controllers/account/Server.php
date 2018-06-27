@@ -504,7 +504,7 @@ class Server extends MY_Controller
                     [
                         'name' => '个人中心',
                         'type' => 'view',
-                        'url'  => 'http://we.strongberry.cn/#/userIndex',
+                        'url'  => config_item('wechat_url').'#/userIndex',
                     ],
                     [
                         'name' => '生活服务',
