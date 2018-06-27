@@ -508,7 +508,7 @@ class Server extends MY_Controller
                     [
                         'name' => '个人中心',
                         'type' => 'view',
-                        'url'  => 'http://web.strongberry.cn/#/userIndex',
+                        'url'  => 'http://we.strongberry.cn/#/userIndex',
                     ],
                     [
                         'name' => '生活服务',
