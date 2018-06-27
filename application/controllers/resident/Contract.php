@@ -372,9 +372,7 @@ class Contract extends MY_Controller
         }
 
         $baseUrl = array_shift($data2);
-
         $result['signurl']=$baseUrl . '?' . http_build_query($data2);
-
         return $result['signurl'];
     }
 
