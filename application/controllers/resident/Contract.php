@@ -260,7 +260,7 @@ class Contract extends MY_Controller
         $data['name']=$resident->name;
         $data['phone']=$resident->phone;
         $data['cardNumber']=$resident->card_number;
-        if($resident->card_type==0||$resident->card_type=='IDCARD'){
+        if($resident->card_type=="0"||$resident->card_type==0||$resident->card_type=='IDCARD'){
             $data['cardType']='IDCARD';
         }
         $data['cardType']=$resident->card_type;
