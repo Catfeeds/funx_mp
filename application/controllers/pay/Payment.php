@@ -272,9 +272,10 @@ class Payment extends MY_Controller
         $store      = Storemodel::findOrFail($store_id);
 
         $this->load->helper('wechat');
+
         $customerWechatConfig   = getCustomerWechatConfig();
-//      $customerWechatConfig['payment']['merchant_id'] = $store->payment_merchant_id;
-//      $customerWechatConfig['payment']['key']         = $store->payment_key;
+        $customerWechatConfig['payment']['merchant_id'] = $store->payment_merchant_id;
+        $customerWechatConfig['payment']['key']         = $store->payment_key;
 
         $app    = new Application($customerWechatConfig);
 
