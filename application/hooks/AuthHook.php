@@ -54,9 +54,9 @@ class AuthHook {
             'common/imageupload',
             'common/fileupload',
 
-            'store/store/showcity',
+           /* 'store/store/showcity',
             'store/store/showstore',
-            'store/store/liststore',
+            'store/store/liststore',*/
 //            'store/store/get',
 //            'store/roomtype/get',
 //            'store/store/appoint',
