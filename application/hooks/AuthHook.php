@@ -136,8 +136,9 @@ class AuthHook {
                 $d_uxid   = $decoded->uxid;
                 $d_company_id   = $decoded->company_id;
                 define('CURRENT_ID',$d_uxid);
-                define('COMPANY_ID',$d_company_id);
-
+                if (!COMPANY_ID){
+                    define('COMPANY_ID',$d_company_id);
+                }
                 $this->CI->load->model('customermodel');
                 log_message('error','current_id='.CURRENT_ID);
                 $this->CI->user = Customermodel::where('uxid',CURRENT_ID)->first();
