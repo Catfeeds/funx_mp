@@ -122,7 +122,6 @@ class Contract extends MY_Controller
     public  function confirm(){
 
         $input  = $this->input->post(null,true);
-        log_message('error',json_encode($input));
         $resident_id    = intval(strip_tags($input['resident_id']));
         $phone          = trim(strip_tags($input['phone']));
 //        $code           = trim(strip_tags($input['code']));
@@ -171,8 +170,10 @@ class Contract extends MY_Controller
         $targetUrl  = '';
 
         if((Storemodel::C_TYPE_NORMAL==$contract_type&&$resident->card_type!=0)||(Storemodel::C_TYPE_NORMAL==$contract_type&&$resident->card_type!='IDCARD')){
-            if(empty($contract)){
+            log_message('error', '纸质合同生成');
+            if($resident->status!='$resident'){
                 //生成纸质版合同
+                log_message('error', '纸质合同生成2');
                 $contract   = $this->contractPaper($resident);
 
                 $this->load->model('ordermodel');
