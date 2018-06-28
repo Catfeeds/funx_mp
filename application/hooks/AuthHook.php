@@ -57,8 +57,8 @@ class AuthHook {
             'store/store/showcity',
             'store/store/showstore',
             'store/store/liststore',
-            'store/store/get',
-            'store/roomtype/get',
+//            'store/store/get',
+//            'store/roomtype/get',
 //            'store/store/appoint',
 
 //            'service/servicetype/servicetype',
