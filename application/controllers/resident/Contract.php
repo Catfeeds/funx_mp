@@ -170,7 +170,7 @@ class Contract extends MY_Controller
         $targetUrl  = '';
         log_message('error', $contract_type.'||aaaaaaaaaa');
         log_message('error', $resident->card_type.'||bbbbbbbbbbbbbbb');
-        if((Storemodel::C_TYPE_NORMAL==$contract_type&&$resident->card_type!=0)||(Storemodel::C_TYPE_NORMAL==$contract_type&&$resident->card_type!='IDCARD')){
+        if(Storemodel::C_TYPE_NORMAL==$contract_type||$resident->card_type!=0){
             log_message('error', '纸质合同生成');
             if($resident->status!='$resident'){
                 //生成纸质版合同
