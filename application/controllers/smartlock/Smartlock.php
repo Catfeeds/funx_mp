@@ -29,7 +29,7 @@ class Smartlock extends MY_Controller
             })->toArray();
         if ($resident_id||1){
             $rooms = Roomunionmodel::with('store_s')->with('building_s')
-                ->where('resident_id',1684)
+                ->where('resident_id',$resident_id)
                 ->get(['id','store_id','number','building_id'])->toArray();
             $this->api_res(0,['list'=>$rooms]);
         }else{
