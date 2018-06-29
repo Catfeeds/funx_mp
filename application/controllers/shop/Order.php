@@ -70,21 +70,21 @@ class Order extends MY_Controller
         $this->load->model('residentmodel');
         $uxid = 7;
         //$field = ['id','store_id','room_id','resident_id','type','paid','status'];
-        $field = ['id','store_id','room_id','name','id'];
-        if (isset($uxid)){
-            $resident_ids  = Ordermodel::whereIn('status',[
+        $field = ['id', 'store_id', 'room_id', 'name', 'id'];
+        if (isset($uxid)) {
+            $resident_ids = Ordermodel::whereIn('status', [
                 Ordermodel::STATE_PENDING,
                 Ordermodel::STATE_CONFIRM,
-                Ordermodel::STATE_COMPLETED,])->groupBy('resident_id')->get(['resident_id'])->map(function($id){
+                Ordermodel::STATE_COMPLETED,])->groupBy('resident_id')->get(['resident_id'])->map(function ($id) {
                 return $id->resident_id;
             });
-            $list  = Residentmodel::with('orders','roomunion1','store')->whereIn('id',$resident_ids->toArray())->where('uxid',$uxid)->get($field)
-                ->map(function($query){
+            $list = Residentmodel::with('orders', 'roomunion1', 'store')->whereIn('id', $resident_ids->toArray())->where('uxid', $uxid)->get($field)
+                ->map(function ($query){
                     $query->sum = $query->orders->sum('money');
                     return $query;
                 })->toArray();
 
-            $this->api_res(0,[ 'list'=>$list]);
+            $this->api_res(0, ['list' => $list]);
         } else {
             $this->api_res(1005);
         }

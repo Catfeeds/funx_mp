@@ -12,5 +12,9 @@ class Goodsordergoodsmodel extends Basemodel
     protected $hidden   = ['deleted_at'];
 
 
+    public function goods(){
+        return$this->belongsTo(Goodsordermodel::class,'order_id')->select('id','number','');
+    }
+
 
 }
