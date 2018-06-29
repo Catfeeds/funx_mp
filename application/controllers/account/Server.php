@@ -149,7 +149,7 @@ class Server extends MY_Controller
                                     break;
 
                                 case 'EMAIL_FOR_COMPLAINT':
-                                    return new Text(['content' => '投诉/建议，请发送邮件至' . "\n" . 'chenxin@gemdalepi.com']);
+                                    return new Text(['content' => '投诉/建议，请发送邮件至' . "\n" . 'liuxiaofen1@gemdalepi.com']);
                                     break;
 
                                 case 'RECENT_ACTIVITIES':
@@ -509,6 +509,7 @@ class Server extends MY_Controller
                         'name' => '个人中心',
                         'type' => 'view',
                         'url'  => config_item('wechat_url').'#/userIndex',
+
                     ],
                     [
                         'name' => '生活服务',
