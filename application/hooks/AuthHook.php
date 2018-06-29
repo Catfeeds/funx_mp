@@ -31,7 +31,7 @@ class AuthHook {
 
             'resident/order/getorderbynumber',
 
-            'pay/payment/config',
+//            'pay/payment/config',
             //微信支付回调
             'pay/payment/notify',
             //合同签章结果
@@ -54,66 +54,73 @@ class AuthHook {
             'common/imageupload',
             'common/fileupload',
 
-            'store/store/showcity',
+           /* 'store/store/showcity',
             'store/store/showstore',
-            'store/store/liststore',
-            'store/store/get',
-            'store/roomtype/get',
-            'store/store/appoint',
+            'store/store/liststore',*/
+//            'store/store/get',
+//            'store/roomtype/get',
+//            'store/store/appoint',
 
-            'service/servicetype/servicetype',
-            'service/serviceorder/order',
-            'service/serviceorder/serviceorder',
-            'service/serviceorder/cleanorder',
-            'service/reserve/reserve',
-            'service/reserve/precontract',
-            'service/reserve/visited',
+//            'service/servicetype/servicetype',
+            //'service/serviceorder/order',
+//            'service/serviceorder/serviceorder',
+//            'service/serviceorder/cleanorder',
+            //'service/reserve/reserve',
+//            'service/reserve/precontract',
+//            'service/reserve/visited',
 
-            'customer/contract/checksign',
-            'customer/contract/generate',
+//            'customer/contract/checksign',
+//            'customer/contract/generate',
+            /*'customer/center/showinfo',
+            'customer/center/shownickname',
+            'customer/center/setnickname',
+            'customer/center/setphone',
+            'customer/center/verifyphone',*/
 
             'shop/goodscategory/listgoods',
             'shop/goods/goodsinfo',
             'shop/goods/searchgoods',
-            'shop/goods/goodssta',
+//            'shop/goods/goodssta',
             'shop/goodsaddress/addaddress',
             'shop/goodsaddress/deleteaddress',
             'shop/goodsaddress/updateaddress',
-            'shop/goodscart/cart',
-            'shop/goodscart/deletecart',
-            'shop/goodsaddress/listaddress',
-            'shop/goodscart/listcart',
-            'shop/goodscart/deletecart',
-            'shop/goodscart/addcart',
-            'shop/goodscart/quantityincre',
-            'shop/goodscart/quantitydecre',
-            'shop/goodscart/quantitynum',
-            'shop/goodscart/accounts',
-            'shop/contract/contract',
-            'shop/goodscart/getorder',
-            'shop/goodscart/nowbuy',
-            'shop/order/orderlist',
-            'shop/order/orderux',
-            'shop/order/order',
-            'shop/goods/numorder',
-            //'resident/order/unpaid',
+//            'shop/goodscart/cart',
+//            'shop/goodscart/deletecart',
+//            'shop/goodsaddress/listaddress',
+//            'shop/goodscart/listcart',
+//            'shop/goodscart/deletecart',
+//            'shop/goodscart/addcart',
+//            'shop/goodscart/quantityincre',
+//            'shop/goodscart/quantitydecre',
+//            'shop/goodscart/quantitynum',
+//            'shop/goodscart/accounts',
+//            'shop/contract/contract',
+//            'shop/goodscart/getorder',
+//            'shop/goodscart/nowbuy',
+//            'shop/order/orderlist',
+//            'shop/order/orderux',
+//            'shop/order/order',
+//            'shop/goods/numorder',
+//            'resident/order/unpaid',
 //            'resident/order/paid',
 //            'resident/order/listunpaidorder',
 //            'resident/order/listpaidorder',
+//        ' resident/contract/watchcontract',
+//        ' resident/resident/count',
 
 
-            'coupon/coupon/listcoupon',
-            'coupon/coupon/coupon',
+//            'coupon/coupon/listcoupon',
+//            'coupon/coupon/coupon',
 
-            'smartlock/smartlock/rooms',
-            'smartlock/smartlock/getstore',
-            'smartlock/smartlock/withsmart',
-            'smartlock/smartlock/temporarypwd',
-            'smartlock/smartlock/updatepwd',
-            'smartlock/smartlock/lockrecord',
+//            'smartlock/smartlock/rooms',
+//            'smartlock/smartlock/getstore',
+//            'smartlock/smartlock/withsmart',
+//            'smartlock/smartlock/temporarypwd',
+//            'smartlock/smartlock/updatepwd',
+//            'smartlock/smartlock/lockrecord',
 
-            'owner/owner/ownerlist',
-            'owner/owner/bill',
+//            'owner/owner/ownerlist',
+//            'owner/owner/bill',
         );
 
         $directory  = $this->CI->router->fetch_directory();
@@ -124,16 +131,15 @@ class AuthHook {
         if(!in_array($full_path,$authArr)) {
             try {
                 $token = $this->CI->input->get_request_header('token');
+                log_message('error','TOKEN'.$token);
                 $decoded = $this->CI->m_jwt->decodeJwtToken($token);
                 $d_uxid   = $decoded->uxid;
                 $d_company_id   = $decoded->company_id;
                 define('CURRENT_ID',$d_uxid);
                 define('COMPANY_ID',$d_company_id);
-
                 $this->CI->load->model('customermodel');
+                log_message('error','current_id='.CURRENT_ID);
                 $this->CI->user = Customermodel::where('uxid',CURRENT_ID)->first();
-
-
             } catch (Exception $e) {
                 header("Content-Type:application/json;charset=UTF-8");
                 echo json_encode(array('rescode' => 1001, 'resmsg' => 'token无效', 'data' => []));

@@ -20,8 +20,19 @@ class Coupon extends MY_Controller
     public function listCoupon()
     {
         $this->load->model('Coupontypemodel');
-        $filed = ['resident_id','coupon_type_id','status','deadline'];
-        $coupon = Couponmodel::with('coupontype')->orderBy('created_at','DESC')->where('resident_id',CURRENT_ID)
+        $filed = ['id','resident_id','coupon_type_id','status','deadline'];
+        $input  = $this->input->post(null,true);
+        $where  = [];
+        if(!empty($input['status'])){
+            $where['status']    = $input['status'];
+        }else{
+            $where['status']    = Couponmodel::STATUS_UNUSED;
+        }
+
+        $coupon = Couponmodel::with('coupontype')
+            ->orderBy('created_at','DESC')
+            ->where('customer_id',$this->user->id)
+//            ->where('customer_id',9747)
                 ->get($filed)->map(function ($coupon){
                     $coupon = $coupon->toArray();
                     $coupon['deadline'] = date('Y-m-d',strtotime($coupon['deadline']));
@@ -33,10 +44,10 @@ class Coupon extends MY_Controller
     /**
      * 优惠券使用
      */
-    /*public function coupon()
+    public function coupon()
     {
         $post = $this->input->post(null,true);
-        if($post['status']){
+        if(isset($post['status'])){
             $status = trim($post['status']);
         }else{
             $status = 'UNUSED';
@@ -51,5 +62,5 @@ class Coupon extends MY_Controller
                     return $coupon;
                 })->toArray();
         $this->api_res(0,$coupon);
-    }*/
+    }
 }

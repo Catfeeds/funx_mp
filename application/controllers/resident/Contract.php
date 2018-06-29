@@ -122,16 +122,15 @@ class Contract extends MY_Controller
     public  function confirm(){
 
         $input  = $this->input->post(null,true);
-        log_message('error',json_encode($input));
         $resident_id    = intval(strip_tags($input['resident_id']));
         $phone          = trim(strip_tags($input['phone']));
 //        $code           = trim(strip_tags($input['code']));
         //验证短信验证码
-//        $this->load->library('m_redis');
-//        if(!$this->m_redis->verifyResidentPhoneCode($input['phone'],$input['code'])){
-//            $this->api_res(10014);
-//            return;
-//        }
+        $this->load->library('m_redis');
+        if(!$this->m_redis->verifyResidentPhoneCode($input['phone'],$input['code'])){
+            $this->api_res(10008);
+            return;
+        }
         $this->load->model('residentmodel');
         $resident   = Residentmodel::find($resident_id);
         if(!$resident){
@@ -168,10 +167,9 @@ class Contract extends MY_Controller
 
         $this->load->model('roomtypemodel');
         //默认跳转的页面 账单列表
-        $targetUrl  = 'mybill';
-
-        if(Storemodel::C_TYPE_NORMAL==$contract_type){
-            if(empty($contract)){
+        $targetUrl  = '';
+        if(Storemodel::C_TYPE_NORMAL==$contract_type||$resident->card_type!=0){
+            if($resident->status!='NORMAL'){
                 //生成纸质版合同
                 $contract   = $this->contractPaper($resident);
 
@@ -193,6 +191,9 @@ class Contract extends MY_Controller
             if(empty($contract)){
 
                 $contract   = $this->signContract($resident);
+
+                $this->load->model('ordermodel');
+                $this->ordermodel->firstCheckInOrders($resident, $room);
 
             }
 
@@ -216,10 +217,12 @@ class Contract extends MY_Controller
         //获取合同模板
         $roomtype   = $resident->roomunion->roomtype;
         $contract_template  = Contracttemplatemodel::where(['room_type_id'=>$roomtype->id,'rent_type'=>$resident->rent_type])->first();
-        //测试
-        $this->fadada->uploadTemplate('http://tfunx.oss-cn-shenzhen.aliyuncs.com/'.$contract_template->contract_tpl_path,$contract_template->fdd_tpl_id);
+        if(ENVIRONMENT=='development'){
+            //测试
+            $this->fadada->uploadTemplate('http://tfunx.oss-cn-shenzhen.aliyuncs.com/'.$contract_template->contract_tpl_path,$contract_template->fdd_tpl_id);
+        }
         //签署合同需要准备的信息
-        $contractNumber = $resident->store_id . '-' . $resident->begin_time->year .'-' . $resident->name . '-' . $resident->room_id;
+        $contractNumber = $resident->store->abbreviation . '-' . $resident->begin_time->year .'-' . $resident->name . '-' . $resident->room_id;
         $parameters     = array(
             'contract_number'     => $contractNumber,               //合同号
             'customer_name'       => $resident->name,               //租户姓名
@@ -304,12 +307,12 @@ class Contract extends MY_Controller
     private function test()
     {
         return array(
-            'type' => 'FDD',
-            'contract_id' => 'JINDI123456789',
+            'type' => 'NORMAL',
+            'contract_id' => 'JINDI'.date("YmdHis").mt_rand(10,60),
             'doc_title' => "title",
             'download_url' => 'url_download',
             'view_url' => 'url_view',
-            'status' => Contractmodel::STATUS_GENERATED,
+            'status' => Contractmodel::STATUS_ARCHIVED,
             //'customer_id' => null,
         );
     }
@@ -319,8 +322,7 @@ class Contract extends MY_Controller
      */
     private function getCustomerCA($data)
     {
-        $res = $this->fadada->getCustomerCA($data['name'], $data['phone'], $data['cardNumber'], $data['cardType']);
-
+        $res = $this->fadada->getCustomerCA($data['name'], $data['phone'], $data['cardNumber'], $data[' cardType']);
         if ($res == false) {
             throw new Exception($this->fadada->showError());
         }
@@ -351,8 +353,8 @@ class Contract extends MY_Controller
             $transactionId,
             $contract['doc_title'],
 //            site_url('resident/contract/signresult'),   //return_url
-            'http://tapi.web.funxdata.com/resident/contract/signresult',
-            'http://tapi.boss.funxdata.com/mini/contract/notify'     //notify_url
+            config_item('base_url').'resident/contract/signresult',
+            config_item('fdd_notify_url')     //notify_url
         );
 
         //手动签署, 只有页面跳转到法大大平台交易才能生效, 因此, 若上一步骤失败, 就不该存储交易记录.
@@ -463,12 +465,9 @@ class Contract extends MY_Controller
         $resident   = $contract->resident;
         $room   = $contract->roomunion;
 
-        $this->load->model('ordermodel');
-        $this->ordermodel->firstCheckInOrders($resident, $room);
-
         //没有问题就跳转支付页面
 
-        header('Location:http://tweb.funxdata.com/');
+        header('Location:'.config_item('my_bill_url'));
 
         //$this->api_res(0);
 
@@ -512,7 +511,7 @@ class Contract extends MY_Controller
     /**
      * 生成上传纸质合同
      */
-    public function uploadContractPaper($resident){
+    private function uploadContractPaper($resident){
 
         //获取合同模板
         $room       = $resident->roomunion;
@@ -524,7 +523,7 @@ class Contract extends MY_Controller
         $contractId             = 'JINDI'.date("YmdHis").mt_rand(10,60);
 
         //签署合同需要准备的信息
-        $contractNumber = $resident->store_id . '-' . $resident->begin_time->year .'-' . $resident->name . '-' . $resident->room_id;
+        $contractNumber = $resident->store->abbreviation . '-' . $resident->begin_time->year .'-' . $resident->name . '-' . $resident->room_id;
         $parameters     = array(
             'contract_number'     => $contractNumber,               //合同号
             'customer_name'       => $resident->name,               //租户姓名
@@ -591,6 +590,20 @@ class Contract extends MY_Controller
 
     }
 
-
-
+    /**
+     * 查看合同
+     */
+    public function watchContract()
+    {
+        $this->load->model('storemodel');
+        $this->load->model('roomunionmodel');
+        $uxid = CURRENT_ID;
+        $field = ['id','store_id', 'room_id','view_url'];
+        if (isset($uxid)) {
+            $contract = Contractmodel::with('store')->with('roomnum')->where('uxid',$uxid)->get($field);
+            $this->api_res(0,[ 'contract'=>$contract]);
+        } else {
+            $this->api_res(1005);
+        }
+    }
 }

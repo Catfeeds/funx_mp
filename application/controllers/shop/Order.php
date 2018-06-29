@@ -21,7 +21,7 @@ class Order extends MY_Controller
         $this->load->model('storemodel');
         $this->load->model('roomunionmodel');
         //$uxid = intval(strip_tags(trim($post['uxid'])));
-        $uxid = 7;
+        $uxid = CURRENT_ID;
         $field = ['id','store_id', 'room_id'];
         if (isset($uxid)) {
             $contract = Ordermodel::with('storename')->with('roomnum')->where('uxid',$uxid)->get($field);
@@ -40,7 +40,7 @@ class Order extends MY_Controller
         $this->load->model('storemodel');
         $this->load->model('roomunionmodel');
         $this->load->model('residentmodel');
-        $uxid = 7;
+        $uxid = CURRENT_ID;
         $field = ['id','store_id','room_id','name','id','deposit_money'];
         if (isset($uxid)){
             $resident_ids  = Ordermodel::whereIn('status', [
@@ -68,7 +68,7 @@ class Order extends MY_Controller
         $this->load->model('storemodel');
         $this->load->model('roomunionmodel');
         $this->load->model('residentmodel');
-        $uxid = 7;
+        $uxid = CURRENT_ID;
         //$field = ['id','store_id','room_id','resident_id','type','paid','status'];
         $field = ['id', 'store_id', 'room_id', 'name', 'id'];
         if (isset($uxid)) {

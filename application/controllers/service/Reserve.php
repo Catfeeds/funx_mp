@@ -22,13 +22,17 @@ class Reserve extends MY_Controller
         $post = $this->input->post(NULL,true);
         if(!$this->validation())
         {
-            $fieldarr= ['store_id','room_type_id','name','phone','time'];
+            $fieldarr= ['store_id','room_type_id','name','phone','visit_time'];
             $this->api_res(1002,['errmsg'=>$this->form_first_error($fieldarr)]);
             return;
         }
 
         $reserve = new Reserveordermodel();
         $reserve->fill($post);
+        $reserve->customer_id = CURRENT_ID;
+        $reserve->visit_by = 'WECHAT';
+        $reserve->status = 'WAIT';
+
         if ($reserve->save()) {
             $this->api_res(0);
         }else{
@@ -46,15 +50,15 @@ class Reserve extends MY_Controller
         $this->load->model('employeemodel');
         $filed = ['id','room_type_id','room_id','employee_id'];
         $precontract = Reserveordermodel::with('room')->with('room_type')->with('employee')
-            ->where('customer_id',1)
-            ->whereIn('status',['BEGIN','WAIT'])->get($filed)
+            ->where('customer_id',CURRENT_ID)
+            ->whereIn('status',['WAIT','BEGIN'])->get($filed)
             ->map(function ($item){
                 if (isset($item->room_type->images)){
                     $item->room_type->images = $this->fullAliossUrl(json_decode($item->room_type->images,true),true);
                 }
                 return $item;
             })->toArray();
-        $this->api_res(0,$precontract);
+        $this->api_res(0,['list'=>$precontract]);
     }
 
     /**
@@ -67,7 +71,7 @@ class Reserve extends MY_Controller
         $this->load->model('employeemodel');
         $filed = ['id','room_type_id','room_id','employee_id'];
         $precontract = Reserveordermodel::with('room')->with('room_type')->with('employee')
-            ->where('customer_id',1)
+            ->where('customer_id',CURRENT_ID)
             ->where('status','END')->get($filed)
             ->map(function ($item){
                 if (isset($item->room_type->images)){
@@ -75,7 +79,7 @@ class Reserve extends MY_Controller
                 }
                 return $item;
             })->toArray();
-        $this->api_res(0,$precontract);
+        $this->api_res(0,['list'=>$precontract]);
     }
 
     /**
@@ -88,12 +92,12 @@ class Reserve extends MY_Controller
             array(
                 'field' => 'store_id',
                 'label' => '门店ID',
-                'rules' => 'trim|required|integer',
+                'rules' => 'trim|required',
             ),
         array(
                 'field' => 'room_type_id',
                 'label' => '房型ID',
-                'rules' => 'trim|required|integer',
+                'rules' => 'trim|required',
             ),
         array(
                 'field' => 'name',
@@ -106,7 +110,7 @@ class Reserve extends MY_Controller
                 'rules' => 'trim|required|max_length[13]',
             ),
         array(
-                'field' => 'time',
+                'field' => 'visit_time',
                 'label' => '预约时间',
                 'rules' => 'trim|required',
             ),

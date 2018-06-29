@@ -40,32 +40,28 @@ function getCustomerWechatConfig(){
 }
 
 /**
- * 获取员工端微信的配置
+ * 员工公众号
  */
-function getEmployeeWechatConfig($debug = true)
+function getWechatEmployeeConfig()
 {
-    return array(
+    $debug  = (ENVIRONMENT!=='development'?false:true);
+    return [
         'debug'     => $debug,
-        'app_id'    => EMPLOYEE_WECHAT_APPID,
-        'secret'    => EMPLOYEE_WECHAT_SECRET,
-        'token'     => EMPLOYEE_WECHAT_TOKEN,
-        'aes_key'   => EMPLOYEE_WECHAT_AES_KEY,
+        'app_id'    => config_item('wx_employee_appid'),
+        'secret'    => config_item('wx_employee_secret'),
+        'token'     => config_item('wx_employee_token'),
+        'aes_key'   => config_item('wx_employee_aes_key'),
         'log' => [
             'level' => 'debug',
             'file'  => APPPATH.'cache/wechatEmployee.log',
         ],
-        'oauth' => [
-            'scopes'   => [EMPLOYEE_WECHAT_OAUTH_SCOPES],
-            'callback' => site_url('callback'),
-        ],
-        'payment' => [
-            'merchant_id'        => '',
-            'key'                => '',
-            'cert_path'          => '',
-            'key_path'           => '',
-        ],
         'guzzle' => [
             'timeout' => 3.0,
-        ]
-    );
+        ],
+        'oauth' => [
+            'scopes'   => ['snsapi_userinfo'],
+            'callback' => site_url('callback'),
+        ],
+    ];
+
 }

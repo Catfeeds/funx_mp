@@ -14,9 +14,14 @@ class Customermodel extends Basemodel
         parent::__construct($attributes);
     }
 
-    protected $table    = 'web_customer';
+    protected $table    = 'boss_customer';
 
     protected $fillable = [];
 
     protected $hidden   = ['created_at','updated_at','deleted_at'];
+
+    public function coupons(){
+
+        return $this->hasMany(Couponmodel::class,'customer_id');
+    }
 }

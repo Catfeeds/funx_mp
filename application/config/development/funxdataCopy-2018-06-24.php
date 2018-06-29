@@ -19,7 +19,6 @@ $config['time_zone']    = date_default_timezone_get();
 */
 
 $config['base_url'] = 'http://tapi.web.funxdata.com/';
-$config['wechat_url'] = 'http://web.funxdata.com/';
 $config['fdd_notify_url'] = 'http://tapi.boss.funxdata.com/mini/contract/notify';
 $config['my_bill_url'] = 'http://tweb.funxdata.com/#/myBill';
 
@@ -70,10 +69,8 @@ $config['wx_oauth_callback']          = '';
 //微信商户
 $config['customer_wechat_payment_merchant_id']  = '1283267801';
 $config['customer_wechat_payment_key']          = 'c26cde6c73f3db135556f9cbed016fae';
-//$config['customer_wechat_payment_cert_path']    = '/data/wwwroot/fxpms_web/cert/apiclient_cert.pem';
-$config['customer_wechat_payment_cert_path']    = '';
-//$config['customer_wechat_payment_key_path']     = '/data/wwwroot/fxpms_web/cert/apiclient_key.pem';
-$config['customer_wechat_payment_key_path']     = '';
+$config['customer_wechat_payment_cert_path']    = '/data/wwwroot/fxpms_web/cert/apiclient_cert.pem';
+$config['customer_wechat_payment_key_path']     = '/data/wwwroot/fxpms_web/cert/apiclient_key.pem';
 
 //法大大电子合同接口
 $config['fadada_api_app_secret'] ='PMKQo0b3RCb911OaqmsGAFnw';

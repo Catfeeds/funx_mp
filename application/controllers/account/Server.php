@@ -105,10 +105,11 @@ class Server extends MY_Controller
                                 $id = (int)$message->EventKey;
 
 
-                                if (10 == strlen($id) && 1 == substr($id, 0, 1)) {
-                                    return $this->helpFriend($app, $message, $id);
-                                }
+//                                if (10 == strlen($id) && 1 == substr($id, 0, 1)) {
+//                                    return $this->helpFriend($app, $message, $id);
+//                                }
 
+                                log_message('error',1);
                                 return $this->checkInOrBookingEvent($message, $id);
 
                             } catch (Exception $e) {
@@ -148,7 +149,7 @@ class Server extends MY_Controller
                                     break;
 
                                 case 'EMAIL_FOR_COMPLAINT':
-                                    return new Text(['content' => '投诉/建议，请发送邮件至' . "\n" . 'chenxin@gemdalepi.com']);
+                                    return new Text(['content' => '投诉/建议，请发送邮件至' . "\n" . 'liuxiaofen1@gemdalepi.com']);
                                     break;
 
                                 case 'RECENT_ACTIVITIES':
@@ -171,8 +172,7 @@ class Server extends MY_Controller
                     switch ($msgContent) {
                         case '1':
                             return new Text([
-                                //'content' => wechat_url(),
-                                'content' => '欢迎',
+                                'content' => config_item('wechat_url'),
                             ]);
                             break;
                         case '2':
@@ -187,7 +187,7 @@ class Server extends MY_Controller
                         case 'CXDJQ':
                             return $this->inquireCoupon($message);
                             break;
-                        case '优城wifi':
+                        case 'WIFI':
                             return new Text(['content' => '点击<a href="http://wportal.tpauth.cn:8080/portal/wechat_auth/?token=48b9d3b1 ">免费上网</a>']);
                             break;
                         default:
@@ -206,6 +206,72 @@ class Server extends MY_Controller
 
 
     /**
+     * 处理粉丝在后台的回复
+     */
+    private function handleTextMessage($message, $content, $app)
+    {
+        //测试
+        return $this->defaultTextResponse();
+
+        //是否是补录合同的
+        if (Util::isMobile($content)) {
+            return $this->tipForContract($content);
+        }
+
+        $customer   = Customermodel::where('openid', $message->FromUserName)->first();
+
+        //如果数据库中无此人记录, 则回复默认的消息
+        if (!$customer) {
+            return $this->defaultTextResponse();
+        }
+
+        //查询是否有该用户的助力记录
+        $record = Helprecordmodel::where('helper_id', $customer->id)->first();
+
+        if (!$record) {
+            return $this->defaultTextResponse();
+        }
+
+        //找出记录对应的活动和活动参与者, 进行下一步的操作
+        $activity   = Activitymodel::find($record->activity_id);
+        $friend     = Customermodel::find($record->customer_id);
+
+        //活动结束, 不更新
+        if ($activity->end_time->lte(Carbon::now())) {
+            return new Text(['content' => '活动已经结束, 感谢您的参与!']);
+        }
+
+        //如果已经回复了好友姓名, 不更新
+        if (!empty($record->remark)) {
+            return $this->defaultTextResponse();
+        }
+
+        //如果用户已经领过优惠券, 不操作
+        if ($friend AND 0 < $friend->coupons()->where('activity_id', $activity->id)->count()) {
+            return $this->defaultTextResponse();
+        }
+
+        //更新助力记录
+        $record->remark     = $content;
+        $record->save();
+
+        //检查是否达标
+        $this->sendCouponAccquireMessage($friend, $activity, $app);
+
+        return new Text(['content' => '您为好友助力成功, 感谢您的参与!']);
+    }
+
+
+
+    /**
+     * 默认的文字回复
+     */
+    private function defaultTextResponse()
+    {
+        return new Text(['content' => '您的问题小草莓已收到，请稍等片刻，草莓就会回复你啦[爱心]']);
+    }
+
+    /**
      * 处理关注事件
      */
     private function subscribe()
@@ -213,7 +279,8 @@ class Server extends MY_Controller
         try {
             Customermodel::where('openid', $this->openid)->update(['subscribe' => 1]);
             if (empty($this->eventKey)) {
-                return $this->goToSweepstakes(config_item('new_customer_activity_id'));
+                return $this->defaultSubscribeTextPush();
+//                return $this->goToSweepstakes(config_item('new_customer_activity_id'));
             }
 
             return $this->scan();
@@ -224,6 +291,40 @@ class Server extends MY_Controller
         }
     }
 
+    /**
+     * 根据 media_id 获取图文素材
+     * 如果素材是图文 , 返回的是数组
+     */
+    private function getNewsById($app, $material_id)
+    {
+        $res = $app->material->get($material_id);
+
+        if (!is_array($res)) {
+            return false;
+        }
+
+        foreach ($res['news_item'] as $news) {
+            $message[] = new News([
+                'title' => $news['title'],
+                'url'   => $news['url'],
+                'image' => $news['thumb_url'],
+            ]);
+        }
+
+        return $message;
+    }
+
+    /**
+     * 默认关注的信息推送
+     */
+    private function defaultSubscribeTextPush()
+    {
+        //$siteUrl    = site_url('/');
+
+        return new Text([
+            'content' => "Halo 、你好、萨瓦迪卡！\n我是莓子酱，感谢关注青年公寓品牌【金地草莓社区】\n\n【请回复数字编号，方便进入相关信息查询】\n1.我要租房\n2.草莓故事\n3.草莓作品\n4.近期活动\n\n如果以上没能解决您的问题，没关系，您的问题已反馈到微信后台，用不了多久小编就会回复你啦（比心）"
+        ]);
+    }
 
     /**
      * 处理取关事件
@@ -257,15 +358,96 @@ class Server extends MY_Controller
     /**
      * 生成菜单
      */
-    public function menu(){
-        exit('Hello-Baby');
+//    public function menu(){
+////        exit('Hello-Baby');
+//
+//        $this->load->helper('wechat');
+//        $app    = new Application(getCustomerWechatConfig());
+//        //echo $app->getToken();exit;
+//        $menu   = $app->menu;
+////        var_dump($menu->current());exit;
+//
+//        $url_resident_guide = 'https://mp.weixin.qq.com/s?__biz=MzI3MTMwODIyNw==&mid=2247484131&idx=2&sn=aed494e10935d13e9af15a73060df69e&chksm=eac2864fddb50f593a5787021f64f4dd668f2fb745d876d7698e835460e177478bbd88c2f444#rd';
+//
+//        $url_strawberry_market = 'https://mp.weixin.qq.com/s?__biz=MzI3MTMwODIyNw==&mid=2247484131&idx=1&sn=bd1eb5a51e848aded59d588abcb3d315&chksm=eac2864fddb50f59ab1d6140f7bbf678918e47d836e25607c7e9f247df24961bc369f22dc599#rd';
+//
+//        $buttons = [
+//            [
+//                'name'       => '关于草莓',
+//                'sub_button' => [
+//                    [
+//                        'name' => '草莓作品',
+//                        'type' => 'click',
+//                        'key'  => 'STRAWBERRY_WORKS',
+//                    ],
+//                    [
+//                        'name' => '草莓故事',
+//                        'type' => 'click',
+//                        'key'  => 'STRAWBERRY_STORIES',
+//                    ],
+//                    /*[
+//                        'name' => '草莓公约',
+//                        'type' => 'view',
+//                        'url'  => $url_resident_guide,
+//                    ],*/
+//                    [
+//                        'name' => '合作联系',
+//                        'type' => 'click',
+//                        'key'  => 'COOPERATE_AND_CONTACT',
+//                    ],
+//                    [
+//                        'name' => '投诉信箱',
+//                        'type' => 'click',
+//                        'key'  => 'EMAIL_FOR_COMPLAINT',
+//                    ],
+//                ],
+//            ],
+////            [
+////                'name'       => '预约看房',
+////                'sub_button' => [
+////                    [
+////                        'name' => '找房源',
+////                        'type' => 'view',
+////                        'url'  => wechat_url(),
+////                    ],
+////                    [
+////                        'name' => '近期活动',
+////                        'type' => 'click',
+////                        'key'  => 'RECENT_ACTIVITIES',
+////                    ],
+////                ],
+////            ],
+////            [
+////                'name'       => '我是草莓',
+////                'sub_button' => [
+////                    [
+////                        'name' => '个人中心',
+////                        'type' => 'view',
+////                        'url'  => wechat_url('center'),
+////                    ],
+////                    [
+////                        'name' => '生活服务',
+////                        'type' => 'view',
+////                        'url'  => wechat_url('service'),
+////                    ],
+////                    [
+////                        'name' => '金地商城',
+////                        'type' => 'view',
+////                        'url'  => wechat_url('shop'),
+////                    ],
+////                ],
+////            ],
+//        ];
+//
+//        var_dump($menu->add($buttons));
+//
+//    }
 
-        $this->load->helper('wechat');
+    public function menu()
+    {
         $app    = new Application(getCustomerWechatConfig());
-        //echo $app->getToken();exit;
         $menu   = $app->menu;
-        var_dump($menu->current());exit;
-
+        // 草莓公约
         $url_resident_guide = 'https://mp.weixin.qq.com/s?__biz=MzI3MTMwODIyNw==&mid=2247484131&idx=2&sn=aed494e10935d13e9af15a73060df69e&chksm=eac2864fddb50f593a5787021f64f4dd668f2fb745d876d7698e835460e177478bbd88c2f444#rd';
 
         $url_strawberry_market = 'https://mp.weixin.qq.com/s?__biz=MzI3MTMwODIyNw==&mid=2247484131&idx=1&sn=bd1eb5a51e848aded59d588abcb3d315&chksm=eac2864fddb50f59ab1d6140f7bbf678918e47d836e25607c7e9f247df24961bc369f22dc599#rd';
@@ -284,15 +466,57 @@ class Server extends MY_Controller
                         'type' => 'click',
                         'key'  => 'STRAWBERRY_STORIES',
                     ],
-                    /*[
-                        'name' => '草莓公约',
+                    [
+                        'name' => '草莓活动',
+                        'type' => 'click',
+                        'key'  => 'RECENT_ACTIVITIES',
+                    ],
+                    [
+                        'name' => '草莓品味',
+                        'type' => 'click',
+                        'key'  => 'STRAWBERRY_SAVOUR',
+                    ],
+                ],
+            ],
+            [
+                'name'       => '预约看房',
+                'sub_button' => [
+                    [
+                        'name' => '找房源',
                         'type' => 'view',
-                        'url'  => $url_resident_guide,
-                    ],*/
+                        'url'  => config_item('wechat_url'),
+                    ],
+                    [
+                        'name' => '礼品登记',
+                        'type' => 'view',
+                        'url'  => 'http://cn.mikecrm.com/nrX0JyY',
+                    ],
                     [
                         'name' => '合作联系',
                         'type' => 'click',
                         'key'  => 'COOPERATE_AND_CONTACT',
+                    ],
+                ],
+            ],
+            [
+                'name'       => '我是草莓',
+                'sub_button' => [
+                    [
+                        'name' => '个人中心',
+                        'type' => 'view',
+                        'url'  => config_item('wechat_url').'#/userIndex',
+                    ],
+                    [
+                        'name' => '生活服务',
+                        'type' => 'view',
+//                        'url'  => wechat_url('service'),
+                        'url'  => config_item('wechat_url').'#/service',
+                    ],
+                    [
+                        'name' => '金地商城',
+                        'type' => 'view',
+//                        'url'  => config_item('wechat_url').'shopping',
+                        'url'  => config_item('wechat_url').'#/shopping',
                     ],
                     [
                         'name' => '投诉信箱',
@@ -301,46 +525,16 @@ class Server extends MY_Controller
                     ],
                 ],
             ],
-//            [
-//                'name'       => '预约看房',
-//                'sub_button' => [
-//                    [
-//                        'name' => '找房源',
-//                        'type' => 'view',
-//                        'url'  => wechat_url(),
-//                    ],
-//                    [
-//                        'name' => '近期活动',
-//                        'type' => 'click',
-//                        'key'  => 'RECENT_ACTIVITIES',
-//                    ],
-//                ],
-//            ],
-//            [
-//                'name'       => '我是草莓',
-//                'sub_button' => [
-//                    [
-//                        'name' => '个人中心',
-//                        'type' => 'view',
-//                        'url'  => wechat_url('center'),
-//                    ],
-//                    [
-//                        'name' => '生活服务',
-//                        'type' => 'view',
-//                        'url'  => wechat_url('service'),
-//                    ],
-//                    [
-//                        'name' => '金地商城',
-//                        'type' => 'view',
-//                        'url'  => wechat_url('shop'),
-//                    ],
-//                ],
-//            ],
+
         ];
-
+        log_message('error',config_item('wechat_url').'service');
         var_dump($menu->add($buttons));
-
     }
+
+
+
+
+
 
     private function checkInOrBookingEvent($message, $eventKey)
     //public function checkInOrBookingEvent($message='', $eventKey='')
@@ -357,33 +551,39 @@ class Server extends MY_Controller
         //$eventKey=182;
         $resident   = Residentmodel::findOrFail($eventKey);
 
-        if (0 == $resident->uxid) {
+//        if (0 == $resident->uxid ) {
             try{
                 DB::beginTransaction();
-                $customer   = Customermodel::where('openid', $message->FromUserName)->first();
-                //$customer   = Customermodel::where('openid', 1)->first();
+                if (0 == $resident->uxid ) {
+                    $customer = Customermodel::where('openid', $message->FromUserName)->first();
+                    //$customer   = Customermodel::where('openid', 1)->first();
 
-                if (empty($customer)) {
-                    $customer           = new Customermodel();
-                    $customer->openid   = $message->FromUserName;
-                    //$customer->openid   =1;
+                    if (empty($customer)) {
+                        $customer = new Customermodel();
+                        $customer->openid = $message->FromUserName;
+                        $customer->company_id = 1;
+                        //$customer->openid   =1;
 //                    $customer->uxid         = Customermodel::max('uxid')+1;
-                    $customer->uxid         = $customer->id;
-                    $customer->save();
-                }
+                        $customer->uxid = $customer->max('id') + 1;
+                        $customer->save();
+                    }
 
-                $resident->customer_id  = $customer->id;
-                $resident->uxid  = $customer->uxid;
-                $resident->save();
-                $resident->orders()->where('uxid', 0)->update(['customer_id' => $customer->id,'uxid'=>$customer->uxid]);
+                    $resident->customer_id = $customer->id;
+                    $resident->uxid = $customer->uxid;
+                    $resident->save();
+                    $resident->orders()->where('uxid', 0)->update(['customer_id' => $customer->id, 'uxid' => $customer->uxid]);
+                }
                 DB::commit();
             }catch (Exception $e){
                 log_message('error',$e->getMessage());
                 DB::rollBack();
                 throw  $e;
             }
-        }
 
+//        }else{
+//
+//            return new Text(['content' => '该入住信息已经被确认']);
+//        }
         //根据住户状态分别进行处理
         //扫码的来源: 1,办理入住; 2,预订房间的支付
         //如果是办理入住,将用户带到合同信息确认的页面
@@ -395,10 +595,10 @@ class Server extends MY_Controller
         //有未支付的预订订单, 则应该去支付
         if (0 < $bookingOrdersCnt) {
 //            $url    = $loginUrl.site_url(['order', 'status']);
-            $url    = 'http://tweb.funxdata.com/#/myBill';
+            $url    = config_item('my_bill_url');
         } else {
 //            $url    = $loginUrl.site_url(['contract', 'preview', $resident->id]);
-            $url    = 'tweb.funxdata.com/#/generates?resident_id='.$resident->id;
+            $url    = config_item('wechat_url').'#/generates?resident_id='.$resident->id;
         }
         return new News(array(
             'title'         => $resident->roomunion->store->name,
@@ -407,7 +607,6 @@ class Server extends MY_Controller
             'image'         => $this->fullAliossUrl(json_decode($resident->roomunion->roomtype->images,true),true),
         ));
     }
-
 
 
 }

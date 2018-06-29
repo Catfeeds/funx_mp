@@ -37,7 +37,7 @@ class Residentmodel extends Basemodel{
     const RENTTYPE_LONG     = 'LONG';
 
 
-    protected $table   = 'web_resident';
+    protected $table   = 'boss_resident';
 
 
     protected $fillable    = [

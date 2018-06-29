@@ -13,9 +13,6 @@ class Store extends MY_Controller
     {
         parent::__construct();
         $this->load->model('storemodel');
-        if(!defined('COMPANY_ID')){
-            define('COMPANY_ID',4);
-        }
     }
 
     /**
@@ -56,13 +53,18 @@ class Store extends MY_Controller
      */
     public function listStore()
     {
-        $field  = ['id','name','province','city','district','theme',];
+        $field  = ['id','name','province','city','district','theme','images'];
         $post   = $this->input->post(null,true);
         $name   = isset($post['name'])?trim(strip_tags($post['name'])):'';
         $where  = [];
         isset($post['city'])?$where['city']=trim(strip_tags($post['city'])):null;
-        $store  = Storemodel::where('name','like',"%$name%")->where($where)->get($field);
-        $this->api_res(0,['list'=>$store]);
+        $stores  = Storemodel::where('name','like',"%$name%")->where($where)->get($field)
+        ->map(function($store){
+            $store->images  = $this->fullAliossUrl(json_decode($store->images,true),true);
+//            $store->images  = $this->fullAliossUrl((json_decode($store->images,true)),true);
+            return $store;
+        });
+        $this->api_res(0,['list'=>$stores]);
     }
 
     /**
@@ -75,9 +77,6 @@ class Store extends MY_Controller
         $post   = $this->input->post(null,true);
         $store_id   = intval($post['store_id']);
         $store  = Storemodel::select($field)->find($store_id);
-        /*$rent_type  = $store->rent_type;
-        if($rent_type=='UNION'){
-        }*/
         if(!$store)
         {
             $this->api_res(1007);
@@ -88,7 +87,9 @@ class Store extends MY_Controller
         $min_price  = $store->roomunion()->min('rent_price');
         $max_price  = $store->roomunion()->max('rent_price');
         $room_types = $store->roomtype()->get(['id','name','feature','images',])->map(function($room_type){
-            $room_type->images  = $this->fullAliossUrl(json_decode($room_type->images),true);
+            $room_type->images  = $this->fullAliossUrl(json_decode($room_type->images,true),true);
+            $room_type->min_price   = $room_type->roomunion()->min('rent_price');
+            $room_type->max_price   = $room_type->roomunion()->max('rent_price');
             return $room_type;
         });
         $this->api_res(0,['store'=>$store,'price'=>compact('min_price','max_price'),'room_types'=>$room_types]);
@@ -103,7 +104,7 @@ class Store extends MY_Controller
         $post = $this->input->post(null, true);
 
         $order = new Reserveordermodel();
-        $order->customer_id  = 7;
+        $order->customer_id  = $this->user->id;
         $order->store_id     = trim($post['store_id']);
         $order->room_type_id = trim($post['room_type_id']);
         $order->name         = trim($post['name']);

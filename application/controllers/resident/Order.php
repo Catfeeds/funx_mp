@@ -29,13 +29,25 @@ class Order extends MY_Controller
         $resident   = Residentmodel::with(['roomunion','orders'=>function($query){
             $query->where('status',Ordermodel::STATE_PENDING);
         }])->where('customer_id',$this->user->id);
+//        }])->where('customer_id',9861);
+//        log_message('error','UNPAID-->'.$this->user->id);
+//        echo $this->user->id;
+
+//        var_dump($resident->get()->toArray());exit;
+
+//        }])->where('customer_id',9604);
         $orders  = $resident->get()->map(function($query){
             $query->count  = count($query->orders);
             $query->amount = $query->orders->sum('money');
             return $query;
         })->where('amount','>',0);
 
-        $this->api_res(0,['residents'=>$orders]);
+        $arr=[];
+        foreach ($orders as $order){
+            $arr[]=$order;
+        }
+
+        $this->api_res(0,['residents'=>$arr]);
 
     }
 
@@ -50,13 +62,20 @@ class Order extends MY_Controller
         $this->load->model('roomunionmodel');
 
         $resident   = Residentmodel::with(['roomunion','orders'=>function($query){
-            $query->whereIn('status',[Ordermodel::STATE_CONFIRM,Ordermodel::PAYTYPE_COMPENSATION]);
+            $query->whereIn('status',[Ordermodel::STATE_CONFIRM,Ordermodel::STATE_COMPLETED]);
         }])->where('customer_id',$this->user->id);
+        log_message('error','PAID-->'.$this->user->id);
+//        }])->where('customer_id',5373);
         $orders  = $resident->get()->map(function($query){
             $query->count  = count($query->orders);
             $query->amount = $query->orders->sum('money');
             return $query;
         })->where('amount','>',0);
+
+        $arr=[];
+        foreach ($orders as $order){
+            $arr[]=$order;
+        }
 
         $this->api_res(0,['residents'=>$orders]);
 
@@ -176,11 +195,19 @@ class Order extends MY_Controller
 
         $resident_id    = $this->input->post('resident_id',true);
 
+        log_message('debug','test_resident'.$resident_id);
+
         $resident   = Residentmodel::with(['roomunion','orders'=>function($query){
             $query->where('status',Ordermodel::STATE_PENDING)/*->orderBy('year','ASC')->orderBy('month','ASC')*/;
         }])
             ->where('customer_id',$this->user->id)
-            ->findOrFail($resident_id);
+            ->find($resident_id);
+//            ->find(2745);
+
+        if(!$resident){
+            $this->api_res(1007);
+            return;
+        }
 
         $room   = $resident->roomunion;
         $orders   = $resident->orders;
@@ -200,15 +227,17 @@ class Order extends MY_Controller
         $list   = $orders->groupBy('type')->map(function ($items, $type) {
             return [
                 'name'   => Ordermodel::getTypeName($type),
-                'amount' => number_format($items->sum('paid'), 2),
+                'amount' => number_format($items->sum('paid'), 2)
             ];
         });
+
+        $store  = $room->store;
 
         $totalMoney = number_format($orders->sum('money'), 2);
 
         $coupons    = $this->getCouponsAvailable($resident, $orders);
 
-        $this->api_res(0,['orders'=>$orders,'list'=>$list,'coupons'=>$coupons,'resident'=>$resident,'room'=>$room,'totalMoeny'=>$totalMoney]);
+        $this->api_res(0,['orders'=>$orders,'list'=>$list,'store'=>$store,'coupons'=>$coupons,'resident'=>$resident,'room'=>$room,'totalMoeny'=>$totalMoney]);
 
     }
 
@@ -217,10 +246,12 @@ class Order extends MY_Controller
      */
     private function getCouponsAvailable($resident, $orderCollection)
     {
+
         $orders = $orderCollection->groupBy('type');
+
         //优惠券的使用目前仅限于房租和代金券
         if (!isset($orders[Ordermodel::PAYTYPE_ROOM]) && !isset($orders[Ordermodel::PAYTYPE_MANAGEMENT])) {
-            return false;
+            return null;
         }
 
         //月付用户首次支付不能使用优惠券
@@ -231,8 +262,10 @@ class Order extends MY_Controller
             }
         }
 
+        //之前是查找住户的优惠券，这里改为查找用户customer下的优惠券
         $couopnCollection   = $resident->coupons()->where('status', Couponmodel::STATUS_UNUSED)->get();
-        $usageList          = $couopnCollection->groupBy('coupon_type.limit');
+//        $couopnCollection   = $this->user->coupons()->where('status', Couponmodel::STATUS_UNUSED)->get();
+        $usageList          = $couopnCollection->groupBy('coupontype.limit');
 
         //找出房租可用的代金券
         $forRent    = $this
@@ -268,7 +301,7 @@ class Order extends MY_Controller
             }
         }
 
-        return $coupons;
+        return isset($coupons)?$coupons:null;
     }
 
     /**
@@ -289,18 +322,17 @@ class Order extends MY_Controller
         })->take($couponNumber);
 
         foreach ($list as $coupon) {
-            $couponType = $coupon->coupon_type;
+            $couponType = $coupon->coupontype;
             $coupons[] = [
                 'id'        => $coupon->id,
                 'type'      => $couponType->type,
                 'usage'     => $typeName,
                 'name'      => $couponType->name,
-                'deadline'  => $coupon->deadline->toDateString(),
+                'deadline'  => Carbon::parse($coupon->deadline)->toDateString(),
                 'value'     => $couponType->discount,
                 'discount'  => $this->calcDiscount($price, $coupon, $couponType),
             ];
         }
-
         return $coupons;
     }
 
@@ -310,7 +342,7 @@ class Order extends MY_Controller
      */
     private function calcDiscount($price, $coupon, $couponType)
     {
-        $couponType = $coupon->coupon_type;
+        $couponType = $coupon->coupontype;
 
         switch ($couponType->type) {
             case Coupontypemodel::TYPE_CASH:
