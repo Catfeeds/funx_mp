@@ -57,8 +57,11 @@ class Goods extends MY_Controller
     public function goodsSta()
     {
         $this->load->model('goodsordermodel');
+
+
         $uxid = CURRENT_ID;
         $field = ['number','goods_money','created_at','status'];
+
         if(isset($uxid)){
             $goods = Goodsordermodel::where('uxid',$uxid)->whereIn(
                 'status',[
@@ -83,8 +86,10 @@ class Goods extends MY_Controller
 //        $this->load->model('goodsordermodel');
 //        $this->load->model('goodscartmodel');
 //        $this->load->model('goodsaddressmodel');
+//        $this->load->model('goodsordergoodsmodel');
+//
 //        $post = $this->input->post(null, true);
-//        $number = trim($post['number']);
+//        $number = trim($post['order_id']);
 //        $cart_id = $post['cart_id'];
 //        $field = ['id','uxid','number','address_id','goods_money','goods_quantity'];
 //        $order = Goodsordermodel::with('address1')->where('uxid',7)->where('number',$number)->get($field);
@@ -101,5 +106,40 @@ class Goods extends MY_Controller
 //        }
 //        $this->api_res(0, ['goods'=>$goodscarts,'info'=>$order]);
 //    }
+
+    /**
+     * 个人中心 商城订单 点击查看订单
+     */
+    public function numorder()
+    {
+        $this->load->model('goodsordermodel');
+        $this->load->model('goodscartmodel');
+        $this->load->model('goodsaddressmodel');
+        $this->load->model('goodsordergoodsmodel');
+
+        $post = $this->input->post(null, true);
+        $order_id = trim($post['order_id']);
+        $order = Goodsordermodel::with('goods')->where('id',$order_id)->get()->map(function ($cart) {
+           $cart1 = $cart->goods;
+            return $cart1;
+        })->toArray();
+        foreach($order as $key=>$value){
+            $goods = $order[$key][0]['goods_id'];
+        }
+        //$field1 = ['id','name','shop_price','description','goods_thumb','quantity'];
+        //$infogoods = Goodsmodel::where('id',$goods)->get($field)->toArray();
+        $id        = isset($goods)?explode(',',$goods):NULL;
+        $infogoods = Goodsmodel::find($id)->map(function ($shop){
+            return $shop;
+        })->toArray();
+        foreach ($infogoods as $key => $value){
+            $infogoods[$key]['goods_thumb'] = $this->fullAliossUrl($infogoods[$key]['goods_thumb']);
+        }
+       //var_dump($infogoods);die();
+        $field = ['id','uxid','number','address_id','goods_money','goods_quantity'];
+        $order = Goodsordermodel::with('address1')->where('uxid',7)->where('id',$order_id)->get($field);
+
+        $this->api_res(0, ['order&address'=>$order,'goodsinfo'=>$infogoods]);
+    }
 
 }
