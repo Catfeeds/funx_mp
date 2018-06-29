@@ -484,7 +484,7 @@ class Server extends MY_Controller
                     [
                         'name' => '找房源',
                         'type' => 'view',
-                        'url'  => config_item('wechat_url'),
+                        'url'  => config_item('wechat_url').'#/index',
                     ],
                     [
                         'name' => '礼品登记',
