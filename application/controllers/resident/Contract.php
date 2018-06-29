@@ -122,7 +122,6 @@ class Contract extends MY_Controller
     public  function confirm(){
 
         $input  = $this->input->post(null,true);
-        log_message('error',json_encode($input));
         $resident_id    = intval(strip_tags($input['resident_id']));
         $phone          = trim(strip_tags($input['phone']));
 //        $code           = trim(strip_tags($input['code']));
@@ -169,9 +168,8 @@ class Contract extends MY_Controller
         $this->load->model('roomtypemodel');
         //默认跳转的页面 账单列表
         $targetUrl  = '';
-
-        if(Storemodel::C_TYPE_NORMAL==$contract_type){
-            if(empty($contract)){
+        if(Storemodel::C_TYPE_NORMAL==$contract_type||$resident->card_type!=0){
+            if($resident->status!='NORMAL'){
                 //生成纸质版合同
                 $contract   = $this->contractPaper($resident);
 
@@ -324,8 +322,7 @@ class Contract extends MY_Controller
      */
     private function getCustomerCA($data)
     {
-        $res = $this->fadada->getCustomerCA($data['name'], $data['phone'], $data['cardNumber'], $data['cardType']);
-
+        $res = $this->fadada->getCustomerCA($data['name'], $data['phone'], $data['cardNumber'], $data[' cardType']);
         if ($res == false) {
             throw new Exception($this->fadada->showError());
         }

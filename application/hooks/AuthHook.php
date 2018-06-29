@@ -54,11 +54,11 @@ class AuthHook {
             'common/imageupload',
             'common/fileupload',
 
-            'store/store/showcity',
+           /* 'store/store/showcity',
             'store/store/showstore',
-            'store/store/liststore',
-            'store/store/get',
-            'store/roomtype/get',
+            'store/store/liststore',*/
+//            'store/store/get',
+//            'store/roomtype/get',
 //            'store/store/appoint',
 
 //            'service/servicetype/servicetype',
@@ -137,12 +137,9 @@ class AuthHook {
                 $d_company_id   = $decoded->company_id;
                 define('CURRENT_ID',$d_uxid);
                 define('COMPANY_ID',$d_company_id);
-
                 $this->CI->load->model('customermodel');
                 log_message('error','current_id='.CURRENT_ID);
                 $this->CI->user = Customermodel::where('uxid',CURRENT_ID)->first();
-
-
             } catch (Exception $e) {
                 header("Content-Type:application/json;charset=UTF-8");
                 echo json_encode(array('rescode' => 1001, 'resmsg' => 'token无效', 'data' => []));

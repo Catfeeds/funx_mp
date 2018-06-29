@@ -13,9 +13,6 @@ class Store extends MY_Controller
     {
         parent::__construct();
         $this->load->model('storemodel');
-        if(!defined('COMPANY_ID')){
-            define('COMPANY_ID',4);
-        }
     }
 
     /**
