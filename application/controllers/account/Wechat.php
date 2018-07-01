@@ -22,8 +22,7 @@ class Wechat extends MY_Controller
 
     public function login()
     {
-        $this->api_res(0,['success'=>1]);
-        return;
+        log_message('error','调用登陆');
 
         $post   = $this->input->post(null,true);
 
