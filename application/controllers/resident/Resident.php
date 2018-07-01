@@ -30,11 +30,19 @@ class Resident extends MY_Controller
             return;
         }
 
+
         if(!empty($input['type'])&&$input['type']='sign_contract'&&$resident->card_type!==0){
 
             header('Location:'.config_item('my_bill_url'));
             return;
         }
+
+//        if($input['type']='sign_contract'&&$resident->card_type!==0){
+//
+//            header('Location:'.config_item('my_bill_url'));
+//            return;
+//        }
+
 
         //判断是否有合同
         if(isset($input['has_contract'])){
