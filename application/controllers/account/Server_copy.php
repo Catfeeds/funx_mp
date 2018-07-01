@@ -109,6 +109,7 @@ class Server extends MY_Controller
 //                                    return $this->helpFriend($app, $message, $id);
 //                                }
 
+                                log_message('error',1);
                                 return $this->checkInOrBookingEvent($message, $id);
 
                             } catch (Exception $e) {
@@ -536,14 +537,14 @@ class Server extends MY_Controller
 
 
     private function checkInOrBookingEvent($message, $eventKey)
-    //public function checkInOrBookingEvent($message='', $eventKey='')
+        //public function checkInOrBookingEvent($message='', $eventKey='')
     {
         //$loginUrl = site_url('login?target_url=');
 
         //办理入住以及预订房间时的场景值
-        $this->load->model('residentmodel');  
-        $this->load->model('ordermodel');  
-        $this->load->model('roomunionmodel');  
+        $this->load->model('residentmodel');
+        $this->load->model('ordermodel');
+        $this->load->model('roomunionmodel');
         $this->load->model('roomtypemodel');
         $this->load->model('storemodel');
 
@@ -551,33 +552,33 @@ class Server extends MY_Controller
         $resident   = Residentmodel::findOrFail($eventKey);
 
 //        if (0 == $resident->uxid ) {
-            try{
-                DB::beginTransaction();
-                if (0 == $resident->uxid ) {
-                    $customer = Customermodel::where('openid', $message->FromUserName)->first();
-                    //$customer   = Customermodel::where('openid', 1)->first();
+        try{
+            DB::beginTransaction();
+            if (0 == $resident->uxid ) {
+                $customer = Customermodel::where('openid', $message->FromUserName)->first();
+                //$customer   = Customermodel::where('openid', 1)->first();
 
-                    if (empty($customer)) {
-                        $customer = new Customermodel();
-                        $customer->openid = $message->FromUserName;
-                        $customer->company_id = 1;
-                        //$customer->openid   =1;
+                if (empty($customer)) {
+                    $customer = new Customermodel();
+                    $customer->openid = $message->FromUserName;
+                    $customer->company_id = 1;
+                    //$customer->openid   =1;
 //                    $customer->uxid         = Customermodel::max('uxid')+1;
-                        $customer->uxid = $customer->max('id') + 1;
-                        $customer->save();
-                    }
-
-                    $resident->customer_id = $customer->id;
-                    $resident->uxid = $customer->uxid;
-                    $resident->save();
-                    $resident->orders()->where('uxid', 0)->update(['customer_id' => $customer->id, 'uxid' => $customer->uxid]);
+                    $customer->uxid = $customer->max('id') + 1;
+                    $customer->save();
                 }
-                DB::commit();
-            }catch (Exception $e){
-                log_message('error',$e->getMessage());
-                DB::rollBack();
-                throw  $e;
+
+                $resident->customer_id = $customer->id;
+                $resident->uxid = $customer->uxid;
+                $resident->save();
+                $resident->orders()->where('uxid', 0)->update(['customer_id' => $customer->id, 'uxid' => $customer->uxid]);
             }
+            DB::commit();
+        }catch (Exception $e){
+            log_message('error',$e->getMessage());
+            DB::rollBack();
+            throw  $e;
+        }
 
 //        }else{
 //
