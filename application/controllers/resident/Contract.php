@@ -487,7 +487,7 @@ class Contract extends MY_Controller
        // $data   = $this->uploadContractPaper($resident);
 
 
-        $data   = $this->test();
+        $data   = $this->test($resident);
 
         //1,生成合同
         $contract   = new Contractmodel();
