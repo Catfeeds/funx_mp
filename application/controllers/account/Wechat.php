@@ -22,6 +22,7 @@ class Wechat extends MY_Controller
 
     public function login()
     {
+        echo 1;exit;
         $post   = $this->input->post(null,true);
 
         //先传一个定值1
