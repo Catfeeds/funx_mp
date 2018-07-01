@@ -54,11 +54,11 @@ class Resident extends MY_Controller
             }
         }
         //验证住户的uxid是不是当前ID
-        if(!$this->checkUser($resident->uxid))
-        {
-            $this->api_res(10022);
-            return;
-        }
+//        if(!$this->checkUser($resident->uxid))
+//        {
+//            $this->api_res(10022);
+//            return;
+//        }
         $this->load->model('roomunionmodel');
         $this->load->model('activitymodel');
         $this->load->model('coupontypemodel');
