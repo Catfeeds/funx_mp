@@ -19,7 +19,7 @@ $config['time_zone']    = date_default_timezone_get();
 */
 
 $config['base_url'] = 'http://tapi.web.funxdata.com/';
-$config['wechat_url'] = 'http://web.funxdata.com/';
+$config['wechat_url'] = 'http://tweb.funxdata.com/';
 $config['fdd_notify_url'] = 'http://tapi.boss.funxdata.com/mini/contract/notify';
 $config['my_bill_url'] = 'http://tweb.funxdata.com/#/myBill';
 
