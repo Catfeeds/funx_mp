@@ -168,7 +168,8 @@ class Contract extends MY_Controller
         $this->load->model('roomtypemodel');
         //默认跳转的页面 账单列表
         $targetUrl  = '';
-        if(Storemodel::C_TYPE_NORMAL==$contract_type||$resident->card_type!=0){
+//        if(Storemodel::C_TYPE_NORMAL==$contract_type||$resident->card_type!=0){
+        if(Storemodel::C_TYPE_NORMAL==$contract_type){
             if($resident->status!='NORMAL'){
                 //生成纸质版合同
                 $contract   = $this->contractPaper($resident);
