@@ -29,7 +29,8 @@ class Resident extends MY_Controller
             $this->api_res(1007);
             return;
         }
-        if($input['type']='sign_contract'&&$resident->card_type!==0){
+
+        if(!empty($input['type'])&&$input['type']='sign_contract'&&$resident->card_type!==0){
 
             header('Location:'.config_item('my_bill_url'));
             return;
@@ -38,14 +39,18 @@ class Resident extends MY_Controller
         //判断是否有合同
         if(isset($input['has_contract'])){
 
-            $contract   = $resident->contract();
+            $contract   = $resident->contract()->where('status','!=',Contractmodel::STATUS_GENERATED);
             if($contract->exists()){
                 $this->api_res(10016);
                 return;
             }
         }
         //验证住户的uxid是不是当前ID
-//        $this->checkUser($resident->uxid);
+        if(!$this->checkUser($resident->uxid))
+        {
+            $this->api_res(10022);
+            return;
+        }
         $this->load->model('roomunionmodel');
         $this->load->model('activitymodel');
         $this->load->model('coupontypemodel');

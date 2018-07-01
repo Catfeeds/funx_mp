@@ -151,7 +151,7 @@ class Contract extends MY_Controller
         }
 //      判断住户合同是否已经归档，有已经归档的合同 就结束
         $this->load->model('contractmodel');
-        $has_contract = $resident->contract()->where('status', Contractmodel::STATUS_ARCHIVED);
+        $has_contract = $resident->contract()->whereIn('status', [Contractmodel::STATUS_ARCHIVED,Contractmodel::STATUS_SIGNING]);
 //        $has_contract = $resident->contract();
         if ($has_contract->exists()) {
             $this->api_res(10015);
@@ -304,15 +304,16 @@ class Contract extends MY_Controller
 
     }
 
-    private function test()
+    private function test($resident)
     {
         return array(
-            'type' => 'NORMAL',
-            'contract_id' => 'JINDI'.date("YmdHis").mt_rand(10,60),
-            'doc_title' => "title",
-            'download_url' => 'url_download',
-            'view_url' => 'url_view',
-            'status' => Contractmodel::STATUS_ARCHIVED,
+            'type'          => 'NORMAL',
+            'contract_id'   => 'JINDI'.date("YmdHis").mt_rand(10,60),
+            'doc_title' =>  $resident->store->abbreviation . '-' . $resident->begin_time->year .'-' . $resident->name . '-' . $resident->room_id,
+//            'doc_title'     =>  'title',
+            'download_url'  => 'url_download',
+            'view_url'      => 'url_view',
+            'status'        => Contractmodel::STATUS_ARCHIVED,
             //'customer_id' => null,
         );
     }

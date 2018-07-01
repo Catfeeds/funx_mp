@@ -160,8 +160,8 @@ class MY_Controller extends CI_Controller {
      */
     public function checkUser($uxid){
         if($uxid!=CURRENT_ID){
-            //return FALSE;
-            throw new Exception('核对当前操作用户异常');
+            return FALSE;
+//            throw new Exception('核对当前操作用户异常');
         }else{
             return true;
         }
