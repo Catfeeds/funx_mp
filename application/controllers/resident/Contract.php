@@ -323,7 +323,7 @@ class Contract extends MY_Controller
      */
     private function getCustomerCA($data)
     {
-        $res = $this->fadada->getCustomerCA($data['name'], $data['phone'], $data['cardNumber'], $data[' cardType']);
+        $res = $this->fadada->getCustomerCA($data['name'], $data['phone'], $data['cardNumber'], $data['cardType']);
         if ($res == false) {
             throw new Exception($this->fadada->showError());
         }
