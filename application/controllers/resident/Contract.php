@@ -670,6 +670,7 @@ class Contract extends MY_Controller
 
         $data['name']=$resident->name;
         $data['phone']=$resident->phone;
+//        $data['phone']=18710714444;
         $data['cardNumber']=$resident->card_number;
         $data['cardType']=$resident->card_type;
 
@@ -684,6 +685,8 @@ class Contract extends MY_Controller
             $parameters,
             12
         );
+
+        var_dump($res2);exit;
 
         $data['type']          = Contractmodel::TYPE_FDD;
         $data['customer_id']      = $CustomerCA;
