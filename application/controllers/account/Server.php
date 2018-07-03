@@ -290,7 +290,6 @@ class Server extends MY_Controller
             return $this->scan();
 
         } catch (Exception $e) {
-            log_message('error', $e->getMessage());
             return new Text(['content' => '没有找到该记录!']);
         }
     }
@@ -532,13 +531,13 @@ class Server extends MY_Controller
 
     /*发送优惠券*/
 
-    private function sendCoupon($openid){
+    private function sendCoupon(){
 
         $this->load->model('couponmodel');
         $this->load->model('coupontypemodel');
 
         //判断用户是否发送过对应的优惠券
-        $customer = Customermodel::where('openid',$openid)->first();
+        $customer = Customermodel::where('openid',$this->openid)->first();
         if(isset($customer)||!empty($customer)){
             $data = ['customer'=>$customer->id,
                 'coupon_type_id'=>39
