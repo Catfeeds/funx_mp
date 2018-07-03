@@ -554,9 +554,18 @@ class Server extends MY_Controller
             ];
             Couponmodel::where('customer',$customer->id)->insert($update_coupon);
             //发送二维码
+            Send_TextPush();
         }
 
 
+    }
+    private function Send_TextPush()
+    {
+        //$siteUrl    = site_url('/');
+
+        return new Text([
+            'content' => "一百元代金券"
+        ]);
     }
 
 
