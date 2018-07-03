@@ -531,26 +531,28 @@ class Server extends MY_Controller
     /*发送优惠券*/
 
     private function send_coupon($openid){
+        $this->load->model('customermodel');
+        $this->load->model('Couponmodel');
+        $this->load->model('Coupontypemodel');
+
         //判断用户是否发送过对应的优惠券
         $customer = Customermodel::where('openid',$openid)->first();
         $data = ['customer'=>$customer->id,
             'coupon_type_id'=>39
         ];
 
-        //判断这个用户是否有优惠券
-        $sum =  Coupon::where($data)->count();
+        //判断这个用户是否有优惠券gir
+        $sum =  Couponmodel::where($data)->count();
         if($sum==0){
             //发送优惠券
             $coupon = Coupontypemodel::where('id',39)->first();
-            $resident = Residentmodel::where('customer_id',$customer->id)->first();
             $update_coupon = ['customer_id'=>$customer->id,
                 'coupon_type_id' => 39,
                 'status' => 'unused',
                 'create_at'=>time(),
-                'deadline' => $coupon->deadline,
-                'resident_id' =>$resident->id
+                'deadline' => $coupon->deadline
             ];
-            Coupon::where('customer',$customer->id)->insert($update_coupon);
+            Couponmodel::where('customer',$customer->id)->insert($update_coupon);
             //发送二维码
         }
 
