@@ -277,6 +277,7 @@ class Server extends MY_Controller
     {
         try {
             Customermodel::where('openid', $this->openid)->update(['subscribe' => 1]);
+
             //发送优惠券
             $this->send_coupon($this->openid);
 
@@ -531,32 +532,31 @@ class Server extends MY_Controller
     /*发送优惠券*/
 
     private function send_coupon($openid){
-        $this->load->model('customermodel');
         $this->load->model('couponmodel');
         $this->load->model('coupontypemodel');
 
         //判断用户是否发送过对应的优惠券
         $customer = Customermodel::where('openid',$openid)->first();
+
         $data = ['customer'=>$customer->id,
-            'coupon_type_id'=>39
-        ];
+                'coupon_type_id'=>39
+                ];
+
         //判断这个用户是否有优惠券gir
-        $sum =  Couponmodel::where($data)->count();
+        $sum =  Couponmodel::where($data)->get()->count();
         if($sum==0){
             //发送优惠券
             $coupon = Coupontypemodel::where('id',39)->first();
-            $update_coupon = ['customer_id'=>$customer->id,
+            $update_coupon = [
+                'customer_id'=>$customer->id,
                 'coupon_type_id' => 39,
                 'status' => 'unused',
-                'create_at'=>time(),
-                'update_at'=>time(),
                 'deadline' => $coupon->deadline
             ];
             $activity = new Couponmodel();
             $activity->fill($update_coupon);
             $activity->save();
             //发送二维码
-
         }
 
 
