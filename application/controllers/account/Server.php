@@ -593,14 +593,16 @@ class Server extends MY_Controller
                     'status' => 'unused',
                     'deadline' => $coupon->deadline
                 ];
+                var_dump($update_coupon);
                 $activity = new Couponmodel();
                 $activity->fill($update_coupon);
                 $res=$activity->save();
-                if($res){
-                    $a='123123';
-                }else{
-                    $a='456456';
-                }
+                var_dump($res);
+//                if($res){
+//                    $a='123123';
+//                }else{
+//                    $a='456456';
+//                }
 //                //发送二维码
             }
         }
