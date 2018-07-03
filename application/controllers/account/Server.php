@@ -532,8 +532,8 @@ class Server extends MY_Controller
 
     private function send_coupon($openid){
         $this->load->model('customermodel');
-        $this->load->model('Couponmodel');
-        $this->load->model('Coupontypemodel');
+        $this->load->model('couponmodel');
+        $this->load->model('coupontypemodel');
 
         //判断用户是否发送过对应的优惠券
         $customer = Customermodel::where('openid',$openid)->first();
