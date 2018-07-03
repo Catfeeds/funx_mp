@@ -539,26 +539,27 @@ class Server extends MY_Controller
 
         //判断用户是否发送过对应的优惠券
         $customer = Customermodel::where('openid',$openid)->first();
-
-        $data = ['customer'=>$customer->id,
+        if(isset($customer)||!empty($customer)){
+            $data = ['customer'=>$customer->id,
                 'coupon_type_id'=>39
-                ];
-
-        //判断这个用户是否有优惠券gir
-        $sum =  Couponmodel::where($data)->get()->count();
-        if($sum==0){
-            //发送优惠券
-            $coupon = Coupontypemodel::where('id',39)->first();
-            $update_coupon = [
-                'customer_id'=>$customer->id,
-                'coupon_type_id' => 39,
-                'status' => 'unused',
-                'deadline' => $coupon->deadline
             ];
-            $activity = new Couponmodel();
-            $activity->fill($update_coupon);
-            $activity->save();
-            //发送二维码
+
+            //判断这个用户是否有优惠券gir
+            $sum =  Couponmodel::where($data)->get()->count();
+            if($sum==0){
+                //发送优惠券
+                $coupon = Coupontypemodel::where('id',39)->first();
+                $update_coupon = [
+                    'customer_id'=>$customer->id,
+                    'coupon_type_id' => 39,
+                    'status' => 'unused',
+                    'deadline' => $coupon->deadline
+                ];
+                $activity = new Couponmodel();
+                $activity->fill($update_coupon);
+                $activity->save();
+                //发送二维码
+            }
         }
 
 
