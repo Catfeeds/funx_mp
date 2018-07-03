@@ -685,8 +685,6 @@ class Contract extends MY_Controller
             12
         );
 
-        var_dump($res2);exit;
-
         $data['type']          = Contractmodel::TYPE_FDD;
         $data['customer_id']      = $CustomerCA;
         $data['download_url']    = $res2['download_url'];
@@ -694,6 +692,8 @@ class Contract extends MY_Controller
         $data['status']          = Contractmodel::STATUS_GENERATED;
         $data['contract_id']      = $contractId;
         $data['doc_title'] =    $parameters['contract_number'];
+
+        var_dump($data);exit;
 
 
         $contract   = $resident->contract;
