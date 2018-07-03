@@ -281,9 +281,9 @@ class Server extends MY_Controller
 
             if (empty($this->eventKey)) {
                 //发送优惠券
-                $this->sendCoupon();
+                return $this->sendCoupon();
 
-                return $this->defaultSubscribeTextPush();
+//                return $this->defaultSubscribeTextPush();
 //              return $this->goToSweepstakes(config_item('new_customer_activity_id'));
             }
 
@@ -557,14 +557,14 @@ class Server extends MY_Controller
                 ];
                 $activity = new Couponmodel();
                 $activity->fill($update_coupon);
-                $activity->save();
+                $res=$activity->save();
 //                //发送二维码
             }
         }
 
-//        return new Text([
-//            'content' => $this->openid.'test'
-//        ]);
+        return new Text([
+            'content' => $res.'test'
+        ]);
 
 
     }
