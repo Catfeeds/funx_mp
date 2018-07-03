@@ -160,8 +160,20 @@ class Resident extends MY_Controller
     {
         $this->load->model('reserveordermodel');
         $count['reserve'] = Reserveordermodel::where('status','WAIT')->where('customer_id',CURRENT_ID)->count();
+        $this->load->model('residentmodel');
         $this->load->model('ordermodel');
-        $count['order'] = Ordermodel::whereIn('status',['GENERATE','AUDITED','PENDING'])->where('customer_id',CURRENT_ID)->count();
+        $this->load->model('storemodel');
+        $this->load->model('roomunionmodel');
+
+        $resident   = Residentmodel::with(['roomunion','orders'=>function($query){
+            $query->where('status',Ordermodel::STATE_PENDING);
+        }])->where('customer_id',$this->user->id);
+        $orders  = $resident->get()->map(function($query){
+            $query->count  = count($query->orders);
+            $query->amount = $query->orders->sum('money');
+            return $query;
+        })->where('amount','>',0)->count();
+        $count['order'] = $orders;
         $this->load->model('couponmodel');
         $count['coupon'] = Couponmodel::where('status','UNUSED')->where('customer_id',CURRENT_ID)->count();
         //$this->load->model('shopmodel');
