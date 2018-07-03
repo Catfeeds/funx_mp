@@ -57,12 +57,9 @@ class Reserve extends MY_Controller
                 $item   = $item->toArray();
                 if (isset($item->room_type->images)){
                     $images = $item->room_type->images;
-//                    var_dump($images);
                     $imageArray = json_decode($images,true);
-//                    var_dump($imageArray);
                     $item['room_type']['images'] = $this->fullAliossUrl($imageArray,true);
                 }
-
                 return $item;
             })->toArray();
         $this->api_res(0,['list'=>$precontract]);
@@ -82,7 +79,9 @@ class Reserve extends MY_Controller
             ->where('status','END')->get($filed)
             ->map(function ($item){
                 if (isset($item->room_type->images)){
-                    $item->room_type->images = $this->fullAliossUrl(json_decode($item->room_type->images,true),true);
+                    $images = $item->room_type->images;
+                    $imageArray = json_decode($images,true);
+                    $item['room_type']['images'] = $this->fullAliossUrl($imageArray,true);
                 }
                 return $item;
             })->toArray();
