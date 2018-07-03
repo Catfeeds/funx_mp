@@ -685,7 +685,7 @@ class Contract extends MY_Controller
             12
         );
 
-        var_dump($CustomerCA);exit;
+        var_dump($res2);exit;
 
         $data['type']          = Contractmodel::TYPE_FDD;
         $data['customer_id']      = $CustomerCA;
