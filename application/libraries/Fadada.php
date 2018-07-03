@@ -236,6 +236,7 @@ class Fadada
 
         $request = (new Client())->request($method, $url, ['form_params' => $option])->getBody()->getContents();
         $request = json_decode($request, true);
+        log_message('error',json_encode($request));
         if ($request['result'] != 'success') {
             throw new Exception($request['msg']);
         }
