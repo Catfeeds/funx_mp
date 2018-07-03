@@ -26,6 +26,7 @@ class AuthHook {
         $authArr = array(
             'account/wechat/login',
             'account/server/menu',
+            'account/server/test',
             'account/server/checkinorbookingevent',
             'account/server/index',
 

@@ -573,4 +573,37 @@ class Server extends MY_Controller
 
 
     }
+
+    public function test(){
+        $customer = Customermodel::where('openid','ob4npwqKrqc1TRYkJNpp0ll2vD4k')->first();
+        if(isset($customer)||!empty($customer)){
+            $data = ['customer_id'=>$customer->id,
+                'coupon_type_id'=>39
+            ];
+//
+//            //判断这个用户是否有优惠券gir
+            $sum =  Couponmodel::where($data)->get();
+            if(empty($sum)){
+
+//                //发送优惠券
+                $coupon = Coupontypemodel::where('id',39)->first();
+                $update_coupon = [
+                    'customer_id'=>$customer->id,
+                    'coupon_type_id' => 39,
+                    'status' => 'unused',
+                    'deadline' => $coupon->deadline
+                ];
+                $activity = new Couponmodel();
+                $activity->fill($update_coupon);
+                $res=$activity->save();
+                if($res){
+                    $a='123123';
+                }else{
+                    $a='456456';
+                }
+//                //发送二维码
+            }
+        }
+    }
+
 }
