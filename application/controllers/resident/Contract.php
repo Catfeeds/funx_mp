@@ -168,7 +168,8 @@ class Contract extends MY_Controller
         $this->load->model('roomtypemodel');
         //默认跳转的页面 账单列表
         $targetUrl  = '';
-        if(Storemodel::C_TYPE_NORMAL==$contract_type||$resident->card_type!=0){
+//        if(Storemodel::C_TYPE_NORMAL==$contract_type||$resident->card_type!=0){
+        if(Storemodel::C_TYPE_NORMAL==$contract_type){
             if($resident->status!='NORMAL'){
                 //生成纸质版合同
                 $contract   = $this->contractPaper($resident);
@@ -606,5 +607,121 @@ class Contract extends MY_Controller
         } else {
             $this->api_res(1005);
         }
+    }
+
+    /**
+     *补签fdd合同
+     */
+    public function reSignContract()
+    {
+        $resident_id    = $this->input->post('resident_id');
+        $this->load->model('residentmodel');
+        $this->load->model('contractmodel');
+        $this->load->model('roomunionmodel');
+        $this->load->model('roomtypemodel');
+        $this->load->model('storemodel');
+        $resident   = Residentmodel::find($resident_id);
+
+        if(!$resident->contract || $resident->contract->status!=Contractmodel::STATUS_GENERATED){
+            $this->api_res(1002);
+            return;
+        }
+
+
+        $roomtype   = $resident->roomunion->roomtype;
+        $contract_template  = Contracttemplatemodel::where(['room_type_id'=>$roomtype->id,'rent_type'=>$resident->rent_type])->first();
+        if(ENVIRONMENT=='development'){
+            //测试
+            $this->fadada->uploadTemplate('http://tfunx.oss-cn-shenzhen.aliyuncs.com/'.$contract_template->contract_tpl_path,$contract_template->fdd_tpl_id);
+        }
+        //签署合同需要准备的信息
+        $contractNumber = $resident->store->abbreviation . '-' . $resident->begin_time->year .'-' . $resident->name . '-' . $resident->room_id;
+        $parameters     = array(
+            'contract_number'     => $contractNumber,               //合同号
+            'customer_name'       => $resident->name,               //租户姓名
+            'id_card'             => $resident->card_number,        //身份证号
+            'phone'               => $resident->phone,              //电话号码
+            'address'             => $resident->address,            //地址
+            'alternative_person'  => $resident->alternative,        //紧急联人
+            'alternative_phone'   => $resident->alter_phone,        //紧急联系人电话
+            'room_number'         => $resident->roomunion->number,       //房间号
+            'year_start'          => "{$resident->begin_time->year}",           //起租年
+            'month_start'         => "{$resident->begin_time->month}",          //起租月
+            'day_start'           => "{$resident->begin_time->day}",            //起租日
+            'year_end'            => "{$resident->end_time->year}",             //结束年
+            'month_end'           => "{$resident->end_time->month}",            //结束月
+            'day_end'             => "{$resident->end_time->day}",              //接速日
+            'rent_money'          => "{$resident->real_rent_money}",            //租金
+            'rent_money_upper'    => num2rmb($resident->real_rent_money),       //租金确认
+            'service_money'       => "{$resident->real_property_costs}",        //服务费
+            'service_money_upper' => num2rmb($resident->real_property_costs),   //服务费确认
+            'deposit_money'       => "{$resident->deposit_money}",              //暂时不确定
+            'deposit_month'       => (string)$resident->deposit_month,          //金额确定
+            'deposit_money_upper' => num2rmb($resident->deposit_money),         //金额确定
+            'tmp_deposit'         => "{$resident->tmp_deposit}",                //临时租金
+            'tmp_deposit_upper'   => num2rmb($resident->tmp_deposit),           //零食租金确认
+            'special_term'        => $resident->special_term ? $resident->special_term : '无',
+            'year'                => date("Y"),                         //签约年
+            'month'               => date("m"),                         //签约月
+            'day'                 => date("d"),                         //签约日
+            'attachment_2_date'   => date("Y-m-d")                      //最终时间确认
+        );
+
+
+        $data['name']=$resident->name;
+        $data['phone']=$resident->phone;
+//        $data['phone']=18710714444;
+        $data['cardNumber']=$resident->card_number;
+        $data['cardType']=$resident->card_type;
+
+        $CustomerCA= $this->getCustomerCA($data);
+
+        $contractId   = 'JINDI'.date("YmdHis").mt_rand(10,60);
+
+        $res2        = $this->fadada->generateContract(
+            $parameters['contract_number'],
+            $contract_template->fdd_tpl_id,
+            $contractId,
+            $parameters,
+            12
+        );
+
+//        var_dump($res2);exit;
+
+        $data['type']          = Contractmodel::TYPE_FDD;
+        $data['customer_id']      = $CustomerCA;
+        $data['download_url']    = $res2['download_url'];
+        $data['view_url']       = $res2['viewpdf_url'];
+        $data['status']          = Contractmodel::STATUS_GENERATED;
+        $data['contract_id']      = $contractId;
+        $data['doc_title'] =    $parameters['contract_number'];
+
+//        var_dump($data);exit;
+
+
+        $contract   = $resident->contract;
+//        $contract   = new Contractmodel();
+//
+//        //1,生成合同
+//        $contract->store_id = $resident->store_id;
+//        $contract->room_id  = $resident->room_id;
+//        $contract->resident_id  = $resident->id;
+//        $contract->uxid         = $resident->uxid;
+//        $contract->customer_id  = $resident->customer_id;
+        $contract->fdd_customer_id  = $data['customer_id'];
+//        $contract->type         = $data['type'];
+//        $contract->employee_id  = $resident->employee_id;
+        $contract->contract_id  = $data['contract_id'];
+        $contract->doc_title    = $data['doc_title'];
+        $contract->download_url = $data['download_url'];
+        $contract->view_url     = $data['view_url'];
+        $contract->status       = $data['status'];
+//            $contract->sign_type       = Contractmodel::SIGN_NEW ;
+
+//        var_dump($data);exit;
+        $contract->save();
+
+        $this->api_res(0,[$contract]);
+
     }
 }

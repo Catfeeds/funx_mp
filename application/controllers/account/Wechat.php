@@ -22,6 +22,8 @@ class Wechat extends MY_Controller
 
     public function login()
     {
+        log_message('error','调用登陆');
+
         $post   = $this->input->post(null,true);
 
         //先传一个定值1
@@ -33,7 +35,6 @@ class Wechat extends MY_Controller
         $user   = $this->httpCurl($url,'get','json');
         if(array_key_exists('errcode',$user))
         {
-
             $this->api_res(1006);
             return false;
         }
@@ -79,6 +80,7 @@ class Wechat extends MY_Controller
             $this->load->library('m_jwt');
             $token  = $this->m_jwt->generateJwtToken($customer->uxid,$customer->company_id);
             $this->m_redis->storeCustomerInfo($customer->uxid,$customer->toJson());
+            log_message('error','LOGIN登陆正常');
             $this->api_res(0,['token'=>$token]);
         }else{
             $this->api_res(1009);
