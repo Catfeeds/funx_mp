@@ -558,12 +558,17 @@ class Server extends MY_Controller
                 $activity = new Couponmodel();
                 $activity->fill($update_coupon);
                 $res=$activity->save();
+                if($res){
+                    $a='123123';
+                }else{
+                    $a='456456';
+                }
 //                //发送二维码
             }
         }
 
         return new Text([
-            'content' => $res.'test'
+            'content' => $a.'test'
         ]);
 
 
