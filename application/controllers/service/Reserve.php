@@ -54,12 +54,13 @@ class Reserve extends MY_Controller
             ->where('customer_id',CURRENT_ID)
             ->whereIn('status',['WAIT','BEGIN'])->get($filed)
             ->map(function ($item){
+                $item   = $item->toArray();
                 if (isset($item->room_type->images)){
                     $images = $item->room_type->images;
 //                    var_dump($images);
                     $imageArray = json_decode($images,true);
 //                    var_dump($imageArray);
-                    $item->room_type->images = $this->fullAliossUrl($imageArray,true);
+                    $item['room_type']['images'] = $this->fullAliossUrl($imageArray,true);
                 }
 
                 return $item;
