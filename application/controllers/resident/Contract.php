@@ -614,7 +614,7 @@ class Contract extends MY_Controller
      */
     public function reSignContract()
     {
-        $resident_id    = 2821;
+        $resident_id    = $this->input->post('resident_id');
         $this->load->model('residentmodel');
         $this->load->model('contractmodel');
         $this->load->model('roomunionmodel');
@@ -686,7 +686,7 @@ class Contract extends MY_Controller
             12
         );
 
-        var_dump($res2);exit;
+//        var_dump($res2);exit;
 
         $data['type']          = Contractmodel::TYPE_FDD;
         $data['customer_id']      = $CustomerCA;
@@ -696,7 +696,7 @@ class Contract extends MY_Controller
         $data['contract_id']      = $contractId;
         $data['doc_title'] =    $parameters['contract_number'];
 
-        var_dump($data);exit;
+//        var_dump($data);exit;
 
 
         $contract   = $resident->contract;
@@ -718,15 +718,10 @@ class Contract extends MY_Controller
         $contract->status       = $data['status'];
 //            $contract->sign_type       = Contractmodel::SIGN_NEW ;
 
-        var_dump($data);exit;
+//        var_dump($data);exit;
         $contract->save();
 
-
-
-        return $contract;
-
-
-
+        $this->api_res(0,[$contract]);
 
     }
 }
