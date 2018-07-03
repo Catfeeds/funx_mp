@@ -281,9 +281,9 @@ class Server extends MY_Controller
 
             if (empty($this->eventKey)) {
                 //发送优惠券
-                return $this->sendCoupon();
+                $this->sendCoupon();
 
-//                return $this->defaultSubscribeTextPush();
+                return $this->defaultSubscribeTextPush();
 //              return $this->goToSweepstakes(config_item('new_customer_activity_id'));
             }
 
@@ -544,8 +544,8 @@ class Server extends MY_Controller
             ];
 //
 //            //判断这个用户是否有优惠券gir
-            $sum =  Couponmodel::where($data)->get();
-            if(empty($sum)){
+            $sum =  Couponmodel::where($data)->get()->count();
+            if($sum==0){
 
 //                //发送优惠券
                 $coupon = Coupontypemodel::where('id',39)->first();
@@ -558,18 +558,9 @@ class Server extends MY_Controller
                 $activity = new Couponmodel();
                 $activity->fill($update_coupon);
                 $res=$activity->save();
-                if($res){
-                    $a='123123';
-                }else{
-                    $a='456456';
-                }
 //                //发送二维码
             }
         }
-
-        return new Text([
-            'content' => $a.'test'
-        ]);
 
 
     }
