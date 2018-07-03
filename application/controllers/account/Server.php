@@ -542,7 +542,7 @@ class Server extends MY_Controller
         ];
 
         //判断这个用户是否有优惠券gir
-        $sum =  Couponmodel::where($data)->count();
+        $sum =  Couponmodel::where($data)->get()->count();
         if($sum==0){
             //发送优惠券
             $coupon = Coupontypemodel::where('id',39)->first();
