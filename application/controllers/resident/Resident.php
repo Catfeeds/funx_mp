@@ -178,7 +178,6 @@ class Resident extends MY_Controller
         $count['coupon'] = Couponmodel::where('status','UNUSED')->where('customer_id',CURRENT_ID)->count();
         //$this->load->model('shopmodel');
         $count['shop'] = 0;/*Couponmodel::where('status','UNUSED')->where('customer_id',CURRENT_ID)->count();*/
-
         $this->api_res(0,$count);
     }
 }
