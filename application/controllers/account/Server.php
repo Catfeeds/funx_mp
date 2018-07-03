@@ -275,23 +275,23 @@ class Server extends MY_Controller
      */
     private function subscribe()
     {
-//        try {
+        try {
             Customermodel::where('openid', $this->openid)->update(['subscribe' => 1]);
 
 
             if (empty($this->eventKey)) {
                 //发送优惠券
-                return $this->sendCoupon();
+                $this->sendCoupon();
 
-//                return $this->defaultSubscribeTextPush();
+                return $this->defaultSubscribeTextPush();
 //              return $this->goToSweepstakes(config_item('new_customer_activity_id'));
             }
 
             return $this->scan();
 
-//        } catch (Exception $e) {
-//            return new Text(['content' => '没有找到该记录!']);
-//        }
+        } catch (Exception $e) {
+            return new Text(['content' => '没有找到该记录!']);
+        }
     }
 
     /**
@@ -562,9 +562,9 @@ class Server extends MY_Controller
             }
         }
 
-        return new Text([
-            'content' => $this->openid.'test'
-        ]);
+//        return new Text([
+//            'content' => $this->openid.'test'
+//        ]);
 
 
     }
