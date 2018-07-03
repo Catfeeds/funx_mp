@@ -279,11 +279,11 @@ class Server extends MY_Controller
             Customermodel::where('openid', $this->openid)->update(['subscribe' => 1]);
 
             //发送优惠券
-            $this->send_coupon($this->openid);
+//            $this->send_coupon($this->openid);
 
             if (empty($this->eventKey)) {
                 return $this->defaultSubscribeTextPush();
-//                return $this->goToSweepstakes(config_item('new_customer_activity_id'));
+//              return $this->goToSweepstakes(config_item('new_customer_activity_id'));
             }
 
             return $this->scan();
