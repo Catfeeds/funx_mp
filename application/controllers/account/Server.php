@@ -540,9 +540,8 @@ class Server extends MY_Controller
         $data = ['customer'=>$customer->id,
             'coupon_type_id'=>39
         ];
-
         //判断这个用户是否有优惠券gir
-        $sum =  Couponmodel::where($data)->get()->count();
+        $sum =  Couponmodel::where($data)->count();
         if($sum==0){
             //发送优惠券
             $coupon = Coupontypemodel::where('id',39)->first();
@@ -554,19 +553,9 @@ class Server extends MY_Controller
             ];
             Couponmodel::where('customer',$customer->id)->insert($update_coupon);
             //发送二维码
-            Send_TextPush();
+
         }
 
 
     }
-    private function Send_TextPush()
-    {
-        //$siteUrl    = site_url('/');
-
-        return new Text([
-            'content' => "一百元代金券"
-        ]);
-    }
-
-
 }
