@@ -537,7 +537,7 @@ class Server extends MY_Controller
         $this->load->model('coupontypemodel');
 
         //判断用户是否发送过对应的优惠券
-//        $customer = Customermodel::where('openid',$this->openid)->first();
+        $customer = Customermodel::where('openid',$this->openid)->first();
 //        if(isset($customer)||!empty($customer)){
 //            $data = ['customer'=>$customer->id,
 //                'coupon_type_id'=>39
