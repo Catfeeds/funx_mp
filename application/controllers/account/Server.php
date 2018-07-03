@@ -551,7 +551,9 @@ class Server extends MY_Controller
                 'create_at'=>time(),
                 'deadline' => $coupon->deadline
             ];
-            Couponmodel::where('customer',$customer->id)->insert($update_coupon);
+            $activity = new Coupontypemodel();
+            $activity->fill($update_coupon);
+            $activity->save();
             //发送二维码
 
         }
