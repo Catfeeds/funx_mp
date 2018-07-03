@@ -30,6 +30,7 @@ class Reserve extends MY_Controller
         $reserve = new Reserveordermodel();
         $reserve->fill($post);
         $reserve->customer_id = CURRENT_ID;
+        $reserve->time = date('Y-m-d H:i:s',time());
         $reserve->visit_by = 'WECHAT';
         $reserve->status = 'WAIT';
 
