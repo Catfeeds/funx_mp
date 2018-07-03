@@ -55,10 +55,9 @@ class Reserve extends MY_Controller
             ->whereIn('status',['WAIT','BEGIN'])->get($filed)
             ->map(function ($item){
                 if (isset($item->room_type->images)){
-                    var_dump($item->room_type->images);
-                    var_dump(json_decode($item->room_type->images,true));
-                    $item->room_type->images = $this->fullAliossUrl(json_decode(json_decode($item->room_type->images,true),true),true);
-                    var_dump($item->room_type->images);
+                    $imageArray = json_decode($item->room_type->images,true);
+                    var_dump($imageArray);
+                    $item->room_type->images = $this->fullAliossUrl($imageArray,true);
                 }
                 return $item;
             })->toArray();
