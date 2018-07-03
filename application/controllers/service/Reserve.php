@@ -56,7 +56,7 @@ class Reserve extends MY_Controller
             ->map(function ($item){
                 if (isset($item->room_type->images)){
                     var_dump($item->room_type->images);
-                    $item->room_type->images = $this->fullAliossUrl($item->room_type->images,true);
+                    $item->room_type->images = $this->fullAliossUrl(json_encode($item->room_type->images,true),true);
                     var_dump($item->room_type->images);
                 }
                 return $item;
