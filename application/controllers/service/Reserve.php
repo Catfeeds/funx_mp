@@ -56,11 +56,12 @@ class Reserve extends MY_Controller
             ->map(function ($item){
                 if (isset($item->room_type->images)){
                     $images = $item->room_type->images;
-                    var_dump($images);
+//                    var_dump($images);
                     $imageArray = json_decode($images,true);
-                    var_dump($imageArray);
-//                    $item->room_type->images = $this->fullAliossUrl($imageArray,true);
+//                    var_dump($imageArray);
+                    $item->room_type->images = $this->fullAliossUrl($imageArray,true);
                 }
+
                 return $item;
             })->toArray();
         $this->api_res(0,['list'=>$precontract]);
