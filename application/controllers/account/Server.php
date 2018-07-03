@@ -282,6 +282,30 @@ class Server extends MY_Controller
 //                return $this->goToSweepstakes(config_item('new_customer_activity_id'));
             }
 
+            //判断用户是否发送过对应的优惠券
+            $customer = Customermodel::where('openid',$this->openid)->first();
+            $data = ['customer'=>$customer->id,
+                    'coupon_type_id'=>39
+                    ];
+
+            //判断这个用户是否有优惠券
+            $sum =  Coupon::where($data)->count();
+            if($sum==0){
+                //发送优惠券
+                $coupon = Coupontypemodel::where('id',39)->first();
+                $resident = Residentmodel::where('customer_id',$customer->id)->first();
+                $update_coupon = ['customer_id'=>$customer->id,
+                    'coupon_type_id' => 39,
+                    'status' => 'unused',
+                    'create_at'=>time(),
+                    'deadline' => $coupon->deadline,
+                    'resident_id' =>$resident->id
+                ];
+                Coupon::where('customer',$customer->id)->insert($update_coupon);
+                //发送二维码
+            }
+
+
             return $this->scan();
 
         } catch (Exception $e) {
