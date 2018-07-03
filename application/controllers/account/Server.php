@@ -275,7 +275,7 @@ class Server extends MY_Controller
      */
     private function subscribe()
     {
-        try {
+//        try {
             Customermodel::where('openid', $this->openid)->update(['subscribe' => 1]);
 
 
@@ -289,9 +289,9 @@ class Server extends MY_Controller
 
             return $this->scan();
 
-        } catch (Exception $e) {
-            return new Text(['content' => '没有找到该记录!']);
-        }
+//        } catch (Exception $e) {
+//            return new Text(['content' => '没有找到该记录!']);
+//        }
     }
 
     /**
