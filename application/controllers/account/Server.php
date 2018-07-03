@@ -549,6 +549,7 @@ class Server extends MY_Controller
                 'coupon_type_id' => 39,
                 'status' => 'unused',
                 'create_at'=>time(),
+                'update_at'=>time(),
                 'deadline' => $coupon->deadline
             ];
             $activity = new Coupontypemodel();
