@@ -277,6 +277,9 @@ class Server extends MY_Controller
     {
         try {
             Customermodel::where('openid', $this->openid)->update(['subscribe' => 1]);
+            //发送优惠券
+            $this->send_coupon($this->openid);
+
             if (empty($this->eventKey)) {
                 return $this->defaultSubscribeTextPush();
 //                return $this->goToSweepstakes(config_item('new_customer_activity_id'));
@@ -357,90 +360,7 @@ class Server extends MY_Controller
     /**
      * 生成菜单
      */
-//    public function menu(){
-////        exit('Hello-Baby');
-//
-//        $this->load->helper('wechat');
-//        $app    = new Application(getCustomerWechatConfig());
-//        //echo $app->getToken();exit;
-//        $menu   = $app->menu;
-////        var_dump($menu->current());exit;
-//
-//        $url_resident_guide = 'https://mp.weixin.qq.com/s?__biz=MzI3MTMwODIyNw==&mid=2247484131&idx=2&sn=aed494e10935d13e9af15a73060df69e&chksm=eac2864fddb50f593a5787021f64f4dd668f2fb745d876d7698e835460e177478bbd88c2f444#rd';
-//
-//        $url_strawberry_market = 'https://mp.weixin.qq.com/s?__biz=MzI3MTMwODIyNw==&mid=2247484131&idx=1&sn=bd1eb5a51e848aded59d588abcb3d315&chksm=eac2864fddb50f59ab1d6140f7bbf678918e47d836e25607c7e9f247df24961bc369f22dc599#rd';
-//
-//        $buttons = [
-//            [
-//                'name'       => '关于草莓',
-//                'sub_button' => [
-//                    [
-//                        'name' => '草莓作品',
-//                        'type' => 'click',
-//                        'key'  => 'STRAWBERRY_WORKS',
-//                    ],
-//                    [
-//                        'name' => '草莓故事',
-//                        'type' => 'click',
-//                        'key'  => 'STRAWBERRY_STORIES',
-//                    ],
-//                    /*[
-//                        'name' => '草莓公约',
-//                        'type' => 'view',
-//                        'url'  => $url_resident_guide,
-//                    ],*/
-//                    [
-//                        'name' => '合作联系',
-//                        'type' => 'click',
-//                        'key'  => 'COOPERATE_AND_CONTACT',
-//                    ],
-//                    [
-//                        'name' => '投诉信箱',
-//                        'type' => 'click',
-//                        'key'  => 'EMAIL_FOR_COMPLAINT',
-//                    ],
-//                ],
-//            ],
-////            [
-////                'name'       => '预约看房',
-////                'sub_button' => [
-////                    [
-////                        'name' => '找房源',
-////                        'type' => 'view',
-////                        'url'  => wechat_url(),
-////                    ],
-////                    [
-////                        'name' => '近期活动',
-////                        'type' => 'click',
-////                        'key'  => 'RECENT_ACTIVITIES',
-////                    ],
-////                ],
-////            ],
-////            [
-////                'name'       => '我是草莓',
-////                'sub_button' => [
-////                    [
-////                        'name' => '个人中心',
-////                        'type' => 'view',
-////                        'url'  => wechat_url('center'),
-////                    ],
-////                    [
-////                        'name' => '生活服务',
-////                        'type' => 'view',
-////                        'url'  => wechat_url('service'),
-////                    ],
-////                    [
-////                        'name' => '金地商城',
-////                        'type' => 'view',
-////                        'url'  => wechat_url('shop'),
-////                    ],
-////                ],
-////            ],
-//        ];
-//
-//        var_dump($menu->add($buttons));
-//
-//    }
+
 
     public function menu()
     {
@@ -605,6 +525,36 @@ class Server extends MY_Controller
             'url'           => $url,
             'image'         => $this->fullAliossUrl(json_decode($resident->roomunion->roomtype->images,true),true),
         ));
+    }
+
+
+    /*发送优惠券*/
+
+    private function send_coupon($openid){
+        //判断用户是否发送过对应的优惠券
+        $customer = Customermodel::where('openid',$openid)->first();
+        $data = ['customer'=>$customer->id,
+            'coupon_type_id'=>39
+        ];
+
+        //判断这个用户是否有优惠券
+        $sum =  Coupon::where($data)->count();
+        if($sum==0){
+            //发送优惠券
+            $coupon = Coupontypemodel::where('id',39)->first();
+            $resident = Residentmodel::where('customer_id',$customer->id)->first();
+            $update_coupon = ['customer_id'=>$customer->id,
+                'coupon_type_id' => 39,
+                'status' => 'unused',
+                'create_at'=>time(),
+                'deadline' => $coupon->deadline,
+                'resident_id' =>$resident->id
+            ];
+            Coupon::where('customer',$customer->id)->insert($update_coupon);
+            //发送二维码
+        }
+
+
     }
 
 
