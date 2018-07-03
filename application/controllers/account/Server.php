@@ -552,7 +552,7 @@ class Server extends MY_Controller
                 'update_at'=>time(),
                 'deadline' => $coupon->deadline
             ];
-            $activity = new Coupontypemodel();
+            $activity = new Couponmodel();
             $activity->fill($update_coupon);
             $activity->save();
             //发送二维码
