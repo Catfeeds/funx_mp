@@ -557,7 +557,7 @@ class Server extends MY_Controller
                 ];
                 $activity = new Couponmodel();
                 $activity->fill($update_coupon);
-                $res=$activity->save();
+                $activity->save();
 //                //发送二维码
             }
         }
