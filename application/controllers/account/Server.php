@@ -544,19 +544,20 @@ class Server extends MY_Controller
             ];
 //
 //            //判断这个用户是否有优惠券gir
-            $sum =  Couponmodel::where($data)->get()->count();
-            if($sum==0){
+            $sum =  Couponmodel::where($data)->get();
+            if(empty($sum)){
+
 //                //发送优惠券
-//                $coupon = Coupontypemodel::where('id',39)->first();
-//                $update_coupon = [
-//                    'customer_id'=>$customer->id,
-//                    'coupon_type_id' => 39,
-//                    'status' => 'unused',
-//                    'deadline' => $coupon->deadline
-//                ];
-//                $activity = new Couponmodel();
-//                $activity->fill($update_coupon);
-//                $activity->save();
+                $coupon = Coupontypemodel::where('id',39)->first();
+                $update_coupon = [
+                    'customer_id'=>$customer->id,
+                    'coupon_type_id' => 39,
+                    'status' => 'unused',
+                    'deadline' => $coupon->deadline
+                ];
+                $activity = new Couponmodel();
+                $activity->fill($update_coupon);
+                $activity->save();
 //                //发送二维码
             }
         }
