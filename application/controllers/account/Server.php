@@ -575,6 +575,9 @@ class Server extends MY_Controller
     }
 
     public function test(){
+        $this->load->model('couponmodel');
+        $this->load->model('coupontypemodel');
+
         $customer = Customermodel::where('openid','ob4npwqKrqc1TRYkJNpp0ll2vD4k')->first();
         if(isset($customer)||!empty($customer)){
             $data = ['customer_id'=>$customer->id,
