@@ -300,7 +300,6 @@ class Server extends MY_Controller
     private function getNewsById($app, $material_id)
     {
         $res = $app->material->get($material_id);
-0
         if (!is_array($res)) {
             return false;
         }
