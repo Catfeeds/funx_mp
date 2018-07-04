@@ -209,12 +209,12 @@ class Server extends MY_Controller
     private function handleTextMessage($message, $content, $app)
     {
         //测试
-      /*  return $this->defaultTextResponse();*/
+        return $this->defaultTextResponse();
 
         //是否是补录合同的
-/*        if (Util::isMobile($content)) {
+        if (Util::isMobile($content)) {
             return $this->tipForContract($content);
-        }*/
+        }
 
         $customer   = Customermodel::where('openid', $message->FromUserName)->first();
 
@@ -300,7 +300,7 @@ class Server extends MY_Controller
     private function getNewsById($app, $material_id)
     {
         $res = $app->material->get($material_id);
-
+0
         if (!is_array($res)) {
             return false;
         }
@@ -461,9 +461,9 @@ class Server extends MY_Controller
         //$loginUrl = site_url('login?target_url=');
 
         //办理入住以及预订房间时的场景值
-        $this->load->model('residentmodel');  
-        $this->load->model('ordermodel');  
-        $this->load->model('roomunionmodel');  
+        $this->load->model('residentmodel');
+        $this->load->model('ordermodel');
+        $this->load->model('roomunionmodel');
         $this->load->model('roomtypemodel');
         $this->load->model('storemodel');
 
