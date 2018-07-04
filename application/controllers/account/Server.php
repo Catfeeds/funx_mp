@@ -78,7 +78,6 @@ class Server extends MY_Controller
     {
         $app = $this->app;
         $server = $app->server;
-
         $server->setMessageHandler(function ($message) use ($app) {
 
             $this->setMessage($message)
@@ -301,7 +300,6 @@ class Server extends MY_Controller
     private function getNewsById($app, $material_id)
     {
         $res = $app->material->get($material_id);
-
         if (!is_array($res)) {
             return false;
         }
@@ -462,9 +460,9 @@ class Server extends MY_Controller
         //$loginUrl = site_url('login?target_url=');
 
         //办理入住以及预订房间时的场景值
-        $this->load->model('residentmodel');  
-        $this->load->model('ordermodel');  
-        $this->load->model('roomunionmodel');  
+        $this->load->model('residentmodel');
+        $this->load->model('ordermodel');
+        $this->load->model('roomunionmodel');
         $this->load->model('roomtypemodel');
         $this->load->model('storemodel');
 
