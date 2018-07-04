@@ -209,7 +209,7 @@ class Server extends MY_Controller
     private function handleTextMessage($message, $content, $app)
     {
         //测试
-        //return $this->defaultTextResponse();
+        return $this->defaultTextResponse();
 
         //是否是补录合同的
         if (Util::isMobile($content)) {
