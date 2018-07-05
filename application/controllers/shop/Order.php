@@ -39,30 +39,27 @@ class Order extends MY_Controller
         $this->load->model('roomunionmodel');
         $this->load->model('residentmodel');
         $uxid = CURRENT_ID;
-
-        if (isset($uxid)){
-            $order = Ordermodel::with('roomnum','store')
-                ->where('customer_id',$uxid)
-                ->whereIn('status', [
-                    Ordermodel::STATE_CONFIRM,
-                    Ordermodel::STATE_COMPLATE,
-                    Ordermodel::STATE_COMPLETED,])
-                ->get()->map(function($query){
-                    $query->sum = number_format($query->sum('money'),2,'.','');
-                    return $query;
-                });
-            $this->api_res(0,[ 'list'=>$order]);
-            /*$list  = Residentmodel::with('orders','roomunion1','store')
-                ->whereIn('id',$resident_ids->toArray())
-                ->where('uxid',$uxid)->get($field)
-                ->map(function($query){
-                    $query->sum = number_format($query->orders->sum('money'),2,'.','');
-                    return $query;
-                })->toArray();
-            $this->api_res(0,[ 'list'=>$list]);*/
-        } else {
-            $this->api_res(1005);
-        }
+        $resident   = Residentmodel::findOrFail($uxid);
+        $paid    = $resident->orders()
+            ->whereIn('status',[Ordermodel::STATE_CONFIRM,Ordermodel::STATE_COMPLETED])
+            ->orderBy('year','DESC')
+            ->orderBy('month','DESC')
+            ->get()
+            ->map(function($order){
+                $order->date    = $order->year.'-'.$order->month;
+                return $order;
+            });
+        $paid_money     = $paid->sum('money');
+        //$discount_money     = $paid->sum('discount_money');
+        $paid   = $paid->groupBy('date')->map(function($paid){
+            $a  = [];
+            $a['orders']    = $paid->toArray();
+            $a['total_money']=$paid->sum('money');
+            $a['total_paid']=$paid->sum('paid');
+            $a['discount_money']=$paid->sum('discount');
+            return $a;
+        });
+        $this->api_res(0,compact('paid_money','paid'));
     }
 
     /**
