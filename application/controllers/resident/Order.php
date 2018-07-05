@@ -51,7 +51,7 @@ class Order extends MY_Controller
         $this->load->model('storemodel');
         $this->load->model('roomunionmodel');
 
-        $resident   = Residentmodel::with(['roomunion','orders'=>function($query){
+        $resident   = Residentmodel::with(['roomunion','store','orders'=>function($query){
             $query->whereIn('status',[Ordermodel::STATE_CONFIRM,Ordermodel::STATE_COMPLETED]);
         }])->where('customer_id',$this->user->id);
         log_message('error','PAID-->'.$this->user->id);
