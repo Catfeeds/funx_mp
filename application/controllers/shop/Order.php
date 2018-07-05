@@ -44,30 +44,10 @@ class Order extends MY_Controller
             $query->whereIn('status',[Ordermodel::STATE_CONFIRM,Ordermodel::STATE_COMPLETED]);
             }])->where('customer_id',$uxid)->get()
             ->map(function ($s){
-                //var_dump($s);
-                $s->date = $s->orders->year.'-'.$s->orders->month;
-                return $s;
+                var_dump($s->orders);
+                //$s->date = $s->orders->year.'-'.$s->orders->month;
+                //return $s;
             });
-        $this->api_res(0,$resident);
-        /**********************/
-/*        $paid    = $resident->orders()
-            ->whereIn('status',[Ordermodel::STATE_CONFIRM,Ordermodel::STATE_COMPLETED])
-            ->orderBy('year','DESC')
-            ->orderBy('month','DESC')
-            ->get()
-            ->map(function($order){
-                $order->date    = $order->year.'-'.$order->month;
-                return $order;
-            });
-        $paid_money     = $paid->sum('money');
-        $paid   = $paid->groupBy('date')->map(function($paid){
-            $a  = [];
-            $a['orders']    = $paid->toArray();
-            $a['total_money']=$paid->sum('money');
-            $a['total_paid']=$paid->sum('paid');
-            $a['discount_money']=$paid->sum('discount');
-            return $a;
-        });*/
         $this->api_res(0,$resident);
     }
 
