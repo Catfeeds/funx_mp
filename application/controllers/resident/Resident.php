@@ -77,7 +77,6 @@ class Resident extends MY_Controller
      */
     public function record()
     {
-
         $this->load->model('residentmodel');
         $this->load->model('roomunionmodel');
         $this->load->model('storemodel');
@@ -91,7 +90,6 @@ class Resident extends MY_Controller
                 Residentmodel::STATE_UNDER_CONTRACT,
             ])
             ->get();
-
         $this->api_res(0,['residents'=>$residents]);
     }
 

@@ -20,12 +20,10 @@ class Order extends MY_Controller
     {
         $this->load->model('storemodel');
         $this->load->model('roomunionmodel');
-        //$uxid = intval(strip_tags(trim($post['uxid'])));
         $uxid = CURRENT_ID;
         $field = ['id','store_id', 'room_id'];
         if (isset($uxid)) {
             $contract = Ordermodel::with('storename')->with('roomnum')->where('uxid',$uxid)->get($field);
-           // var_dump($contract);die();
             $this->api_res(0,[ 'list'=>$contract]);
         } else {
             $this->api_res(1005);
@@ -44,14 +42,16 @@ class Order extends MY_Controller
         $field = ['id','store_id','room_id','name','id','deposit_money'];
         if (isset($uxid)){
             $resident_ids  = Ordermodel::whereIn('status', [
-                Ordermodel::STATE_PENDING,
-                Ordermodel::STATE_CONFIRM,
-                Ordermodel::STATE_COMPLETED,])->groupBy('resident_id')->get(['resident_id'])->map(function($id){
+                Ordermodel::STATE_GENERATED,
+                Ordermodel::STATE_AUDITED,
+                Ordermodel::STATE_PENDING,])->groupBy('resident_id')->get(['resident_id'])->map(function($id){
                 return $id->resident_id;
             });
-            $list  = Residentmodel::with('orders','roomunion1','store')->whereIn('id',$resident_ids->toArray())->where('uxid',$uxid)->get($field)
+            $list  = Residentmodel::with('orders','roomunion1','store')
+                ->whereIn('id',$resident_ids->toArray())
+                ->where('uxid',$uxid)->get($field)
                 ->map(function($query){
-                    $query->sum = $query->orders->sum('money');
+                    $query->sum = number_format($query->orders->sum('money'),2,'.','');
                     return $query;
                 })->toArray();
             $this->api_res(0,[ 'list'=>$list]);
@@ -69,7 +69,6 @@ class Order extends MY_Controller
         $this->load->model('roomunionmodel');
         $this->load->model('residentmodel');
         $uxid = CURRENT_ID;
-        //$field = ['id','store_id','room_id','resident_id','type','paid','status'];
         $field = ['id', 'store_id', 'room_id', 'name', 'id'];
         if (isset($uxid)) {
             $resident_ids = Ordermodel::whereIn('status', [
