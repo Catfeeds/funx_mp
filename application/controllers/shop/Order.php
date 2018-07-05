@@ -39,7 +39,7 @@ class Order extends MY_Controller
         $this->load->model('roomunionmodel');
         $this->load->model('residentmodel');
         $uxid = CURRENT_ID;
-        $resident   = Residentmodel::findOrFail($uxid);
+        $resident   = Residentmodel::where('customer',$uxid)->first();
         $paid    = $resident->orders()
             ->whereIn('status',[Ordermodel::STATE_CONFIRM,Ordermodel::STATE_COMPLETED])
             ->orderBy('year','DESC')
@@ -50,7 +50,6 @@ class Order extends MY_Controller
                 return $order;
             });
         $paid_money     = $paid->sum('money');
-        //$discount_money     = $paid->sum('discount_money');
         $paid   = $paid->groupBy('date')->map(function($paid){
             $a  = [];
             $a['orders']    = $paid->toArray();
