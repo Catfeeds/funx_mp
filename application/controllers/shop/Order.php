@@ -39,7 +39,7 @@ class Order extends MY_Controller
         $this->load->model('roomunionmodel');
         $this->load->model('residentmodel');
         $uxid = CURRENT_ID;
-        $resident   = Residentmodel::where('customer',$uxid)->first();
+        $resident   = Residentmodel::where('customer_id',$uxid)->first();
         $paid    = $resident->orders()
             ->whereIn('status',[Ordermodel::STATE_CONFIRM,Ordermodel::STATE_COMPLETED])
             ->orderBy('year','DESC')
