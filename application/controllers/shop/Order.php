@@ -41,21 +41,17 @@ class Order extends MY_Controller
         $uxid = CURRENT_ID;
 
         $resident   = Residentmodel::with(['roomunion','store','orders'=>function($query){
-            $query->whereIn('status',[Ordermodel::STATE_CONFIRM,Ordermodel::STATE_COMPLETED])
-                ->orderBy('year','DESC')
-                ->orderBy('month','DESC');
-//                ->get()
-//                ->map(function($order){
-//                    $order->date    = $order->year.'-'.$order->month;
-//                    return $order;
-//                });
+            $query->whereIn('status',[Ordermodel::STATE_CONFIRM,Ordermodel::STATE_COMPLETED]);
+                /*->orderBy('year','DESC')
+                ->orderBy('month','DESC');*/
             }])->where('customer_id',$uxid)->get()
             ->map(function ($s){
-                $s->date    = $s->orders->year.'-'.$s->orders->month;
+                var_dump($s);
+                $s->date = $s->orders->year.'-'.$s->orders->month;
                 return $s;
             });
         /**********************/
-        $paid    = $resident->orders()
+/*        $paid    = $resident->orders()
             ->whereIn('status',[Ordermodel::STATE_CONFIRM,Ordermodel::STATE_COMPLETED])
             ->orderBy('year','DESC')
             ->orderBy('month','DESC')
@@ -72,8 +68,8 @@ class Order extends MY_Controller
             $a['total_paid']=$paid->sum('paid');
             $a['discount_money']=$paid->sum('discount');
             return $a;
-        });
-        $this->api_res(0,compact('paid_money','paid','resident'));
+        });*/
+        $this->api_res(0,$resident);
     }
 
     /**
