@@ -49,7 +49,11 @@ class Order extends MY_Controller
 //                    $order->date    = $order->year.'-'.$order->month;
 //                    return $order;
 //                });
-        }])->where('customer_id',$uxid)->get();
+            }])->where('customer_id',$uxid)->get()
+            ->map(function ($s){
+                $s->date    = $s->orders->year.'-'.$s->orders->month;
+                return $s;
+            });
         /**********************/
         $paid    = $resident->orders()
             ->whereIn('status',[Ordermodel::STATE_CONFIRM,Ordermodel::STATE_COMPLETED])
