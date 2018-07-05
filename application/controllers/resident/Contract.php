@@ -721,7 +721,8 @@ class Contract extends MY_Controller
 //        var_dump($data);exit;
         $contract->save();
 
-        $this->api_res(0,[$contract]);
+        $url=$this->signFddUrl($contract);
+        $this->api_res(0,[$contract,'url'=>$url]);
 
     }
 }

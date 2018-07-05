@@ -87,4 +87,44 @@ class Wechat extends MY_Controller
         }
     }
 
+    public function test(){
+        $this->load->model('customermodel');
+        $this->load->model('couponmodel');
+        $this->load->model('coupontypemodel');
+
+        $customer = Customermodel::where('openid','ob4npwqKrqc1TRYkJNpp0ll2vD4k')->first();
+        if(isset($customer)||!empty($customer)){
+            $data = ['customer_id'=>$customer->id,
+                'coupon_type_id'=>39
+            ];
+//
+//            //判断这个用户是否有优惠券gir
+            $sum =  Couponmodel::where($data)->get()->count();
+            echo $sum;
+            if($sum==0){
+
+//                //发送优惠券
+                $coupon = Coupontypemodel::where('id',39)->first();
+                $update_coupon = [
+                    'customer_id'=>$customer->id,
+                    'coupon_type_id' => 39,
+                    'status' => 'unused',
+                    'deadline' => $coupon->deadline
+                ];
+                var_dump($update_coupon);
+                $activity = new Couponmodel();
+                $activity->fill($update_coupon);
+                $res=$activity->save();
+                var_dump($res);
+//                if($res){
+//                    $a='123123';
+//                }else{
+//                    $a='456456';
+//                }
+//                //发送二维码
+            }
+            echo "发送成功!";
+        }
+    }
+
 }

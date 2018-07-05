@@ -31,7 +31,7 @@ class Order extends MY_Controller
         }])->where('customer_id',$this->user->id);
         $orders  = $resident->get()->map(function($query){
             $query->count  = count($query->orders);
-            $query->amount = $query->orders->sum('money');
+            $query->amount = number_format($query->orders->sum('money'),2);
             return $query;
         })->where('amount','>',0);
         $arr=[];
@@ -58,7 +58,7 @@ class Order extends MY_Controller
 //        }])->where('customer_id',5373);
         $orders  = $resident->get()->map(function($query){
             $query->count  = count($query->orders);
-            $query->amount = $query->orders->sum('money');
+            $query->amount = number_format($query->orders->sum('money'),2);
             return $query;
         })->where('amount','>',0);
 

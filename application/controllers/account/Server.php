@@ -78,7 +78,6 @@ class Server extends MY_Controller
     {
         $app = $this->app;
         $server = $app->server;
-
         $server->setMessageHandler(function ($message) use ($app) {
 
             $this->setMessage($message)
@@ -277,18 +276,19 @@ class Server extends MY_Controller
     {
         try {
             Customermodel::where('openid', $this->openid)->update(['subscribe' => 1]);
-            //发送优惠券
-            $this->send_coupon($this->openid);
+
 
             if (empty($this->eventKey)) {
+                //发送优惠券
+//                $this->sendCoupon();
+
                 return $this->defaultSubscribeTextPush();
-//                return $this->goToSweepstakes(config_item('new_customer_activity_id'));
+//              return $this->goToSweepstakes(config_item('new_customer_activity_id'));
             }
 
             return $this->scan();
 
         } catch (Exception $e) {
-            log_message('error', $e->getMessage());
             return new Text(['content' => '没有找到该记录!']);
         }
     }
@@ -300,7 +300,6 @@ class Server extends MY_Controller
     private function getNewsById($app, $material_id)
     {
         $res = $app->material->get($material_id);
-
         if (!is_array($res)) {
             return false;
         }
@@ -461,9 +460,9 @@ class Server extends MY_Controller
         //$loginUrl = site_url('login?target_url=');
 
         //办理入住以及预订房间时的场景值
-        $this->load->model('residentmodel');  
-        $this->load->model('ordermodel');  
-        $this->load->model('roomunionmodel');  
+        $this->load->model('residentmodel');
+        $this->load->model('ordermodel');
+        $this->load->model('roomunionmodel');
         $this->load->model('roomtypemodel');
         $this->load->model('storemodel');
 
@@ -530,32 +529,39 @@ class Server extends MY_Controller
 
     /*发送优惠券*/
 
-    private function send_coupon($openid){
-        $this->load->model('customermodel');
+    private function sendCoupon(){
+
         $this->load->model('couponmodel');
         $this->load->model('coupontypemodel');
 
         //判断用户是否发送过对应的优惠券
-        $customer = Customermodel::where('openid',$openid)->first();
-        $data = ['customer'=>$customer->id,
-            'coupon_type_id'=>39
-        ];
-        //判断这个用户是否有优惠券gir
-        $sum =  Couponmodel::where($data)->count();
-        if($sum==0){
-            //发送优惠券
-            $coupon = Coupontypemodel::where('id',39)->first();
-            $update_coupon = ['customer_id'=>$customer->id,
-                'coupon_type_id' => 39,
-                'status' => 'unused',
-                'create_at'=>time(),
-                'deadline' => $coupon->deadline
+        $customer = Customermodel::where('openid',$this->openid)->first();
+        if(isset($customer)||!empty($customer)){
+            $data = ['customer_id'=>$customer->id,
+                'coupon_type_id'=>39
             ];
-            Couponmodel::where('customer',$customer->id)->insert($update_coupon);
-            //发送二维码
+//
+//            //判断这个用户是否有优惠券gir
+            $sum =  Couponmodel::where($data)->get()->count();
+            if($sum==0){
 
+//                //发送优惠券
+                $coupon = Coupontypemodel::where('id',39)->first();
+                $update_coupon = [
+                    'customer_id'=>$customer->id,
+                    'coupon_type_id' => 39,
+                    'status' => 'unused',
+                    'deadline' => $coupon->deadline
+                ];
+                $activity = new Couponmodel();
+                $activity->fill($update_coupon);
+                $activity->save();
+//                //发送二维码
+            }
         }
 
 
     }
+
+
 }
