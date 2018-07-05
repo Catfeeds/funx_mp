@@ -41,11 +41,17 @@ class Order extends MY_Controller
         $uxid = CURRENT_ID;
 
         if (isset($uxid)){
-            $order = Ordermodel::where('customer_id',$uxid)->whereIn('status', [
-                Ordermodel::STATE_CONFIRM,
-                Ordermodel::STATE_COMPLATE,
-                Ordermodel::STATE_COMPLETED,])->get();
-            var_dump($order);
+            $order = Ordermodel::with('roomnum','store')
+                ->where('customer_id',$uxid)
+                ->whereIn('status', [
+                    Ordermodel::STATE_CONFIRM,
+                    Ordermodel::STATE_COMPLATE,
+                    Ordermodel::STATE_COMPLETED,])
+                ->get()->map(function($query){
+                    $query->sum = number_format($query->sum('money'),2,'.','');
+                    return $query;
+                });
+            $this->api_res(0,[ 'list'=>$order]);
             /*$list  = Residentmodel::with('orders','roomunion1','store')
                 ->whereIn('id',$resident_ids->toArray())
                 ->where('uxid',$uxid)->get($field)
