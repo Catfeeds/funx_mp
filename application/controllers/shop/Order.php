@@ -42,9 +42,9 @@ class Order extends MY_Controller
         $field = ['id','store_id','room_id','name','id','deposit_money'];
         if (isset($uxid)){
             $resident_ids  = Ordermodel::whereIn('status', [
-                Ordermodel::STATE_GENERATED,
-                Ordermodel::STATE_AUDITED,
-                Ordermodel::STATE_PENDING,])->groupBy('resident_id')->get(['resident_id'])->map(function($id){
+                Ordermodel::STATE_CONFIRM,
+                Ordermodel::STATE_COMPLATE,
+                Ordermodel::STATE_COMPLETED,])->groupBy('resident_id')->get(['resident_id'])->map(function($id){
                 return $id->resident_id;
             });
             $list  = Residentmodel::with('orders','roomunion1','store')
