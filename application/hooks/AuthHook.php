@@ -24,6 +24,7 @@ class AuthHook {
         //格式2 类/方法
         //注意，所有url统一用小写，不要大写
         $authArr = array(
+            'ping/index',
             'account/wechat/login',
             'account/wechat/test',
             'account/server/menu',
