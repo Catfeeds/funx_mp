@@ -42,14 +42,13 @@ class Order extends MY_Controller
 
         $resident   = Residentmodel::with(['roomunion','store','orders'=>function($query){
             $query->whereIn('status',[Ordermodel::STATE_CONFIRM,Ordermodel::STATE_COMPLETED]);
-                /*->orderBy('year','DESC')
-                ->orderBy('month','DESC');*/
             }])->where('customer_id',$uxid)->get()
             ->map(function ($s){
-                var_dump($s);
+                //var_dump($s);
                 $s->date = $s->orders->year.'-'.$s->orders->month;
                 return $s;
             });
+        $this->api_res(0,$resident);
         /**********************/
 /*        $paid    = $resident->orders()
             ->whereIn('status',[Ordermodel::STATE_CONFIRM,Ordermodel::STATE_COMPLETED])
