@@ -96,7 +96,7 @@ class Resident extends MY_Controller
                     Residentmodel::STATE_CHANGE_ROOM,
                     Residentmodel::STATE_UNDER_CONTRACT,
                 ])->get();
-            $this->api_res(0,['residents'=>$residents]);
+            $this->api_res(0,['residents'=>$residents,$resident_id]);
         }else{
             $this->api_res(0,[]);
         }
