@@ -87,7 +87,12 @@ class Resident extends MY_Controller
                 return $re_id->id;
             })->toArray();
         if (isset($resident_id)&&!empty($resident_id)){
-            $this->api_res(0,$resident_id);
+            $rooms = Roomunionmodel::with('store_s')->with('building_s')
+                ->where('resident_id',$resident_id)
+                ->get(['id','store_id','number','building_id'])->toArray();
+            $this->api_res(0,['list'=>$rooms]);
+        }else{
+            $this->api_res(0,[]);
         }
         //$this->api_res(0,$resident_id);
         /*if (isset($resident_id)&&!empty($resident_id)){
