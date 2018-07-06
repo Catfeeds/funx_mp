@@ -80,9 +80,10 @@ class Resident extends MY_Controller
         $this->load->model('residentmodel');
         $this->load->model('roomunionmodel');
         $this->load->model('storemodel');
+        $uxid = CURRENT_ID;
         $residents  = Residentmodel::with(['roomunion'=>function($query){
             return $query->with('store');
-        }])->where('uxid',CURRENT_ID)
+        }])->where('customer_id',$uxid)
             ->whereIn('status', [
                 Residentmodel::STATE_NORMAL,
                 Residentmodel::STATE_RENEWAL,
