@@ -81,6 +81,7 @@ class Resident extends MY_Controller
         $this->load->model('roomunionmodel');
         $this->load->model('storemodel');
         $uxid = CURRENT_ID;
+        var_dump(CURRENT_ID);
         $residents  = Residentmodel::with(['roomunion'=>function($query){
             return $query->with('store');
         }])->where('customer_id',$uxid)
@@ -89,8 +90,7 @@ class Resident extends MY_Controller
                 Residentmodel::STATE_RENEWAL,
                 Residentmodel::STATE_CHANGE_ROOM,
                 Residentmodel::STATE_UNDER_CONTRACT,
-            ])
-            ->get();
+            ])->get();
         $this->api_res(0,['residents'=>$residents]);
     }
 
