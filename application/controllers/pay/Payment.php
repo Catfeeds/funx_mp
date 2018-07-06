@@ -267,7 +267,7 @@ class Payment extends MY_Controller
 
             $item->update([
                 'order_id'  => $order->id,
-                'status'    => Couponmodel::STATUS_OCCUPIED,
+//                'status'    => Couponmodel::STATUS_OCCUPIED,
             ]);
 
             $order->update(['paid' => max(0, $order->money - $deduction)]);
