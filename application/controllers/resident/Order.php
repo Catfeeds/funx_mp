@@ -66,9 +66,7 @@ class Order extends MY_Controller
         foreach ($orders as $order){
             $arr[]=$order;
         }
-
         $this->api_res(0,['residents'=>$orders]);
-
     }
 
 

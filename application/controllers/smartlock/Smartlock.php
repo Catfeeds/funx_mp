@@ -27,7 +27,7 @@ class Smartlock extends MY_Controller
             ->map(function ($re_id){
                 return $re_id->id;
             })->toArray();
-        if ($resident_id||1){
+        if (isset($resident_id)&&!empty($resident_id)){
             $rooms = Roomunionmodel::with('store_s')->with('building_s')
                 ->where('resident_id',$resident_id)
                 ->get(['id','store_id','number','building_id'])->toArray();
@@ -61,9 +61,13 @@ class Smartlock extends MY_Controller
         $roomid = intval($post['id']);
         $this->load->model('storemodel');
         $this->load->model('roomunionmodel');
-        $smartdevice = Smartdevicemodel::where('room_id',$roomid)->get(['id','serial_number'])->toArray();
-
+        $smartdevice = Smartdevicemodel::where('room_id',$roomid)->get(['id','room_id','type','serial_number'])->toArray();
         if ($smartdevice){
+            foreach ($smartdevice as $key=>$value){
+                if ($smartdevice[$key]['type'] != 'LOCK'){
+                    unset($smartdevice[$key]);
+                }
+            }
             $this->api_res(0,$smartdevice);
         }else{
             $this->api_res(0,[]);
@@ -101,7 +105,6 @@ class Smartlock extends MY_Controller
      */
    public function updatePwd()
    {
-       //$this->load->library('m_redis');
        $post    = $this->input->post();
        $oldpwd  = trim($post['old_pwd']);
        $newpwd  = trim($post['new_pwd']);
@@ -137,7 +140,6 @@ class Smartlock extends MY_Controller
     */
     public function lockRecord()
     {
-        //$this->load->library('m_redis');
         $post = $this->input->post();
         if(!empty($post['begin_time'])){$bt=$post['begin_time'];}else{$bt = date('Ymd',0);};
         if(!empty($post['end_time'])){$et=$post['end_time'];}else{$et = date('Ymd',time());};
@@ -148,7 +150,6 @@ class Smartlock extends MY_Controller
                     return $supplier->supplier;
                 });
             if ($supplier[0] == 'DANBAY'){
-
                 $this->api_res(0,[]);
             }elseif ($supplier[0] == 'YEEUU'){
                 $pwd = (new Yeeuulock($device_id))->openRecords($bt,$et);
@@ -156,6 +157,7 @@ class Smartlock extends MY_Controller
                 foreach ($pwd as $key=>$value){
                     $pwd[$key]['opTime'] = date('Y-m-d',strtotime($pwd[$key]['opTime']));
                 }
+                array_multisort(array_column($pwd,'opTime'),SORT_DESC,$pwd);
                 $this->api_res(0,$pwd);
             }else{
                 $this->api_res(0,[]);

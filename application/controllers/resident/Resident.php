@@ -80,17 +80,26 @@ class Resident extends MY_Controller
         $this->load->model('residentmodel');
         $this->load->model('roomunionmodel');
         $this->load->model('storemodel');
-        $residents  = Residentmodel::with(['roomunion'=>function($query){
-            return $query->with('store');
-        }])->where('uxid',CURRENT_ID)
-            ->whereIn('status', [
-                Residentmodel::STATE_NORMAL,
-                Residentmodel::STATE_RENEWAL,
-                Residentmodel::STATE_CHANGE_ROOM,
-                Residentmodel::STATE_UNDER_CONTRACT,
-            ])
-            ->get();
-        $this->api_res(0,['residents'=>$residents]);
+        $this->load->model('buildingmodel');
+
+        $resident_id = Residentmodel::where('customer_id',CURRENT_ID)->get(['id'])
+            ->map(function ($re_id){
+                return $re_id->id;
+            })->toArray();
+        if (isset($resident_id)&&!empty($resident_id)){
+            $residents  = Residentmodel::with(['roomunion'=>function($query){
+                return $query->with('store');
+            }])->whereIn('id',$resident_id)
+                ->whereIn('status', [
+                    Residentmodel::STATE_NORMAL,
+                    Residentmodel::STATE_RENEWAL,
+                    Residentmodel::STATE_CHANGE_ROOM,
+                    Residentmodel::STATE_UNDER_CONTRACT,
+                ])->get();
+            $this->api_res(0,['residents'=>$residents,$resident_id]);
+        }else{
+            $this->api_res(0,[]);
+        }
     }
 
 //    /**
