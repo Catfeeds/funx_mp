@@ -84,6 +84,7 @@ class Resident extends MY_Controller
             ->map(function ($re_id){
                 return $re_id->id;
             })->toArray();
+        var_dump($resident_id);die();
         if (isset($resident_id)&&!empty($resident_id)){
             $residents  = Residentmodel::with(['roomunion'=>function($query){
                 return $query->with('store');
