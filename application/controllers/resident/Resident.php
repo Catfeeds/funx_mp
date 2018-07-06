@@ -77,18 +77,17 @@ class Resident extends MY_Controller
      */
     public function record()
     {
-        $this->api_res(0,[]);
-        /*$this->load->model('residentmodel');
+        //$this->api_res(0,[]);
+        $this->load->model('residentmodel');
         $this->load->model('roomunionmodel');
         $this->load->model('storemodel');
+
         $resident_id = Residentmodel::where('customer_id',CURRENT_ID)->get(['id'])
             ->map(function ($re_id){
-                if (isset($re_id->id)){
-                    return $re_id->id;
-                }
+                return $re_id->id;
             })->toArray();
-        var_dump($resident_id);die();
-        if (isset($resident_id)&&!empty($resident_id)){
+        $this->api_res(0,$resident_id);
+        /*if (isset($resident_id)&&!empty($resident_id)){
             $residents  = Residentmodel::with(['roomunion'=>function($query){
                 return $query->with('store');
             }])->where('id',$resident_id)
