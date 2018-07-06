@@ -27,7 +27,7 @@ class Smartlock extends MY_Controller
             ->map(function ($re_id){
                 return $re_id->id;
             })->toArray();
-        if ($resident_id||1){
+        if (isset($resident_id)&&!empty($resident_id)){
             $rooms = Roomunionmodel::with('store_s')->with('building_s')
                 ->where('resident_id',$resident_id)
                 ->get(['id','store_id','number','building_id'])->toArray();
@@ -101,7 +101,6 @@ class Smartlock extends MY_Controller
      */
    public function updatePwd()
    {
-       //$this->load->library('m_redis');
        $post    = $this->input->post();
        $oldpwd  = trim($post['old_pwd']);
        $newpwd  = trim($post['new_pwd']);
@@ -137,7 +136,6 @@ class Smartlock extends MY_Controller
     */
     public function lockRecord()
     {
-        //$this->load->library('m_redis');
         $post = $this->input->post();
         if(!empty($post['begin_time'])){$bt=$post['begin_time'];}else{$bt = date('Ymd',0);};
         if(!empty($post['end_time'])){$et=$post['end_time'];}else{$et = date('Ymd',time());};
