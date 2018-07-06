@@ -237,7 +237,8 @@ class Ordermodel extends Basemodel{
         $tmp_deposit            = $resident->tmp_deposit;       //其他押金
 
         //续租时的订单处理, 可能需要更改
-        if (isset($resident->data['renewal'])) {
+//        if (isset($resident->data['renewal'])) {
+        if ($resident->type = Residentmodel::TYPE_RENEWAL) {
             $deposit_money       = $resident->data['renewal']['delt_deposit'];
             $tmp_deposit         = $resident->data['renewal']['new_tmp_deposit'];
         }

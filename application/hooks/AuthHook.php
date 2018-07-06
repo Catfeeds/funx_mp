@@ -52,7 +52,7 @@ class AuthHook {
             'store/home/listhome',
             'store/store/mapconfig',
 
-            'resident/resident/record',
+//            'resident/resident/record',
             'resident/resident/refund',
             'resident/resident/checkout',
 
