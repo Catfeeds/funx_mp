@@ -82,7 +82,9 @@ class Resident extends MY_Controller
         $this->load->model('storemodel');
         $resident_id = Residentmodel::where('customer_id',CURRENT_ID)->get(['id'])
             ->map(function ($re_id){
-                return $re_id->id;
+                if (isset($re_id->id)){
+                    return $re_id->id;
+                }
             })->toArray();
         var_dump($resident_id);die();
         if (isset($resident_id)&&!empty($resident_id)){
