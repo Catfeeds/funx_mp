@@ -96,19 +96,36 @@ class Payment extends MY_Controller
             $roomtype   = $roomunion->roomtype;
             $attach     = ['resident_id' => $residentId];
             $out_trade_no   = $residentId.'_'.date('YmdHis',time()).mt_rand(10, 99);
-            $attributes = [
-                'trade_type'    => Ordermodel::PAYWAY_JSAPI,
-                'body'          => $store->name . '-' . $roomtype->name,
-                'detail'        => $store->name . '-' . $roomtype->name,
-                'out_trade_no'  => $out_trade_no,
-                'total_fee'     => $amount * 100,
+            if(ENVIRONMENT=='development'){
+                $attributes = [
+                    'trade_type'    => Ordermodel::PAYWAY_JSAPI,
+                    'body'          => $store->name . '-' . $roomtype->name,
+                    'detail'        => $store->name . '-' . $roomtype->name,
+                    'out_trade_no'  => $out_trade_no,
+                    'total_fee'     => 1,
 //                'total_fee'     => 1,
 //                'notify_url'    => site_url("pay/payment/notify/".$store->id),
-                'notify_url'    => config_item('base_url')."pay/payment/notify/".$store->id,
-                'openid'        => $this->user->openid,
+                    'notify_url'    => config_item('base_url')."pay/payment/notify/".$store->id,
+                    'openid'        => $this->user->openid,
 //                'openid'        => 'ob4npwr_tU8D-XHmgXPMxEqcrj6c',
-                'attach'        => serialize($attach),
-            ];
+                    'attach'        => serialize($attach),
+                ];
+            }else{
+                $attributes = [
+                    'trade_type'    => Ordermodel::PAYWAY_JSAPI,
+                    'body'          => $store->name . '-' . $roomtype->name,
+                    'detail'        => $store->name . '-' . $roomtype->name,
+                    'out_trade_no'  => $out_trade_no,
+                    'total_fee'     => $amount * 100,
+//                'total_fee'     => 1,
+//                'notify_url'    => site_url("pay/payment/notify/".$store->id),
+                    'notify_url'    => config_item('base_url')."pay/payment/notify/".$store->id,
+                    'openid'        => $this->user->openid,
+//                'openid'        => 'ob4npwr_tU8D-XHmgXPMxEqcrj6c',
+                    'attach'        => serialize($attach),
+                ];
+            }
+
             $this->load->model('storepaymodel');
             $store_pay  = new Storepaymodel();
             $store_pay->out_trade_no    = $out_trade_no;
@@ -130,9 +147,10 @@ class Payment extends MY_Controller
 
             $wechatConfig   = getCustomerWechatConfig();
             //微信支付商户id
-            $wechatConfig['payment']['merchant_id'] = $store->payment_merchant_id;
-            $wechatConfig['payment']['key']         = $store->payment_key;
-
+            if(ENVIRONMENT!='development'){
+                $wechatConfig['payment']['merchant_id'] = $store->payment_merchant_id;
+                $wechatConfig['payment']['key']         = $store->payment_key;
+            }
             $app            = new Application($wechatConfig);
             $wechatOrder    = new Order($attributes);
             $payment        = $app->payment;
@@ -274,9 +292,10 @@ class Payment extends MY_Controller
         $this->load->helper('wechat');
 
         $customerWechatConfig   = getCustomerWechatConfig();
-        $customerWechatConfig['payment']['merchant_id'] = $store->payment_merchant_id;
-        $customerWechatConfig['payment']['key']         = $store->payment_key;
-
+        if(ENVIRONMENT!='development'){
+            $customerWechatConfig['payment']['merchant_id'] = $store->payment_merchant_id;
+            $customerWechatConfig['payment']['key']         = $store->payment_key;
+        }
         $app    = new Application($customerWechatConfig);
 
         $response   = $app->payment->handleNotify(function($notify, $successful) use ($app) {
