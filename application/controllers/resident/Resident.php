@@ -77,7 +77,8 @@ class Resident extends MY_Controller
      */
     public function record()
     {
-        $this->load->model('residentmodel');
+        $this->api_res(0,[]);
+        /*$this->load->model('residentmodel');
         $this->load->model('roomunionmodel');
         $this->load->model('storemodel');
         $resident_id = Residentmodel::where('customer_id',CURRENT_ID)->get(['id'])
@@ -100,7 +101,7 @@ class Resident extends MY_Controller
             $this->api_res(0,['residents'=>$residents]);
         }else{
             $this->api_res(0,[]);
-        }
+        }*/
     }
 
 //    /**
