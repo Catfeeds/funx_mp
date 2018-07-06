@@ -89,7 +89,7 @@ class Resident extends MY_Controller
         if (isset($resident_id)&&!empty($resident_id)){
             $residents  = Residentmodel::with(['roomunion'=>function($query){
                 return $query->with('store');
-            }])->where('id',$resident_id)
+            }])->whereIn('id',$resident_id)
                 ->whereIn('status', [
                     Residentmodel::STATE_NORMAL,
                     Residentmodel::STATE_RENEWAL,
