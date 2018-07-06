@@ -62,8 +62,12 @@ class Smartlock extends MY_Controller
         $this->load->model('storemodel');
         $this->load->model('roomunionmodel');
         $smartdevice = Smartdevicemodel::where('room_id',$roomid)->get(['id','room_id','type','serial_number'])->toArray();
-
         if ($smartdevice){
+            foreach ($smartdevice as $key=>$value){
+                if ($smartdevice[$key]['type'] != 'LOCK'){
+                    unset($smartdevice[$key]);
+                }
+            }
             $this->api_res(0,$smartdevice);
         }else{
             $this->api_res(0,[]);
