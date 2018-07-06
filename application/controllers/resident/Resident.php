@@ -77,11 +77,11 @@ class Resident extends MY_Controller
      */
     public function record()
     {
-        //$this->api_res(0,[]);
         $this->load->model('residentmodel');
         $this->load->model('roomunionmodel');
         $this->load->model('storemodel');
         $this->load->model('buildingmodel');
+
         $resident_id = Residentmodel::where('customer_id',CURRENT_ID)->get(['id'])
             ->map(function ($re_id){
                 return $re_id->id;
@@ -94,6 +94,7 @@ class Resident extends MY_Controller
         }else{
             $this->api_res(0,[]);
         }
+    }
         //$this->api_res(0,$resident_id);
         /*if (isset($resident_id)&&!empty($resident_id)){
             $residents  = Residentmodel::with(['roomunion'=>function($query){
@@ -109,7 +110,7 @@ class Resident extends MY_Controller
         }else{
             $this->api_res(0,[]);
         }*/
-    }
+
 
 //    /**
 //     * 申请退房
