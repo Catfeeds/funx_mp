@@ -61,7 +61,7 @@ class Smartlock extends MY_Controller
         $roomid = intval($post['id']);
         $this->load->model('storemodel');
         $this->load->model('roomunionmodel');
-        $smartdevice = Smartdevicemodel::where('room_id',$roomid)->get(['id','room_id','serial_number'])->toArray();
+        $smartdevice = Smartdevicemodel::where('room_id',$roomid)->get(['id','room_id','type','serial_number'])->toArray();
 
         if ($smartdevice){
             $this->api_res(0,$smartdevice);
