@@ -158,7 +158,7 @@ class Smartlock extends MY_Controller
                     $pwd[$key]['opTime'] = date('Y-m-d',strtotime($pwd[$key]['opTime']));
                 }
                 array_multisort(array_column($pwd,'opTime'),SORT_DESC,$pwd);
-                $this->api_res(0,$pwd);
+                $this->api_res(0,[$pwd,$supplier]);
             }else{
                 $this->api_res(0,[]);
             }
