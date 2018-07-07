@@ -782,7 +782,8 @@ class Contract extends MY_Controller
 
         $result['signurl']=$baseUrl . '?' . http_build_query($data2);
 
-        return $result['signurl'];
+//        return $result['signurl'];
+        $this->api_res(0,[$result['signurl']]);
     }
 
 }
