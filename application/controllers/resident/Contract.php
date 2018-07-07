@@ -255,7 +255,12 @@ class Contract extends MY_Controller
             'attachment_2_date'   => date("Y-m-d")                      //最终时间确认
         );
 
-
+        //如果是短租, 单日价格是(房租原价*1.2/30 + 物业费/30)
+        if (Residentmodel::RENTTYPE_SHORT == $resident->rent_type) {
+            $shortDayPrice                      = ceil($resident->roomunion->rent_price * 1.2 / 30 + $resident->real_property_costs / 30);
+            $parameters['short_rent_price']     = "{$shortDayPrice}";
+            $parameters['short_price_upper']    = num2rmb($parameters['short_rent_price']);
+        }
         $data['name']=$resident->name;
         $data['phone']=$resident->phone;
         $data['cardNumber']=$resident->card_number;
