@@ -39,8 +39,8 @@ class AuthHook {
             //合同签章结果
             'resident/contract/signresult',
 
-
             'resident/contract/resigncontract',
+            'resident/contract/resignfddurl',
 
             'resident/resident/getresident',
             'resident/contract/index',
