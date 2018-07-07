@@ -743,6 +743,7 @@ class Contract extends MY_Controller
         $this->load->model('roomunionmodel');
         $this->load->model('roomtypemodel');
         $this->load->model('storemodel');
+        $this->load->model('fddrecordmodel');
         $contract   = Residentmodel::find($this->input->post('resident_id'))->contract;
 
         $recordOld = $contract->transactions->where('role', Fddrecordmodel::ROLE_B)
@@ -783,7 +784,7 @@ class Contract extends MY_Controller
         $result['signurl']=$baseUrl . '?' . http_build_query($data2);
 
 //        return $result['signurl'];
-        $this->api_res(0,[$result['signurl']]);
+        $this->api_res(0,['url'=>$result['signurl']]);
     }
 
 }
