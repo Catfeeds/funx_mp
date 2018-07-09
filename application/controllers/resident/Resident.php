@@ -43,7 +43,6 @@ class Resident extends MY_Controller
 //            return;
 //        }
 
-
         //判断是否有合同
         if(isset($input['has_contract'])){
 

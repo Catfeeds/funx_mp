@@ -594,7 +594,6 @@ class Contract extends MY_Controller
 
         return $data;
 
-
     }
 
     /**
