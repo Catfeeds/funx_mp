@@ -255,7 +255,12 @@ class Contract extends MY_Controller
             'attachment_2_date'   => date("Y-m-d")                      //最终时间确认
         );
 
-
+        //如果是短租, 单日价格是(房租原价*1.2/30 + 物业费/30)
+        if (Residentmodel::RENTTYPE_SHORT == $resident->rent_type) {
+            $shortDayPrice                      = ceil($resident->roomunion->rent_price * 1.2 / 30 + $resident->real_property_costs / 30);
+            $parameters['short_rent_price']     = "{$shortDayPrice}";
+            $parameters['short_price_upper']    = num2rmb($parameters['short_rent_price']);
+        }
         $data['name']=$resident->name;
         $data['phone']=$resident->phone;
         $data['cardNumber']=$resident->card_number;
@@ -589,7 +594,6 @@ class Contract extends MY_Controller
 
         return $data;
 
-
     }
 
     /**
@@ -666,11 +670,15 @@ class Contract extends MY_Controller
             'day'                 => date("d"),                         //签约日
             'attachment_2_date'   => date("Y-m-d")                      //最终时间确认
         );
-
+        //如果是短租, 单日价格是(房租原价*1.2/30 + 物业费/30)
+        if (Residentmodel::RENTTYPE_SHORT == $resident->rent_type) {
+            $shortDayPrice                      = ceil($resident->roomunion->rent_price * 1.2 / 30 + $resident->real_property_costs / 30);
+            $parameters['short_rent_price']     = "{$shortDayPrice}";
+            $parameters['short_price_upper']    = num2rmb($parameters['short_rent_price']);
+        }
 
         $data['name']=$resident->name;
         $data['phone']=$resident->phone;
-//        $data['phone']=18710714444;
         $data['cardNumber']=$resident->card_number;
         $data['cardType']=$resident->card_type;
 
@@ -685,8 +693,6 @@ class Contract extends MY_Controller
             $parameters,
             12
         );
-
-//        var_dump($res2);exit;
 
         $data['type']          = Contractmodel::TYPE_FDD;
         $data['customer_id']      = $CustomerCA;
@@ -725,4 +731,59 @@ class Contract extends MY_Controller
         $this->api_res(0,[$contract,'url'=>$url]);
 
     }
+
+    /**
+     * fdd签署
+     */
+    public function reSignFddUrl(){
+
+        $this->load->model('residentmodel');
+        $this->load->model('contractmodel');
+        $this->load->model('roomunionmodel');
+        $this->load->model('roomtypemodel');
+        $this->load->model('storemodel');
+        $this->load->model('fddrecordmodel');
+        $contract   = Residentmodel::find($this->input->post('resident_id'))->contract;
+
+        $recordOld = $contract->transactions->where('role', Fddrecordmodel::ROLE_B)
+            ->where('status', Fddrecordmodel::STATUS_INITIATED)->first();
+
+        if (count($recordOld)) {
+            $transactionId = $recordOld->transaction_id;
+        }else{
+            $transactionId  = 'B'.date("Ymd His").mt_rand(10, 60);
+        }
+
+        //生成调用该接口所需要的信息
+
+        $this->load->helper('url');
+        $data2 = $this->fadada->signARequestData(
+            $contract['fdd_customer_id'],
+            $contract['contract_id'],
+            $transactionId,
+            $contract['doc_title'],
+//            site_url('resident/contract/signresult'),   //return_url
+            config_item('base_url').'resident/contract/signresult',
+            config_item('fdd_notify_url')     //notify_url
+        );
+
+        //手动签署, 只有页面跳转到法大大平台交易才能生效, 因此, 若上一步骤失败, 就不该存储交易记录.
+        if (!$recordOld) {
+            $record = new Fddrecordmodel();
+            $record->role = Fddrecordmodel::ROLE_B;
+            $record->status = Fddrecordmodel::STATUS_INITIATED;
+            $record->remark = '乙方发起了签署动作';
+            $record->contract_id = $contract->id;
+            $record->transaction_id = $transactionId;
+            $record->save();
+        }
+
+        $baseUrl = array_shift($data2);
+
+        $result['signurl']=$baseUrl . '?' . http_build_query($data2);
+
+//        return $result['signurl'];
+        $this->api_res(0,['url'=>$result['signurl']]);
+    }
+
 }
