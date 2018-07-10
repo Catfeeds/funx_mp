@@ -43,6 +43,20 @@ class Danbaylock
     }
 
     /**
+     * 新增密码
+     *
+     */
+    public function addPwd($pwd)
+    {
+        $res    = $this->sendRequet('deviceCtrl/lockPwd/addPwd',[
+            'password'  => $pwd,
+            'pwdType'   => 0,
+        ]);
+        return ['pwd_id'   => $res['result']['pwdID'],
+            'password' => $pwd,
+        ];
+    }
+    /**
      * 新的房客随机密码
      */
     public function newRandomGuestPwd()

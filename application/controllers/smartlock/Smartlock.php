@@ -120,12 +120,11 @@ class Smartlock extends MY_Controller
                    return $supplier->supplier;
                });
            if ($supplier[0] == 'DANBAY'){
-/*               (new Danbaylock($device_id))->handle();
                $danbay = new Danbaylock($device_id);
-               $all_pwd = $danbay->getLockPwdList();
-
-               $pwd = $danbay->editGuestPwd(1,$newpwd);*/
-               $this->api_res(0,[]);
+               $danbay->handle();
+               $danbay->clearAllGuestPwd();
+               $pwd = $danbay->addPwd($newpwd);
+               $this->api_res(0,$pwd);
            }elseif ($supplier[0] == 'YEEUU'){
                $pwd = (new Yeeuulock($device_id))->extPwd($newpwd,1);
                $this->api_res(0,$pwd);
