@@ -70,6 +70,7 @@ class Wechat extends MY_Controller
             $customer->company_id   = $company_id;
             $customer->openid       = $openid;
         }
+            $customer->subscribe    = 1;
             $customer->nickname     = $nickname;
             $customer->gender       = $gender;
             $customer->province     = $province;
