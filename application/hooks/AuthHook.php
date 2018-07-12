@@ -136,14 +136,14 @@ class AuthHook {
         if(!in_array($full_path,$authArr)) {
             try {
                 $token = $this->CI->input->get_request_header('token');
-                log_message('error','TOKEN'.$token);
+                log_message('debug','TOKEN'.$token);
                 $decoded = $this->CI->m_jwt->decodeJwtToken($token);
                 $d_uxid   = $decoded->uxid;
                 $d_company_id   = $decoded->company_id;
                 define('CURRENT_ID',$d_uxid);
                 define('COMPANY_ID',$d_company_id);
                 $this->CI->load->model('customermodel');
-                log_message('error','current_id='.CURRENT_ID);
+                log_message('debug','current_id='.CURRENT_ID);
                 $this->CI->user = Customermodel::where('uxid',CURRENT_ID)->first();
             } catch (Exception $e) {
                 header("Content-Type:application/json;charset=UTF-8");
