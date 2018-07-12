@@ -23,13 +23,14 @@ class Smartlock extends MY_Controller
         $this->load->model('storemodel');
         $this->load->model('buildingmodel');
 
+
         $resident_id = Residentmodel::where('customer_id',CURRENT_ID)->get(['id'])
             ->map(function ($re_id){
                 return $re_id->id;
             })->toArray();
         if (isset($resident_id)&&!empty($resident_id)){
             $rooms = Roomunionmodel::with('store_s')->with('building_s')
-                ->where('resident_id',$resident_id)
+                ->whereIn('resident_id',$resident_id)
                 ->get(['id','store_id','number','building_id'])->toArray();
             $this->api_res(0,['list'=>$rooms]);
         }else{
