@@ -32,13 +32,11 @@ class AuthHook {
             'account/server/index',
 
             'resident/order/getorderbynumber',
-
 //            'pay/payment/config',
             //微信支付回调
             'pay/payment/notify',
             //合同签章结果
             'resident/contract/signresult',
-
             'resident/contract/resigncontract',
             'resident/contract/resignfddurl',
 
@@ -48,7 +46,6 @@ class AuthHook {
             'resident/contract/confirm',
             'resident/contract/signcontract',
             'resident/contract/test',
-
             'store/home/listhome',
             'store/store/mapconfig',
 
