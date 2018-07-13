@@ -49,11 +49,12 @@ class Draw extends MY_Controller
     public function drawQualifications()
     {
         $post = $this->input->post(null, true);
-        $id = empty($post['id'])?$post['id']:null;
+        $id = $post['id'];
+ /*       $id = empty($post['id'])?$post['id']:null;
         if ($id == null) {
             $this->api_res(1002);
             return false;
-        }
+        }*/
         $this->load->model('activitymodel');
         $filed = ['id', 'name', 'start_time', 'end_time', 'description', 'coupon_info', 'limit','activity_type'
             ,'one_prize','one_count','two_prize','two_count','three_prize','three_count'];
