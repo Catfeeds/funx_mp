@@ -39,16 +39,16 @@ class Draw extends MY_Controller
         $this->load->model('coupontypemodel');
         $p = Coupontypemodel::whereIn('id',$arr)->get(['name'])->toArray();
         $prize = [
-           '一等奖' =>[$p[0]['name'],$data[0]['one_count']],
-            '二等奖' =>[$p[1]['name'],$data[0]['two_count']],
-            '三等奖' =>[$p[2]['name'],$data[0]['three_count']],];
+          ['prize'=>$p[0]['name'],'count'=>$data[0]['one_count'],'type'=>1],
+            ['prize'=>$p[1]['name'],'count'=>$data[0]['two_count'],'type'=>2],
+           ['prize'=>$p[2]['name'],'count'=>$data[0]['three_count'],'type'=>3]];
         $this->api_res(0,$prize);
     }
 
     public function drawQualifications()
     {
         $post = $this->input->post(null, true);
-        $id = isset($post['id'])?$post['id']:null;
+        $id = empty($post['id'])?$post['id']:null;
         if ($id == null) {
             $this->api_res(1002);
             return false;
@@ -68,8 +68,8 @@ class Draw extends MY_Controller
         $customer = unserialize($data[0]['limit']);
         $Qualifications = $customer['com'];
         if ($Qualifications == 1) {
-            $costomer = Customermodel::where('id', CURRENT_ID)->get();
-            $resident = Residentmodel::where(['id' => CURRENT_ID])->get();
+            $costomer = Customermodel::where('id', 1)->get();
+            $resident = Residentmodel::where(['id' => 80])->get();
             if ((!$costomer) && $resident) {
                 $this->api_res(11004);
                 return false;
@@ -90,7 +90,7 @@ class Draw extends MY_Controller
 //次数符合要求 1-一人一次 2-一天一次 3-一天两次
         $drawlimt = $customer['limit'];
         if ($drawlimt == '1') {
-            $count = Drawmodel::where(['activity_id' =>$data[0]['id'], 'costomer_id' => CURRENT_ID])->count();
+            $count = Drawmodel::where(['activity_id' =>$data[0]['id'], 'costomer_id' => 1])->count();
             if ($count == 1) {
                 $this->api_res(11002);
                 return false;
@@ -145,7 +145,7 @@ class Draw extends MY_Controller
                 $prize_name = Coupontypemodel::where('id', $p[$i])->get(['name']);
                 $draw = new Drawmodel();
                 $draw->activity_id = $data_id;
-                $draw->costomer_id = CURRENT_ID;
+                $draw->costomer_id = 1;
                 $draw->draw_time = date('Y-m-d H:i:s', time());
                 $draw->is_draw = 1;
                 $draw->prize_id = $p[$i];
@@ -176,7 +176,7 @@ class Draw extends MY_Controller
                 //插入未中奖记录
                 $draw = new Draw();
                 $draw->activity_id = $data_id;
-                $draw->costomer_id = CURRENT_ID;
+                $draw->costomer_id = 1;
                 $draw->draw_time = date('Y-m-d H:i:s', time());
                 $draw->is_draw = 0;
                 if ($draw->save()) {
