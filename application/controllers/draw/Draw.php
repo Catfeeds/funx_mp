@@ -19,6 +19,7 @@ class Draw extends MY_Controller
     public function showDraw()
     {
         $post = $this->input->post(null, true);
+
         $id = $post['id'];
    /*     $id = empty($post['id'])?$post['id']:'NOT';
         if ($id=='NOT') {
@@ -28,7 +29,7 @@ class Draw extends MY_Controller
         $this->load->model('activitymodel');
         $filed = ['id', 'name', 'start_time', 'end_time', 'description', 'coupon_info', 'limit','activity_type'
             ,'one_prize','one_count','two_prize','two_count','three_prize','three_count'];
-        $data = Activitymodel::where('id',$id)->get($filed)->toArray();
+        $data = Activitymodel::where('id',80)->get($filed)->toArray();
         if (!(time() >= strtotime($data[0]['start_time']) && time() < strtotime($data[0]['end_time']))) {
             $this->api_res(11001);
             return false;
@@ -58,7 +59,7 @@ class Draw extends MY_Controller
         $this->load->model('activitymodel');
         $filed = ['id', 'name', 'start_time', 'end_time', 'description', 'coupon_info', 'limit','activity_type'
             ,'one_prize','one_count','two_prize','two_count','three_prize','three_count'];
-        $data = Activitymodel::where('id',$id)->get($filed)->toArray();
+        $data = Activitymodel::where('id',80)->get($filed)->toArray();
         $this->load->model('customermodel');
         $this->load->model('residentmodel');
         $this->load->model('storeactivitymodel');
