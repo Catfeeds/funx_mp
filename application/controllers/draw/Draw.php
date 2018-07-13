@@ -19,8 +19,8 @@ class Draw extends MY_Controller
     public function showDraw()
     {
         $post = $this->input->post(null, true);
-        $id = empty($post['id'])?$post['id']:null;
-        if (!$id) {
+        $id = empty($post['id'])?1:trim($post['id']);
+        if ($id == 1) {
             $this->api_res(1002);
             return false;
         }
