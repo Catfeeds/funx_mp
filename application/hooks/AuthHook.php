@@ -30,7 +30,8 @@ class AuthHook {
             'account/server/menu',
             'account/server/checkinorbookingevent',
             'account/server/index',
-
+            'draw/draw/drawqualifications',
+            'draw/draw/showdraw',
             'resident/order/getorderbynumber',
 //            'pay/payment/config',
             //微信支付回调
