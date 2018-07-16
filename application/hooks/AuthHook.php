@@ -32,6 +32,7 @@ class AuthHook {
             'account/server/index',
             'draw/draw/drawqualifications',
             'draw/draw/showdraw',
+            'draw/draw/sharweixin',
             'resident/order/getorderbynumber',
 //            'pay/payment/config',
             //微信支付回调
