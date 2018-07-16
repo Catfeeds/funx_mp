@@ -79,7 +79,9 @@ $config['customer_wechat_payment_key_path']     = '';
 $config['fadada_api_app_secret'] ='PMKQo0b3RCb911OaqmsGAFnw';
 $config['fadada_api_app_id'] ='400388';
 $config['fadada_customer_sign_key_word'] ='RESIDENT_SIGNATURE';
+//测试法大大api
 $config['fadada_api_base_url'] ='http://testapi.fadada.com:8888/api/';
+//正式法大大api
 //$config['fadada_api_base_url'] ='https://extapi.fadada.com/api2/';
 $config['syncPerson_auto.api']  ='syncPerson_auto.api';
 $config['contractFiling.api'] ='contractFiling.api';
