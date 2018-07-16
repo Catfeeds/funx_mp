@@ -136,11 +136,8 @@ class Fadada
                 'other' => $parameterMap,
             );
             $res = $this->requestFdd($url, $reqData, $msgDigest);           //向法大大系统发送请求
-           return $res;
-           die();
         } catch (Exception $e) {
-            $this->error = $e->getMessage();
-            return false;
+            throw $e;
         }
         return $res;
     }

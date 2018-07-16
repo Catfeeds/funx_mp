@@ -724,8 +724,8 @@ class Contract extends MY_Controller
         $contract->status       = $data['status'];
 //            $contract->sign_type       = Contractmodel::SIGN_NEW ;
 
-//        var_dump($data);exit;
-        $contract->save();
+        var_dump($data);exit;
+//        $contract->save();
 
         $url=$this->signFddUrl($contract);
         $this->api_res(0,[$contract,'url'=>$url]);
