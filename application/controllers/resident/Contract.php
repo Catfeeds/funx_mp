@@ -348,7 +348,7 @@ class Contract extends MY_Controller
         if (count($recordOld)) {
             $transactionId = $recordOld->transaction_id;
         }else{
-            $transactionId  = 'B'.date("Ymd His").mt_rand(10, 60);
+            $transactionId  = 'B'.date("Ymd His").mt_rand(10,60);
         }
 
         //生成调用该接口所需要的信息
