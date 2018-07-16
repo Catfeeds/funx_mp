@@ -10,6 +10,7 @@ use EasyWeChat\Foundation\Application;
 date_default_timezone_set('PRC');
 class Draw extends MY_Controller
 {
+
     public function __construct()
     {
         parent::__construct();
@@ -27,7 +28,7 @@ class Draw extends MY_Controller
         $this->load->model('activitymodel');
         $filed = ['id', 'name', 'start_time', 'end_time', 'description', 'coupon_info', 'limit','activity_type'
             ,'one_prize','one_count','two_prize','two_count','three_prize','three_count'];
-        $data = Activitymodel::where('id',$id)->get($filed)->toArray();
+        $data = Activitymodel::where('id',80)->get($filed)->toArray();
         if (!(time()>= strtotime($data[0]['start_time']) && time() < strtotime($data[0]['end_time']))) {
             $this->api_res(11001);
             return false;
@@ -40,16 +41,17 @@ class Draw extends MY_Controller
         $p = Coupontypemodel::whereIn('id',$arr)->get(['name'])->toArray();
         $prize = [
           ['prize'=>$p[0]['name'],'count'=>$data[0]['one_count'],'type'=>1,'name'=>'一等奖'],
-            ['prize'=>'谢谢参与','type'=>0],
+            ['name'=>'谢谢参与','type'=>0],
             ['prize'=>$p[1]['name'],'count'=>$data[0]['two_count'],'type'=>2,'name'=>'二等奖'],
-            ['prize'=>'谢谢参与','type'=>0],
+            ['name'=>'谢谢参与','type'=>0],
            ['prize'=>$p[2]['name'],'count'=>$data[0]['three_count'],'type'=>3,'name'=>'三等奖'],
-            ['prize'=>'谢谢参与','type'=>0],];
-        $this->api_res(0,$prize);
-    }
+            ['name'=>'谢谢参与','type'=>0],];
+        $this->api_res(0,['data'=>$prize,'name'=>$data[0]['name']]);
+}
 
     public function drawQualifications()
     {
+        define('CURRENT_ID',1);
         $post = $this->input->post(null, true);
         $id = isset($post['id'])?$post['id']:null;
         if (!$id) {
@@ -71,26 +73,38 @@ class Draw extends MY_Controller
         //已退租用户  resdent表由信息,但是已经退租
         $customer = unserialize($data[0]['limit']);
         $Qualifications = $customer['com'];
-        if ($Qualifications == 1) {
+        if ($Qualifications == '1') {
             $costomer = Customermodel::where('id', CURRENT_ID)->get();
             $resident = Residentmodel::where(['customer_id' => CURRENT_ID])->get();
             if ((!$costomer) && $resident) {
                 $this->api_res(11004);
                 return false;
             }
-        } elseif ($Qualifications == 2) {
+        } elseif ($Qualifications == '2') {
             $resident = Residentmodel::where(['customer_id' => CURRENT_ID, 'status' => 'NORMAL'])->get();
             if (!$resident) {
                 $this->api_res(11004);
                 return false;
             }
-        } elseif ($Qualifications == 3) {
+        } elseif ($Qualifications == '3') {
             $resident = Residentmodel::where(['customer_id' => CURRENT_ID, 'status' => 'NORMAL_REFUND'])->get();
             if (!$resident) {
                 $this->api_res(11004);
                 return false;
             }
-        }
+        }elseif($Qualifications == '1,2'){
+            $costomer = Customermodel::where('id', CURRENT_ID)->get();
+            if ((!$costomer)) {
+                $this->api_res(11004);
+                return false;
+            }
+        }elseif($Qualifications == '2,3'){
+            $resident = Residentmodel::where(['customer_id' => CURRENT_ID])->get();
+            if (!$resident) {
+                $this->api_res(11004);
+                return false;
+            }
+            }
 //次数符合要求 1-一人一次 2-一天一次 3-一天两次
         $drawlimt = $customer['limit'];
         if ($drawlimt == '1') {
@@ -128,7 +142,7 @@ class Draw extends MY_Controller
 
     private function lotteryDraw($prize, $data_id, $interval_time)
     { $this->load->model('coupontypemodel');
-        $draw_time = Drawmodel::where(['activity_id' => $data_id, 'is_draw' => 1])->orderBy('draw_time','desc')
+        $draw_time = Drawmodel::where(['activity_id' => $data_id, 'costomer_id' => CURRENT_ID])->orderBy('draw_time','desc')
             ->get(['draw_time'])->toArray();
         //设置时间间隔
         $time = isset($draw_time[0]['draw_time'])?$draw_time[0]['draw_time']:0;
@@ -157,10 +171,10 @@ class Draw extends MY_Controller
                 if ($draw->save()) {
                     //发放奖品
                     $update_coupon = [
-                        'customer_id'=>CURRENT_ID,
+                        'customer_id'=>1,
                         'coupon_type_id' => $data_id,
                         'status' => 'unused',
-                        'deadline' => $prize_name->deadline
+
                     ];
                     $activity = new Couponmodel();
                     $activity->fill($update_coupon);
@@ -215,7 +229,7 @@ class Draw extends MY_Controller
             return false;
         }
         $ac = Activitymodel::where('id',$id)->get()->toArray();
-        $arr["imgUrl"] = fullAliossUrl($ac[0]['share_img']);    // 分享显示的缩略图地址
+        $arr["imgUrl"] = $this->fullAliossUrl($ac[0]['share_img']);    // 分享显示的缩略图地址
         $arr["link"] = $ac[0]['qrcode_url'];    // 分享地址
         $arr["desc"] = $ac[0]['share_des'];   // 分享描述
         $arr["title"] = $ac[0]['share_title'];
