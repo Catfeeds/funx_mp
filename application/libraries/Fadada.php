@@ -179,8 +179,7 @@ class Fadada
                 'msg_digest'        => $this->getMsgDigest($msgDigest),
             );
         } catch (Exception $e) {
-            $this->error = $e->getMessage();
-            return false;
+            throw $e;
         }
 
         return $data;
