@@ -624,6 +624,7 @@ class Contract extends MY_Controller
         $this->load->model('roomunionmodel');
         $this->load->model('roomtypemodel');
         $this->load->model('storemodel');
+        $this->load->model('fddrecordmodel');
         $resident   = Residentmodel::find($resident_id);
 
         if(!$resident->contract || $resident->contract->status!=Contractmodel::STATUS_GENERATED){

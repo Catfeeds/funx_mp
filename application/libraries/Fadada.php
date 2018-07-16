@@ -137,6 +137,8 @@ class Fadada
             );
             $res = $this->requestFdd($url, $reqData, $msgDigest);           //向法大大系统发送请求
         } catch (Exception $e) {
+            log_message('error',$e->getMessage());
+            return false;
             throw $e;
         }
         return $res;
@@ -179,6 +181,8 @@ class Fadada
                 'msg_digest'        => $this->getMsgDigest($msgDigest),
             );
         } catch (Exception $e) {
+            log_message('error',$e->getMessage());
+            return false;
             throw $e;
         }
 
