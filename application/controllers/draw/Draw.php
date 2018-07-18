@@ -234,10 +234,10 @@ class Draw extends MY_Controller
             return false;
         }
         $this->load->helper('wechat');
-        $app    = new Application(getCustomerWechatConfig());
+       $app    = new Application(getCustomerWechatConfig());
         $jssdk  = $app->js->config(array('onMenuShareQQ', 'onMenuShareWeibo'), true);
-        $activity = Activitymodel::where('id',$id)->get();
-        $shareData['imgUrl'] = $activity->share_img;
+        $activity = Activitymodel::where('id',$id)->find($id);
+        $shareData['imgUrl'] =$this->fullAliossUrl($activity->share_img);
         $shareData['link'] = $activity->qrcode_url;
         $shareData['desc'] = $activity->share_des;
         $shareData['title'] = $activity->share_title;
