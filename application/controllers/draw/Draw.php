@@ -27,27 +27,28 @@ class Draw extends MY_Controller
             return false;
         }
         $this->load->model('activitymodel');
-        $filed = ['id', 'name', 'start_time', 'end_time', 'description', 'coupon_info', 'limit','activity_type'
+        $filed = ['id', 'name', 'start_time', 'end_time', 'description', 'coupon_info','activity_type'
             ,'one_prize','one_count','two_prize','two_count','three_prize','three_count'];
-        $data = Activitymodel::where('id',$id)->get($filed)->toArray();
-        if (!(time()>= strtotime($data[0]['start_time']) && time() < strtotime($data[0]['end_time']))) {
+        $data = Activitymodel::where('id',$id)->select($filed)->first();
+        if (!(time()>= strtotime($data->start_time) && time() < strtotime($data->end_time))) {
             $this->api_res(11001);
             return false;
-        }elseif($data[0]['activity_type']== '-1'){
+        }elseif($data->activity_type== '-1'){
             $this->api_res(11006);
             return false;
         }
-        $arr = [$data[0]['one_prize'],$data[0]['two_prize'],$data[0]['three_prize']];
+        $arr = [$data->one_prize,$data->two_prize,$data->three_prize];
         $this->load->model('coupontypemodel');
         $p = Coupontypemodel::whereIn('id',$arr)->get(['name'])->toArray();
         $prize = [
-          ['prize'=>$p[0]['name'],'count'=>$data[0]['one_count'],'type'=>1,'name'=>'一等奖'],
+          ['prize'=>$p[0]['name'],'count'=>$data->one_count,'type'=>1,'name'=>'一等奖'],
             ['name'=>'谢谢参与','type'=>0],
-            ['prize'=>$p[1]['name'],'count'=>$data[0]['two_count'],'type'=>2,'name'=>'二等奖'],
+            ['prize'=>$p[1]['name'],'count'=>$data->two_count,'type'=>2,'name'=>'二等奖'],
             ['name'=>'谢谢参与','type'=>0],
-           ['prize'=>$p[2]['name'],'count'=>$data[0]['three_count'],'type'=>3,'name'=>'三等奖'],
+           ['prize'=>$p[2]['name'],'count'=>$data->three_count,'type'=>3,'name'=>'三等奖'],
             ['name'=>'谢谢参与','type'=>0],];
-        $this->api_res(0,['data'=>$prize,'name'=>$data[0]['name']]);
+        $this->api_res(0,['data'=>$prize,'name'=>$data->name,'strat_time'=>$data->start_time->toDatetimeString()
+            ,'end_time'=>$data->end_time->toDatetimeString()]);
 }
     public function drawQualifications()
     {
@@ -234,9 +235,9 @@ class Draw extends MY_Controller
             return false;
         }
         $this->load->helper('wechat');
-       $app    = new Application(getCustomerWechatConfig());
-        $jssdk  = $app->js->config(array('onMenuShareQQ', 'onMenuShareWeibo'), true);
-        $activity = Activitymodel::where('id',$id)->find($id);
+        $app  = new Application(getCustomerWechatConfig());
+        $jssdk  = $app->js->config(array('onMenuShareQQ', 'onMenuShareWeibo'),$debug = false,$beta = false,$json = false);
+        $activity = Activitymodel::find($id);
         $shareData['imgUrl'] =$this->fullAliossUrl($activity->share_img);
         $shareData['link'] = $activity->qrcode_url;
         $shareData['desc'] = $activity->share_des;
@@ -244,4 +245,3 @@ class Draw extends MY_Controller
         $this->api_res(0,['jssdk'=>$jssdk,'shareDate'=>$shareData]);
     }
 }
-
