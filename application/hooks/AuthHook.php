@@ -32,7 +32,7 @@ class AuthHook {
             'account/server/index',
             'draw/draw/drawqualifications',
             'draw/draw/showdraw',
-            'draw/draw/sharweixin',
+            'draw/draw/sharwechat',
             'resident/order/getorderbynumber',
 //            'pay/payment/config',
             //微信支付回调
@@ -111,7 +111,6 @@ class AuthHook {
 //            'resident/order/listpaidorder',
 //        ' resident/contract/watchcontract',
 //        ' resident/resident/count',
-
 
 //            'coupon/coupon/listcoupon',
 //            'coupon/coupon/coupon',
