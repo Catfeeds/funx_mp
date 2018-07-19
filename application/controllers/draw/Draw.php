@@ -47,12 +47,13 @@ class Draw extends MY_Controller
             ['name'=>'谢谢参与','type'=>0],
            ['prize'=>$p[2]['name'],'count'=>$data->three_count,'type'=>3,'name'=>'三等奖'],
             ['name'=>'谢谢参与','type'=>0],];
-        $this->api_res(0,['data'=>$prize,'name'=>$data->name,'strat_time'=>$data->start_time->toDatetimeString()
-            ,'end_time'=>$data->end_time->toDatetimeString()]);
+        $start_time = date("Y:m:d",strtotime($data->start_time->toDatetimeString()));
+        $end_time = date("Y:m:d",strtotime($data->end_time->toDatetimeString()));
+        $this->api_res(0,['data'=>$prize,'name'=>$data->name,'strat_time'=>$start_time
+            ,'end_time'=>$end_time]);
 }
     public function drawQualifications()
     {
-        define('CURRENT_ID',1);
         $post = $this->input->post(null, true);
         $id = isset($post['id'])?$post['id']:null;
         if (!$id) {
@@ -236,7 +237,7 @@ class Draw extends MY_Controller
         }
         $this->load->helper('wechat');
         $app  = new Application(getCustomerWechatConfig());
-        $jssdk  = $app->js->config(array('onMenuShareQQ', 'onMenuShareWeibo'),$debug = false,$beta = false,$json = false);
+        $jssdk  = $app->js->config(array('onMenuShareTimeline', 'onMenuShareAppMessage'),$debug = false,$beta = false,$json = false);
         $activity = Activitymodel::find($id);
         $shareData['imgUrl'] =$this->fullAliossUrl($activity->share_img);
         $shareData['link'] = $activity->qrcode_url;
