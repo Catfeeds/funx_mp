@@ -241,7 +241,7 @@ class Draw extends MY_Controller
         $shareData['title'] = $activity->share_title;
         $this->load->helper('wechat');
         $app  = new Application(getCustomerWechatConfig());
-        $url = "http://tweb.funxdata.com";
+        $url = ".$activity->qrcode_url.";
         $app->js->setUrl($url);
         $jssdk  = $app->js->config(array('onMenuShareTimeline', 'onMenuShareAppMessage'),$debug = false,$beta = false,$json = false);
         $this->api_res(0,['jssdk'=>$jssdk,'shareDate'=>$shareData]);
