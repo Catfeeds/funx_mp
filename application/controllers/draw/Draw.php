@@ -70,7 +70,6 @@ class Draw extends MY_Controller
         $this->load->model('drawmodel');
         $this->load->model('couponmodel');
         //1-首次关注用户 2-已入住用户 3-以退租用户 4-所有用户
-
         $customer = unserialize($data[0]['limit']);
         $Qualifications = $customer['com'];
         if ($Qualifications == '1') {
@@ -153,7 +152,7 @@ class Draw extends MY_Controller
             $draw->draw_time = date('Y-m-d H:i:s', time());
             $draw->is_draw = 0;
             if ($draw->save()) {
-                $this->api_res(11003,['type'=>0]);
+                $this->api_res(0,['type'=>0]);
                 return false;
             } else {
                 $this->api_res(500);
@@ -215,7 +214,7 @@ class Draw extends MY_Controller
                 $draw->draw_time = date('Y-m-d H:i:s', time());
                 $draw->is_draw = 0;
                 if ($draw->save()) {
-                    $this->api_res(11003,['type'=>0]);
+                    $this->api_res(0,['type'=>0]);
                     return false;
                 } else {
                     $this->api_res(500);
@@ -235,14 +234,16 @@ class Draw extends MY_Controller
             $this->api_res(1002);
             return false;
         }
-        $this->load->helper('wechat');
-        $app  = new Application(getCustomerWechatConfig());
-        $jssdk  = $app->js->config(array('onMenuShareTimeline', 'onMenuShareAppMessage'),$debug = false,$beta = false,$json = false);
         $activity = Activitymodel::find($id);
         $shareData['imgUrl'] =$this->fullAliossUrl($activity->share_img);
         $shareData['link'] = $activity->qrcode_url;
         $shareData['desc'] = $activity->share_des;
         $shareData['title'] = $activity->share_title;
+        $this->load->helper('wechat');
+        $app  = new Application(getCustomerWechatConfig());
+        $url = "http://tweb.funxdata.com";
+        $app->js->setUrl($url);
+        $jssdk  = $app->js->config(array('onMenuShareTimeline', 'onMenuShareAppMessage'),$debug = false,$beta = false,$json = false);
         $this->api_res(0,['jssdk'=>$jssdk,'shareDate'=>$shareData]);
     }
 }

@@ -38,7 +38,6 @@ class AuthHook {
             'resident/contract/signresult',
             'resident/contract/resigncontract',
             'resident/contract/resignfddurl',
-
             'resident/resident/getresident',
             'resident/contract/index',
             'resident/contract/sendsms',
