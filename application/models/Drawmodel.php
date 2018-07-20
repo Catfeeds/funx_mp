@@ -8,7 +8,5 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  */
 class Drawmodel extends Basemodel
 {
-
-
     protected $table = 'boss_draw';
 }
