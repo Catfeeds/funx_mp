@@ -41,17 +41,16 @@ class Draw extends MY_Controller
         $this->load->model('coupontypemodel');
         $p = Coupontypemodel::whereIn('id',$arr)->get(['name'])->toArray();
         $prize = [
-          ['prize'=>$p[0]['name'],'count'=>$data->one_count,'type'=>1,'name'=>'一等奖'],
+            ['prize'=>$p[0]['name'],'count'=>$data->one_count,'type'=>1,'name'=>'一等奖'],
             ['name'=>'谢谢参与','type'=>0],
             ['prize'=>$p[1]['name'],'count'=>$data->two_count,'type'=>2,'name'=>'二等奖'],
             ['name'=>'谢谢参与','type'=>0],
-           ['prize'=>$p[2]['name'],'count'=>$data->three_count,'type'=>3,'name'=>'三等奖'],
+            ['prize'=>$p[2]['name'],'count'=>$data->three_count,'type'=>3,'name'=>'三等奖'],
             ['name'=>'谢谢参与','type'=>0],];
-        $start_time = date("Y:m:d",strtotime($data->start_time->toDatetimeString()));
-        $end_time = date("Y:m:d",strtotime($data->end_time->toDatetimeString()));
-        $this->api_res(0,['data'=>$prize,'name'=>$data->name,'strat_time'=>$start_time
-            ,'end_time'=>$end_time]);
-}
+
+        $this->api_res(0,['data'=>$prize,'name'=>$data->name,'strat_time'=>$data->start_time->format('Y-m-d')
+            ,'end_time'=>$data->end_time->format('Y-m-d'),'description'=>$data->description]);
+    }
     public function drawQualifications()
     {
         $post = $this->input->post(null, true);
@@ -69,6 +68,7 @@ class Draw extends MY_Controller
         $this->load->model('storeactivitymodel');
         $this->load->model('drawmodel');
         $this->load->model('couponmodel');
+        $this->load->model('coupontypemodel');
         //1-首次关注用户 2-已入住用户 3-以退租用户 4-所有用户
         $customer = unserialize($data[0]['limit']);
         $Qualifications = $customer['com'];
@@ -104,7 +104,7 @@ class Draw extends MY_Controller
                 $this->api_res(11004);
                 return false;
             }
-            }
+        }
 //次数符合要求 1-一人一次 2-一天一次 3-一天两次
         $drawlimt = $customer['limit'];
         if ($drawlimt == '1') {
@@ -133,7 +133,8 @@ class Draw extends MY_Controller
             'prize' => $data[0]['one_prize'].','.$data[0]['two_prize'].','.$data[0]['three_prize'],
             'count' => $data[0]['one_count'].','.$data[0]['two_count'].','.$data[0]['three_count'],
         ];
-        $interval_time = strtotime($data[0]['end_time']) - strtotime($data[0]['start_time']);
+        $interval_time =strtotime($data[0]['end_time']) - strtotime($data[0]['start_time']);
+
         $this->lotteryDraw($prize, $data_id, $interval_time);
     }
 
@@ -144,8 +145,14 @@ class Draw extends MY_Controller
         $draw_time = Drawmodel::where(['activity_id' => $data_id])->orderBy('draw_time','desc')
             ->get(['draw_time'])->toArray();
         //设置时间间隔
+        $c = explode(',', $prize['count']);
+        $count = 0;
+        for ($i = 0; $i < count($c); $i++) {
+            $count += $c[$i];
+        }
+        $de_time = ceil($interval_time/$count);
         $time = isset($draw_time[0]['draw_time'])?$draw_time[0]['draw_time']:0;
-       if ((time() - strtotime($time)) < $interval_time){
+        if ((time() - strtotime($time)) < $de_time){
             //插入未中奖记录
             $draw->activity_id = $data_id;
             $draw->costomer_id = CURRENT_ID;
@@ -158,11 +165,6 @@ class Draw extends MY_Controller
                 $this->api_res(500);
                 return false;
             }
-        }
-        $c = explode(',', $prize['count']);
-        $count = 0;
-        for ($i = 0; $i < count($c); $i++) {
-            $count += $c[$i];
         }
         $prize_rand = rand(1, $count*2);
         $p = explode(',', $prize['prize']);
@@ -178,16 +180,18 @@ class Draw extends MY_Controller
                 $draw->prize_name = $prize_name[0]['name'];
                 if ($draw->save()) {
                     //发放奖品
+                    $coupon = Coupontypemodel::where('id',$p[$i])->first();
                     $update_coupon = [
-                        'customer_id'=>1,
-                        'coupon_type_id' => $data_id,
+                        'customer_id'=>CURRENT_ID,
+                        'coupon_type_id' => $p[$i],
                         'status' => 'unused',
+                        'deadline' => $coupon->deadline,
                     ];
                     $activity = new Couponmodel();
                     $activity->fill($update_coupon);
                     $res=$activity->save();
                     //改变奖品数量
-                     $c[$i]--;
+                    $c[$i]--;
                     $count_insert = Activitymodel::find($data_id);
                     if($i == 0) {
                         $count_insert->one_count =  $c[$i];
@@ -240,10 +244,27 @@ class Draw extends MY_Controller
         $shareData['desc'] = $activity->share_des;
         $shareData['title'] = $activity->share_title;
         $this->load->helper('wechat');
-        $app  = new Application(getCustomerWechatConfig());
-        $url = ".$activity->qrcode_url.";
-        $app->js->setUrl($url);
-        $jssdk  = $app->js->config(array('onMenuShareTimeline', 'onMenuShareAppMessage'),$debug = false,$beta = false,$json = false);
+        $appid = config_item('wx_web_appid');
+        $secret = config_item('wx_web_secret');
+        $this->load->library('M_redis');
+        $ticket = $this->m_redis->getjsapi_ticket();
+        if(!$ticket){
+            $ticket = $this->get_access_token($appid,$secret);
+            $this->m_redis->setjsapi_ticket($ticket);
+        }
+        $time = time();
+        $chars = $this->random_str();
+        $url = $activity->qrcode_url;
+        $str = "jsapi_ticket=$ticket&noncestr=$chars&timestamp=$time&url=$url";
+        $signature = sha1($str);
+        $jssdk = [
+            'debug'=>false,
+            'appid' => $appid,
+            'timestamp' => $time,
+            'nonceStr' => $chars,
+            'signature' =>$signature,
+            'jsApiList' => ['onMenuShareTimeline', 'onMenuShareAppMessage'],
+        ];
         $this->api_res(0,['jssdk'=>$jssdk,'shareDate'=>$shareData]);
     }
 }

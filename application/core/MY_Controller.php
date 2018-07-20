@@ -8,7 +8,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * Describe:    授权登录token验证Hook
  */
 class MY_Controller extends CI_Controller {
-
+    const GET_ACCESS_TOKEN = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=";
+    const GET_TICKET = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=";
     public function __construct()
     {
         parent::__construct();
@@ -158,14 +159,40 @@ class MY_Controller extends CI_Controller {
     /**
      * 核对当前操作用户
      */
-  /*  public function checkUser($uxid){
-        if($uxid!=CURRENT_ID){
-            return flase;
-//            throw new Exception('核对当前操作用户异常');
-        }else{
-            return true;
+    /*  public function checkUser($uxid){
+          if($uxid!=CURRENT_ID){
+              return flase;
+  //            throw new Exception('核对当前操作用户异常');
+          }else{
+              return true;
+          }
+      }*/
+    /*
+     * 获取access_token
+    */
+    public function get_access_token($appid,$secret){
+        $access_token=self::GET_ACCESS_TOKEN.$appid."&secret=".$secret;
+        $ticket = json_decode($this->httpCurl($access_token));
+        $jsapi_ticket = $this->get_ticket($ticket->access_token);
+        return $jsapi_ticket;
+    }
+    /*
+     *获取ticket
+     * */
+    protected function get_ticket($access_token){
+        $jsapi_ticket = json_decode($this->httpCurl(self::GET_TICKET.$access_token."&type=jsapi"));
+        return $jsapi_ticket->ticket;
+    }
+    /*
+     * 获取随机字符串
+     * */
+    public function random_str(){
+        $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        $password = "";
+        for ( $i = 0; $i < 10; $i++ )
+        {
+            $password .= $chars[ mt_rand(0, strlen($chars) - 1) ];
         }
-    }*/
-
-
+        return $password;
+    }
 }

@@ -256,4 +256,20 @@ class M_redis
         $token  = $this->redis->get($key);
         return $token;
     }
+    /*
+ * 存储jsapi_ticket
+ * */
+    public function setjsapi_ticket($token){
+        $key   = JSPAPI_TICKET;
+        $this->redis->set($key,$token,2*60*60);
+        return true;
+    }
+    /*
+     * 获取jsapi_ticket
+     * */
+    public function getjsapi_ticket(){
+        $key   = JSPAPI_TICKET;
+        $token  = $this->redis->get($key);
+        return $token;
+    }
 }
