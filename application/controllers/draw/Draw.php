@@ -33,7 +33,7 @@ class Draw extends MY_Controller
         if (!(time()>= strtotime($data->start_time) && time() < strtotime($data->end_time))) {
             $this->api_res(11001);
             return false;
-        }elseif($data->activity_type== '-1'){
+        }elseif($data->activity_type== 'LOWER'){
             $this->api_res(11006);
             return false;
         }
@@ -108,20 +108,20 @@ class Draw extends MY_Controller
 //次数符合要求 1-一人一次 2-一天一次 3-一天两次
         $drawlimt = $customer['limit'];
         if ($drawlimt == '1') {
-            $count = Drawmodel::where(['activity_id' =>$data[0]['id'], 'costomer_id' => CURRENT_ID])->count();
+            $count = Drawmodel::where(['activity_id' =>$data[0]['id'], 'customer_id' => CURRENT_ID])->count();
             if ($count >= 1) {
                 $this->api_res(11002);
                 return false;
             }
         } elseif ($drawlimt == '2') {
-            $count = Drawmodel::where(['activity_id' => $data[0]['id'], 'costomer_id' => CURRENT_ID,])
+            $count = Drawmodel::where(['activity_id' => $data[0]['id'], 'customer_id' => CURRENT_ID,])
                 ->whereBetween('draw_time',[date('Y-m-d H:i:s', time()-24*60*60),date('Y-m-d H:i:s', time())])->count();
             if ($count >= 1) {
                 $this->api_res(11002);
                 return false;
             }
         } elseif ($drawlimt == '3') {
-            $count = Drawmodel::where(['activity_id' => $data[0]['id'], 'costomer_id' => CURRENT_ID,])
+            $count = Drawmodel::where(['activity_id' => $data[0]['id'], 'customer_id' => CURRENT_ID,])
                 ->whereBetween('draw_time',[date('Y-m-d H:i:s', time()-24*60*60),date('Y-m-d H:i:s', time())])->count();
             if ($count >= 2) {
                 $this->api_res(11002);
@@ -155,7 +155,7 @@ class Draw extends MY_Controller
         if ((time() - strtotime($time)) < $de_time){
             //插入未中奖记录
             $draw->activity_id = $data_id;
-            $draw->costomer_id = CURRENT_ID;
+            $draw->customer_id = CURRENT_ID;
             $draw->draw_time = date('Y-m-d H:i:s', time());
             $draw->is_draw = 0;
             if ($draw->save()) {
@@ -173,7 +173,7 @@ class Draw extends MY_Controller
                 //插入中奖记录
                 $prize_name = Coupontypemodel::where('id', $p[$i])->get(['name']);
                 $draw->activity_id = $data_id;
-                $draw->costomer_id = CURRENT_ID;
+                $draw->customer_id = CURRENT_ID;
                 $draw->draw_time = date('Y-m-d H:i:s', time());
                 $draw->is_draw = 1;
                 $draw->prize_id = $p[$i];
@@ -214,7 +214,7 @@ class Draw extends MY_Controller
             } elseif ($i == (count($p) - 1)) {
                 //插入未中奖记录
                 $draw->activity_id = $data_id;
-                $draw->costomer_id = CURRENT_ID;
+                $draw->customer_id = CURRENT_ID;
                 $draw->draw_time = date('Y-m-d H:i:s', time());
                 $draw->is_draw = 0;
                 if ($draw->save()) {
@@ -259,7 +259,7 @@ class Draw extends MY_Controller
         $signature = sha1($str);
         $jssdk = [
             'debug'=>false,
-            'appid' => $appid,
+            'appId' => $appid,
             'timestamp' => $time,
             'nonceStr' => $chars,
             'signature' =>$signature,
