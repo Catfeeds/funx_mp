@@ -260,7 +260,15 @@ class Draw extends MY_Controller
         }
         $activity = Activitymodel::find($id);
         $shareData['imgUrl'] =$this->fullAliossUrl($activity->share_img);
-        $shareData['link'] = $activity->qrcode_url;
+        if($activity->activity_type== 'TRNTABLE'){
+            //转盘
+            $shareData['link'] = config_item('web_domain').'/#/turntable/'.$activity->id;
+        }elseif($activity->activity_type== 'SCRATCH'){
+            //刮刮乐
+            $shareData['link'] = config_item('web_domain').'/#/scraping/'.$activity->id;
+        }else {
+            $shareData['link'] = $activity->qrcode_url;
+        }
         $shareData['desc'] = $activity->share_des;
         $shareData['title'] = $activity->share_title;
         $this->load->helper('wechat');
@@ -287,7 +295,7 @@ class Draw extends MY_Controller
             'timestamp' => $time,
             'nonceStr' => $chars,
             'signature' =>$signature,
-            'jsApiList' => ['onMenuShareTimeline', 'onMenuShareAppMessage'],
+            'jsApiList' => ['onMenuShareTimeline', 'onMenuShareAppMessage','onMenuShareQQ','onMenuShareWeibo','onMenuShareQZone'],
         ];
         $this->api_res(0,['jssdk'=>$jssdk,'shareDate'=>$shareData]);
     }
