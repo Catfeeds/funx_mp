@@ -244,8 +244,8 @@ class Draw extends MY_Controller
         $shareData['desc'] = $activity->share_des;
         $shareData['title'] = $activity->share_title;
         $this->load->helper('wechat');
-        $appid = config_item('wx_web_appid');
-        $secret = config_item('wx_web_secret');
+        $appid = config_item('wx_map_appid');
+        $secret = config_item('wx_map_secret');
         $this->load->library('M_redis');
         $ticket = $this->m_redis->getjsapi_ticket();
         if(!$ticket){
@@ -254,7 +254,7 @@ class Draw extends MY_Controller
         }
         $time = time();
         $chars = $this->random_str();
-        $url = $activity->qrcode_url;
+        $url = $this->input->get_request_header('referer', false);
         $str = "jsapi_ticket=$ticket&noncestr=$chars&timestamp=$time&url=$url";
         $signature = sha1($str);
         $jssdk = [
