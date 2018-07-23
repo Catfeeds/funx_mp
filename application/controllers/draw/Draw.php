@@ -30,6 +30,10 @@ class Draw extends MY_Controller
         $filed = ['id', 'name', 'start_time', 'end_time', 'description', 'coupon_info','activity_type'
             ,'one_prize','one_count','two_prize','two_count','three_prize','three_count'];
         $data = Activitymodel::where('id',$id)->select($filed)->first();
+        if(!$data){
+            $this->api_res(1007);
+            return false;
+        }
         if (!(time()>= strtotime($data->start_time) && time() < strtotime($data->end_time))) {
             $this->api_res(11001);
             return false;
@@ -63,6 +67,10 @@ class Draw extends MY_Controller
         $filed = ['id', 'name', 'start_time', 'end_time', 'description', 'coupon_info', 'limit','activity_type'
             ,'one_prize','one_count','two_prize','two_count','three_prize','three_count'];
         $data = Activitymodel::where('id',$id)->get($filed)->toArray();
+        if(!$data){
+            $this->api_res(1007);
+            return false;
+        }
         $this->load->model('customermodel');
         $this->load->model('residentmodel');
         $this->load->model('storeactivitymodel');
@@ -80,14 +88,24 @@ class Draw extends MY_Controller
                 return false;
             }
         } elseif ($Qualifications == '2') {
-            $resident = Residentmodel::where(['customer_id' => CURRENT_ID, 'status' => 'NORMAL'])->get();
+            $resident = Residentmodel::where(['customer_id' => CURRENT_ID, 'status' => 'NORMAL'])->select(['store_id'])->first();
             if (!$resident) {
                 $this->api_res(11004);
                 return false;
             }
+            $store_activirty = Storeactivitymodel::where(['store_id'=>$resident->store_id,'activity_id'=>$data[0]['id']])->get();
+            if(!$store_activirty){
+                $this->api_res(11004);
+                return false;
+            }
         } elseif ($Qualifications == '3') {
-            $resident = Residentmodel::where(['customer_id' => CURRENT_ID, 'status' => 'NORMAL_REFUND'])->get();
+            $resident = Residentmodel::where(['customer_id' => CURRENT_ID, 'status' => 'NORMAL_REFUND'])->select(['store_id'])->first();
             if (!$resident) {
+                $this->api_res(11004);
+                return false;
+            }
+            $store_activirty = Storeactivitymodel::where(['store_id'=>$resident->store_id,'activity_id'=>$data[0]['id']])->get();
+            if(!$store_activirty){
                 $this->api_res(11004);
                 return false;
             }
@@ -128,6 +146,8 @@ class Draw extends MY_Controller
                 return false;
             }
         }
+        //门店符合要求
+
         $data_id = $data[0]['id'];
         $prize = [
             'prize' => $data[0]['one_prize'].','.$data[0]['two_prize'].','.$data[0]['three_prize'],
@@ -257,8 +277,12 @@ class Draw extends MY_Controller
         $url = $this->input->get_request_header('referer', false);
         $str = "jsapi_ticket=$ticket&noncestr=$chars&timestamp=$time&url=$url";
         $signature = sha1($str);
+        $debug = false;
+        if(ENVIRONMENT!='production'){
+            $debug = true;
+        }
         $jssdk = [
-            'debug'=>false,
+            'debug'=>$debug,
             'appId' => $appid,
             'timestamp' => $time,
             'nonceStr' => $chars,
