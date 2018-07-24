@@ -27,7 +27,7 @@ class Draw extends MY_Controller
             return false;
         }
         $this->load->model('activitymodel');
-        $filed = ['id', 'name', 'start_time', 'end_time', 'description', 'coupon_info','activity_type'
+        $filed = ['id', 'name', 'start_time', 'end_time', 'description', 'coupon_info','activity_type','type'
             ,'one_prize','one_count','two_prize','two_count','three_prize','three_count'];
         $data = Activitymodel::where('id',$id)->select($filed)->first();
         if(!$data){
@@ -37,7 +37,7 @@ class Draw extends MY_Controller
         if (!(time()>= strtotime($data->start_time) && time() < strtotime($data->end_time))) {
             $this->api_res(11001);
             return false;
-        }elseif($data->activity_type== 'LOWER'){
+        }elseif($data->type== 'LOWER'){
             $this->api_res(11006);
             return false;
         }
