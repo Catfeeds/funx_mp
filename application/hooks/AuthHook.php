@@ -49,7 +49,6 @@ class AuthHook {
 //            'resident/resident/record',
             'resident/resident/refund',
             'resident/resident/checkout',
-
             'common/imageupload',
             'common/fileupload',
 
