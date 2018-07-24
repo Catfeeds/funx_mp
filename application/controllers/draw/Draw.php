@@ -133,14 +133,14 @@ class Draw extends MY_Controller
             }
         } elseif ($drawlimt == '2') {
             $count = Drawmodel::where(['activity_id' => $data[0]['id'], 'customer_id' => CURRENT_ID,])
-                ->whereBetween('draw_time',[date('Y-m-d H:i:s', time()-24*60*60),date('Y-m-d H:i:s', time())])->count();
+                ->whereDate('draw_time', date('Y-m-d', time())) ->count();
             if ($count >= 1) {
                 $this->api_res(11002);
                 return false;
             }
         } elseif ($drawlimt == '3') {
             $count = Drawmodel::where(['activity_id' => $data[0]['id'], 'customer_id' => CURRENT_ID,])
-                ->whereBetween('draw_time',[date('Y-m-d H:i:s', time()-24*60*60),date('Y-m-d H:i:s', time())])->count();
+                ->whereDate('draw_time', date('Y-m-d', time()))->count();
             if ($count >= 2) {
                 $this->api_res(11002);
                 return false;
