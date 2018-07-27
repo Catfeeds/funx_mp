@@ -114,20 +114,22 @@ class Smartlock extends MY_Controller
            $this->api_res(1002);
            return;
        }
-       if ($post['serial_number']){
+       if($post['serial_number']){
            $device_id = trim($post['serial_number']);
            $supplier = Smartdevicemodel::where('serial_number',$device_id)
                ->get(['supplier'])->map(function ($supplier){
                    return $supplier->supplier;
                });
-           if ($supplier[0] == 'DANBAY'){
+           if($supplier[0] == 'DANBAY'){
                $danbay = new Danbaylock($device_id);
                $danbay->handle();
                $danbay->clearAllGuestPwd();
                $pwd = $danbay->addPwd($newpwd);
                $this->api_res(0,$pwd);
-           }elseif ($supplier[0] == 'YEEUU'){
-               $pwd = (new Yeeuulock($device_id))->extPwd($newpwd,1);
+           }elseif($supplier[0] == 'YEEUU'){
+               $yeeuu = new Yeeuulock($device_id);
+               $yeeuu->clearAll();
+               $pwd = $yeeuu->extPwd($newpwd,1);
                $this->api_res(0,$pwd);
            }else{
                $this->api_res(0,[]);
@@ -144,13 +146,22 @@ class Smartlock extends MY_Controller
         if(!empty($post['begin_time'])){$bt=$post['begin_time'];}else{$bt = date('Ymd',0);};
         if(!empty($post['end_time'])){$et=$post['end_time'];}else{$et = date('Ymd',time());};
         if ($post['serial_number']){
-            $device_id = trim($post['serial_number']);
-            $supplier = Smartdevicemodel::where('serial_number',$device_id)
-                ->get(['supplier'])->map(function ($supplier){
-                    return $supplier->supplier;
-                });
+            $device_id  = trim($post['serial_number']);
+            $supplier   = Smartdevicemodel::where('serial_number',$device_id)
+                        ->get(['supplier'])->map(function ($supplier){
+                            return $supplier->supplier;
+                        });
             if ($supplier[0] == 'DANBAY'){
-                $this->api_res(0,[]);
+                $pwd = (new Danbaylock($device_id))->getOpenRecord();
+                if (!empty($pwd)){
+                    foreach ($pwd as $key=>$value){
+                        $pwd[$key]['opTime']    = date('Y-m-d',strtotime($pwd[$key]['openDoorTime']));
+                        $pwd[$key]['user']      = '';
+                        $pwd[$key]['msg']       = $this->unlockType($pwd[$key]['type']);
+                    }
+                    array_multisort(array_column($pwd,'opTime'),SORT_DESC,$pwd);
+                }
+                $this->api_res(0,$pwd);
             }elseif ($supplier[0] == 'YEEUU'){
                 $pwd = (new Yeeuulock($device_id))->openRecords($bt,$et);
                 $pwd = $pwd['data'];
@@ -165,5 +176,25 @@ class Smartlock extends MY_Controller
                 $this->api_res(0,[]);
             }
         }
+    }
+
+    private function unlockType($msg)
+    {
+        switch ($msg)
+        {
+            case 0:
+                $way = '密码开门';
+                break;
+            case 1:
+                $way = '从门内开门';
+                break;
+            case 2:
+                $way = '从门外开门';
+                break;
+            default:
+                $way = '';
+                break;
+        }
+        return $way;
     }
 }

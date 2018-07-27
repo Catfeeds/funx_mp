@@ -111,6 +111,26 @@ class Danbaylock
     }
 
     /**
+     * 根据设备号获取开门记录
+     * @param $device_id
+     * @return mixed|string
+     */
+    public function getOpenRecord()
+    {
+        $res = $this->sendRequet('/deviceInfo/getLockRecordsByDeviceId',[
+            'deviceId'  => $this->deviceId,
+            'beginDate' => '2018-05-01',
+            'endDate'   => date('Y-m-d',time()),
+        ],'POST',true);
+        if ($res&&$res['result']){
+            $res = $res['result'];
+        }else{
+            $res = [];
+        }
+        return $res;
+    }
+
+    /**
      * 获取指定门锁的密码列表
      */
     public function getLockPwdList()
