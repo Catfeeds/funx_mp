@@ -122,6 +122,17 @@ class Yeeuulock
         return $res;
     }
 
+    /**
+     * 清除设备所有密码
+     */
+    public function clearAll()
+    {
+        $res = $this->httpGet(implode('/', [$this->apiBaseUrl, $this->deviceId,'clear_all_password']), [
+            'key'   => $this->secret,
+            'mode' => '0',
+        ]);
+        return $res;
+    }
 
     /**
      * 发送 POST 请求
