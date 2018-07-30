@@ -51,7 +51,6 @@ class AuthHook {
             'resident/resident/checkout',
             'common/imageupload',
             'common/fileupload',
-
            /* 'store/store/showcity',
             'store/store/showstore',
             'store/store/liststore',*/
