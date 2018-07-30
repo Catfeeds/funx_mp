@@ -8,7 +8,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * 房型表
  */
 class Roomtypemodel extends Basemodel{
-
+    const DISPLAY_BLOCK = 0; //不展示户型
+    const DISPLAY = 1; //展示户型
     protected $table    = 'boss_room_type';
 
     protected $fillable = [
