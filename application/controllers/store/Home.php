@@ -36,7 +36,7 @@ class Home extends MY_Controller
 
         $offset = ($page-1)*$per_page;
 
-        $count  = Roomtypemodel::with('store','roomunion')
+        $count  = Roomtypemodel::with('store','roomunion')->where('display',Roomtypemodel::DISPLAY)
             ->get()->map(function($query){
                 $query->max_price   = $query->roomunion->max('rent_price');
                 $query->min_price   = $query->roomunion->min('rent_price');
@@ -48,6 +48,7 @@ class Home extends MY_Controller
         $total_page = ceil($count/$per_page);
 
         $room_types   = Roomtypemodel::with('store','roomunion')->offset($offset)->limit($per_page)
+            ->where('display',Roomtypemodel::DISPLAY)
             ->get()
             ->whereIn('store.id',$ids)
             ->map(function($query){
