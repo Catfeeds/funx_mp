@@ -69,7 +69,14 @@ class Payment extends MY_Controller
             $this->api_res(10017);
             return;
         }
-
+        $store_ids = [];
+        foreach ($coupons as $value){
+            $arr = explode(',',$value->store_id);
+            for ($i=0;$i<( count($arr));$i++){
+                $store_ids [] = $arr[$i];
+            }
+        }
+        $store_id = $this->resident->store_id;
 
         //计算总金额
         $amount = $orders->sum('money');
@@ -78,18 +85,15 @@ class Payment extends MY_Controller
             $this->api_res(10018);
             return;
         }
-
         try {
             DB::beginTransaction();
             //更新订单的付款方式和支付金额
             $this->updatePayWayAndPaid($orders);
             $discount   = 0;
-            if (count($coupons)) {
+            if (count($coupons) && ((in_array($store_id,$store_ids)) || count($store_ids)==0)) {
                 $discount   = $this->amountOfDiscount($orders, $coupons);
                 $amount     = $amount - $discount;
             }
-
-
             $this->load->helper('url');
             $roomunion       = $this->resident->roomunion;
             $store      = $roomunion->store;
