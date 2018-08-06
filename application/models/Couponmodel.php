@@ -26,6 +26,7 @@ class Couponmodel extends Basemodel
         'customer_id',
         'resident_id',
         'order_id',
+        'store_id',
         'coupon_type_id'
     ];
 

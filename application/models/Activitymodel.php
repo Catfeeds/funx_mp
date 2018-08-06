@@ -55,5 +55,7 @@ class Activitymodel extends Basemodel
 //    {
 //        return $this->hasMany(Helprecord::class, 'activity_id');
 //    }
-
+    public function store() {
+        return $this->belongsTo(Storeactivitymodel::class, 'id', 'activity_id');
+    }
 }
