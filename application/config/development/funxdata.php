@@ -64,7 +64,8 @@ $config['wx_map_secret']    = '00e6fd3ce1151e3d2bd0e01c98c925d3';
 
 $config['wx_customer_oauth_scopes']   = 'snsapi_userinfo';
 $config['wx_oauth_callback']          = '';
-
+//1.预约看房通知
+$config['tmplmsg_employee_Reserve']   = 'dWQgnPZ5rBhbnTuHh0YSJ30V_wMbvgTREknhjG4ophw';
 //微信商户
 $config['customer_wechat_payment_merchant_id']  = '1283267801';
 $config['customer_wechat_payment_key']          = 'c26cde6c73f3db135556f9cbed016fae';

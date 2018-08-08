@@ -60,7 +60,7 @@ function getWechatEmployeeConfig()
         ],
         'oauth' => [
             'scopes'   => ['snsapi_userinfo'],
-            'callback' => site_url('callback'),
+            /*'callback' => site_url('callback'),*/
         ],
     ];
 
