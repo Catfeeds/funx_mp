@@ -43,14 +43,20 @@ class Reserve extends MY_Controller
             $this->api_res(1009);
         }
     }
-    private function Template_message($store_id=6,$yu_name=1){
+    public function Template_message($store_id,$yu_name){
         $this->load->model('positionmodel');
         $this->load->model('employeemodel');
         $name = '店长';
         $position = Positionmodel::where('name',$name)->select(['id'])->first();
+        if(!$position){
+            return false;
+        }
         $employee = Employeemodel::where('position_id',$position->id)->where('store_ids','like',"%".$store_id."%")->get(['openid'])->toArray();
+        if(!$employee){
+            return false;
+        }
         $this->load->helper('wechat');
-        $app    = new Application(getWechatEmployeeConfig());
+        $app    = new Application(getCustomerWechatConfig());
         foreach ($employee as $value){
         $app->notice->uses(config_item('tmplmsg_employee_Reserve'))
             ->withUrl(config_item('wechat_base_url') . 'mini/resident/reservation')
