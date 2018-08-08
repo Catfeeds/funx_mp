@@ -1,5 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
+use EasyWeChat\Foundation\Application;
+use EasyWeChat\Payment\Order;
 /**
  * Author:      hfq<1326432154@qq.com>
  * Date:        2018/5/21
@@ -35,12 +37,32 @@ class Reserve extends MY_Controller
         $reserve->status = 'WAIT';
 
         if ($reserve->save()) {
+            $this->Template_message($post['store_id'],$post['name']);
             $this->api_res(0);
         }else{
             $this->api_res(1009);
         }
     }
-
+    private function Template_message($store_id=6,$yu_name=1){
+        $this->load->model('positionmodel');
+        $this->load->model('employeemodel');
+        $name = '店长';
+        $position = Positionmodel::where('name',$name)->select(['id'])->first();
+        $employee = Employeemodel::where('position_id',$position->id)->where('store_ids','like',"%".$store_id."%")->get(['openid'])->toArray();
+        $this->load->helper('wechat');
+        $app    = new Application(getWechatEmployeeConfig());
+        foreach ($employee as $value){
+        $app->notice->uses(config_item('tmplmsg_employee_Reserve'))
+            ->withUrl(config_item('wechat_base_url') . 'mini/resident/reservation')
+            ->andData([
+                'first'    => '有新的预约消息',
+                'keyword1' => '预约人为'.$yu_name,
+                'remark'   => '如有疑问，请与工作人员联系',
+            ])
+            ->andReceiver('o5zIb1FSlDNauJHIGFwMzTNGa-Ow')
+            ->send();
+        }
+    }
     /**
      * 预约过的房源
      */

@@ -107,14 +107,14 @@ class AuthHook {
 
 //            'coupon/coupon/listcoupon',
 //            'coupon/coupon/coupon',
-
+              'service/reserve/template_message',
 //            'smartlock/smartlock/rooms',
 //            'smartlock/smartlock/getstore',
 //            'smartlock/smartlock/withsmart',
 //            'smartlock/smartlock/temporarypwd',
 //            'smartlock/smartlock/updatepwd',
 //            'smartlock/smartlock/lockrecord',
-
+             'draw/draw/drawqualifications',
 //            'owner/owner/ownerlist',
 //            'owner/owner/bill',
         );
