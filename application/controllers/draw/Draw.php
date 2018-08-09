@@ -215,7 +215,7 @@ class Draw extends MY_Controller
                     $update_coupon = [
                         'customer_id' => CURRENT_ID,
                         'coupon_type_id' => $p[$i],
-                        'store_id' => $store_str,
+                        'store_ids' => $store_str,
                         'activity_id' => $data_id,
                         'status' => 'unused',
                         'deadline' => $coupon->deadline,

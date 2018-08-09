@@ -114,7 +114,7 @@ class AuthHook {
 //            'smartlock/smartlock/temporarypwd',
 //            'smartlock/smartlock/updatepwd',
 //            'smartlock/smartlock/lockrecord',
-             'draw/draw/drawqualifications',
+
 //            'owner/owner/ownerlist',
 //            'owner/owner/bill',
         );
