@@ -35,19 +35,19 @@ class MY_Controller extends CI_Controller {
         case 1004:
         case 1005:
         case 10008:
-            $this->set_status_header(400);
+            $this->output->set_status_header(400);
             break;
         case 1001:
         case 1006:
         case 11005:
-            $this->set_status_header(401);
+            $this->output->set_status_header(401);
             break;
         case 1011:
         case 10011:
-            $this->set_status_header(403);
+            $this->output->set_status_header(403);
             break;
         default:
-            $this->set_status_header(500);
+            $this->output->set_status_header(500);
             break;
         }
     }
