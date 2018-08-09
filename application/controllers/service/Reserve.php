@@ -37,37 +37,13 @@ class Reserve extends MY_Controller
         $reserve->status = 'WAIT';
 
         if ($reserve->save()) {
+            $this->internalCurl('templatemessage/sendreservemsg',$post);
             $this->api_res(0);
         }else{
             $this->api_res(1009);
         }
     }
-    public function Template_message($store_id,$yu_name){
-        $this->load->model('positionmodel');
-        $this->load->model('employeemodel');
-        $name = '店长';
-        $position = Positionmodel::where('name',$name)->select(['id'])->first();
-        if(!$position){
-            return false;
-        }
-        $employee = Employeemodel::where('position_id',$position->id)->where('store_ids','like',"%".$store_id."%")->get(['openid'])->toArray();
-        if(!$employee){
-            return false;
-        }
-        $this->load->helper('wechat');
-        $app    = new Application(getCustomerWechatConfig());
-        foreach ($employee as $value){
-        $app->notice->uses(config_item('tmplmsg_employee_Reserve'))
-            ->withUrl(config_item('wechat_base_url') . 'mini/resident/reservation')
-            ->andData([
-                'first'    => '有新的预约消息',
-                'keyword1' => '预约人为'.$yu_name,
-                'remark'   => '如有疑问，请与工作人员联系',
-            ])
-            ->andReceiver('o5zIb1FSlDNauJHIGFwMzTNGa-Ow')
-            ->send();
-        }
-    }
+   /*
     /**
      * 预约过的房源
      */

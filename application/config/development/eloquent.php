@@ -1,5 +1,10 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
+
+
+
+
+//本地测试数据库
 /*$config['eloquent'] = array(
 	'driver'    => 'mysql',
 	'host'      => 'localhost',
@@ -9,12 +14,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 	'charset'   => 'utf8',
 	'collation' => 'utf8_general_ci',
     'prefix'    => ''
+
 );*/
 
-//本地测试数据库
+
 
 //金地上线测试数据库
-$config['eloquent'] = array(
+/*$config['eloquent'] = array(
     'driver'    => 'mysql',
     'host'      => 'localhost',
     'database'  => 'jindi',
@@ -23,7 +29,7 @@ $config['eloquent'] = array(
     'charset'   => 'utf8',
     'collation' => 'utf8_general_ci',
     'prefix'    => ''
-);
+);*/
 
 //正式上线数据库
 

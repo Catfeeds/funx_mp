@@ -38,6 +38,22 @@ $config['jwt_iss'] = 'http://funxdata.com';
 $config['jwt_exp'] = (time() + 7200); //过期时间
 //$config['jwt_nbf'] = 1357000000;
 
+
+/**
+用途: 员工端相关配置信息
+微信公众平台类型: 小程序
+小程序名称: 梵响数据
+管理邮箱: egg@fun-x.cn
+原始ID: gh_240bd483e3f3
+AppID: wx5721f56e75cc901e
+主域名: tapi.boss.funxdata.com
+ */
+$config['wx_employee_appid']   = 'wx5721f56e75cc901e';
+$config['wx_employee_secret']  = 'c2681fbb7a0cb09b3817bc7706a57163';
+$config['wx_employee_token']   = '';
+$config['wx_employee_aes_keys'] = '';
+
+
 //上传附件的cdn地址
 $config['cdn_path'] = 'http://tfunx.oss-cn-shenzhen.aliyuncs.com';
 
