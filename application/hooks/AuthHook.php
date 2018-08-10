@@ -107,7 +107,7 @@ class AuthHook {
 
 //            'coupon/coupon/listcoupon',
 //            'coupon/coupon/coupon',
-              'service/reserve/template_message',
+
 //            'smartlock/smartlock/rooms',
 //            'smartlock/smartlock/getstore',
 //            'smartlock/smartlock/withsmart',
