@@ -71,9 +71,11 @@ class Payment extends MY_Controller
         }
         $store_ids = [];
         foreach ($coupons as $value){
-            $arr = explode(',',$value->store_id);
-            for ($i=0;$i<( count($arr));$i++){
-                $store_ids [] = $arr[$i];
+            if($value->store_ids) {
+                $arr = explode(',', $value->store_ids);
+                for ($i = 0; $i < (count($arr)); $i++) {
+                    $store_ids [] = $arr[$i];
+                }
             }
         }
         $store_id = $this->resident->store_id;
