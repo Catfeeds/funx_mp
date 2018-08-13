@@ -10,7 +10,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 	'password'  => '00000',
 	'charset'   => 'utf8',
 	'collation' => 'utf8_general_ci',
-'prefix'    => ''
+    'prefix'    => ''
 );*/
 
 //金地上线测试数据库
