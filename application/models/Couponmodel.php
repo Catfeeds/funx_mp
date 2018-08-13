@@ -36,6 +36,9 @@ class Couponmodel extends Basemodel
 //                    ->select('id','name','discount','type','limit');
     }
 
+    public function resident(){
 
+        return $this->belongsTo(Residentmodel::class,'resident_id')->select('id','store_id');
+    }
 
 }

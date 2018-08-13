@@ -20,6 +20,7 @@ class Coupon extends MY_Controller
     public function listCoupon()
     {
         $this->load->model('Coupontypemodel');
+        $this->load->model('residentmodel');
         $filed = ['id','resident_id','coupon_type_id','status','deadline'];
         $input  = $this->input->post(null,true);
         $where  = [];
@@ -29,7 +30,7 @@ class Coupon extends MY_Controller
             $where['status']    = Couponmodel::STATUS_UNUSED;
         }
 
-        $coupon = Couponmodel::with('coupontype')
+        $coupon = Couponmodel::with('coupontype')->with('resident')
             ->orderBy('created_at','DESC')
             ->where('customer_id',$this->user->id)
 //            ->where('customer_id',9747)
