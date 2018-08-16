@@ -17,6 +17,7 @@ $config['web_domain'] = 'tweb.funxdata.com';
 //梵响数据系统相关文件的整理配置
  */
 
+
 $config['base_url']       = 'http://tapi.web.funxdata.com/';
 $config['wechat_url']     = 'http://tweb.funxdata.com/';
 $config['fdd_notify_url'] = 'http://tapi.boss.funxdata.com/mini/contract/notify';
@@ -48,8 +49,8 @@ $config['jwt_exp'] = (time() + 7200); //过期时间
 AppID: wx5721f56e75cc901e
 主域名: tapi.boss.funxdata.com
  */
-$config['wx_employee_appid']   = 'wx5721f56e75cc901e';
-$config['wx_employee_secret']  = 'c2681fbb7a0cb09b3817bc7706a57163';
+$config['wx_employee_appid']   = 'wxd8da84ed2a26aa06';
+$config['wx_employee_secret']  = '00e6fd3ce1151e3d2bd0e01c98c925d3';
 $config['wx_employee_token']   = '';
 $config['wx_employee_aes_keys'] = '';
 

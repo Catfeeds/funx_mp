@@ -28,7 +28,7 @@ class MY_Controller extends CI_Controller {
                 ->set_content_type('application/json')
                 ->set_output(json_encode(array('rescode' => $code, 'resmsg' => $msg, 'data' => [])));
         }
-        switch ($code) {
+/*        switch ($code) {
         case 0:
             break;
         case 1002:
@@ -49,7 +49,7 @@ class MY_Controller extends CI_Controller {
         default:
             $this->output->set_status_header(500);
             break;
-        }
+        }*/
     }
 
     /**
