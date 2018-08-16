@@ -89,7 +89,39 @@ class MY_Controller extends CI_Controller {
             curl_close($ch);
             return $output;
         }
+    }
 
+    /**
+     * 内部服务调用
+     * $func       curl请求的方法，如 index/index
+     * $form       curl请求的表单内容
+     */
+    public function internalCurl($func, $form = '') {
+        $apikey    = config_item('internal_api_key');
+        $apisecret = config_item('internal_api_secret');
+        $apiurl    = config_item('internal_api_url') . 'innserservice/' . $func;
+
+        $timestamp   = time();
+        $hash        = $apihash        = hash('sha256', "$apikey.$timestamp.$apisecret");
+        $x_api_token = "$apikey.$timestamp.$hash";
+
+        //调用curl
+        $header[0] = "content-type: application/x-www-form-urlencoded;charset=UTF-8";
+        $header[]  = "x-api-token: $x_api_token";
+        $ch        = curl_init();
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+        curl_setopt($ch, CURLOPT_POST, true); // 开启post提交
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $form); //post 数据  http_build_query($data)
+
+        $output = curl_exec($ch);
+        if (curl_errno($ch)) {
+            log_message("error", "internal curl $func failed, " . curl_error($ch));
+            curl_close($ch);
+            return false;
+        }
+        $output = json_decode($output, true);
+        curl_close($ch);
+        return $output;
     }
 
     /**
