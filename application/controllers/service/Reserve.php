@@ -25,7 +25,6 @@ class Reserve extends MY_Controller {
             return;
         }
 
-        log_message("debug", "" . $post);
         $reserve = new Reserveordermodel();
         $reserve->fill($post);
         $reserve->customer_id = CURRENT_ID;
