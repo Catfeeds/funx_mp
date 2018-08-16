@@ -82,7 +82,7 @@ class Payment extends MY_Controller
 
         //计算总金额
         $amount = $orders->sum('money');
-
+        log_message('debug','amount.sum:'.$amount);
         if (0 == $amount) {
             $this->api_res(10018);
             return;
@@ -96,6 +96,7 @@ class Payment extends MY_Controller
                 $discount   = $this->amountOfDiscount($orders, $coupons);
                 $amount     = $amount - $discount;
             }
+            log_message('debug','discount:'.$discount);
             $this->load->helper('url');
             $roomunion       = $this->resident->roomunion;
             $store      = $roomunion->store;
@@ -167,6 +168,7 @@ class Payment extends MY_Controller
 //            //生成js配置
             $all_result['json'] = $payment->configForPayment($result->prepay_id, false);
 //            log_message('error',$json);
+            log_message('debug','discount.amount:'.$amount);
             DB::commit();
         } catch (Exception $e) {
 
@@ -197,6 +199,7 @@ class Payment extends MY_Controller
                 Ordermodel::PAYTYPE_ROOM,
                 $this->resident->real_rent_money
             );
+            log_message('debug','ROOM.discount:'.$discount);
         }
 
         $managementOrders = $orders->pull(Ordermodel::PAYTYPE_MANAGEMENT);
@@ -208,6 +211,7 @@ class Payment extends MY_Controller
                 Ordermodel::PAYTYPE_MANAGEMENT,
                 $this->resident->real_property_costs
             );
+            log_message('debug','MANAGEMENT.discount:'.$discount);
         }
 
         return $discount;
@@ -268,7 +272,7 @@ class Payment extends MY_Controller
                     $deduction = 0;
                     break;
             }
-
+            log_message('debug','deduction:'.$deduction);
             $discount += $deduction;
 
             $item->update([
