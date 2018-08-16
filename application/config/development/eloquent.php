@@ -1,6 +1,5 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-//本地测试数据库
 /*$config['eloquent'] = array(
 	'driver'    => 'mysql',
 	'host'      => 'localhost',
@@ -12,6 +11,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     'prefix'    => ''
 );*/
 
+//本地测试数据库
 
 //金地上线测试数据库
 $config['eloquent'] = array(

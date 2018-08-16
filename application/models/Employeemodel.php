@@ -26,9 +26,4 @@ class Employeemodel extends Basemodel
     {
         return $this->belongsTo(Storemodel::class, 'store_id');
     }*/
-
-    public function position()
-    {
-        return $this->belongsTo(Positionmodel::class,'position_id');
-    }
 }
