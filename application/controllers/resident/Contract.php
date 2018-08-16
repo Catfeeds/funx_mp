@@ -204,7 +204,7 @@ class Contract extends MY_Controller
 
             }
         }
-        log_message('error',$targetUrl);
+        log_message('debug',$targetUrl);
 
         $this->api_res(0,[compact('targetUrl')]);
 

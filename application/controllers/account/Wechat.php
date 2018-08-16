@@ -22,7 +22,7 @@ class Wechat extends MY_Controller
 
     public function login()
     {
-        log_message('error','调用登陆');
+        log_message('debug','调用登陆');
 
         $post   = $this->input->post(null,true);
 
@@ -80,7 +80,7 @@ class Wechat extends MY_Controller
             $this->load->library('m_jwt');
             $token  = $this->m_jwt->generateJwtToken($customer->uxid,$customer->company_id);
             $this->m_redis->storeCustomerInfo($customer->uxid,$customer->toJson());
-            log_message('error','LOGIN登陆正常');
+            log_message('debug','LOGIN登陆正常');
             $this->api_res(0,['token'=>$token]);
         }else{
             $this->api_res(1009);

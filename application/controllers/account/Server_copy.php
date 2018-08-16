@@ -109,7 +109,7 @@ class Server extends MY_Controller
 //                                    return $this->helpFriend($app, $message, $id);
 //                                }
 
-                                log_message('error',1);
+                                log_message('debug',1);
                                 return $this->checkInOrBookingEvent($message, $id);
 
                             } catch (Exception $e) {
@@ -527,7 +527,7 @@ class Server extends MY_Controller
             ],
 
         ];
-        log_message('error',config_item('wechat_url').'service');
+        log_message('debug',config_item('wechat_url').'service');
         var_dump($menu->add($buttons));
     }
 
