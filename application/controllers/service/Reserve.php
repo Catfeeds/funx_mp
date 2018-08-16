@@ -36,8 +36,12 @@ class Reserve extends MY_Controller
         $reserve->status = 'WAIT';
 
         if ($reserve->save()) {
-            $this->internalCurl('templatemessage/sendreservemsg',$post);
-            $this->api_res(0);
+            log_message('debug','开始消息模版调用');
+           $result =  $this->internalCurl('templatemessage/sendreservemsg',$post);
+            if(!$result){
+                log_message('error','预约消息模版调用失败');
+            }
+           $this->api_res(0);
         }else{
             $this->api_res(1009);
         }
