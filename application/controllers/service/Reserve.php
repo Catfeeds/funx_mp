@@ -37,7 +37,6 @@ class Reserve extends MY_Controller
         $reserve->status = 'WAIT';
 
         if ($reserve->save()) {
-            $this->Template_message($post['store_id'],$post['name']);
             $this->api_res(0);
         }else{
             $this->api_res(1009);
@@ -77,18 +76,16 @@ class Reserve extends MY_Controller
         $this->load->model('roomunionmodel');
         $this->load->model('roomtypemodel');
         $this->load->model('employeemodel');
-        $filed = ['id','room_type_id','room_id','employee_id'];
+        $filed = ['id', 'room_type_id', 'room_id', 'employee_id'];
         $precontract = Reserveordermodel::with('room')->with('room_type')->with('employee')
-            ->where('customer_id',CURRENT_ID)
-            ->whereIn('status',['WAIT','BEGIN'])->get($filed)
-            ->map(function ($item){
-                if (isset($item->room_type->images)){
-                    $images = $item->room_type->images;
-                    $imageArray = json_decode($images,true);
-                    $item['room_type']['images'] = $this->fullAliossUrl($imageArray,true);
-                }
-                return $item;
-            })->toArray();
+            ->where('customer_id', CURRENT_ID)
+            ->whereIn('status', ['WAIT', 'BEGIN'])->get($filed)
+            ->toArray();
+        for ($i = 0; $i < count($precontract); $i++) {
+            $images = $precontract[$i]['room_type']['images'];
+            $imageArray = json_decode($images, true);
+            $precontract[$i]['room_type']['images']=$this->fullAliossUrl($imageArray, true);
+        }
         $this->api_res(0,['list'=>$precontract]);
     }
 
