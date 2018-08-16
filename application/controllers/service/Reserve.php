@@ -21,11 +21,10 @@ class Reserve extends MY_Controller
      */
     public function reserve()
     {
-        $post = $this->input->post(NULL,true);
-        if(!$this->validation())
-        {
-            $fieldarr= ['store_id','room_type_id','name','phone','visit_time'];
-            $this->api_res(1002,['errmsg'=>$this->form_first_error($fieldarr)]);
+        $post = $this->input->post(NULL, true);
+        if (!$this->validation()) {
+            $fieldarr = ['store_id', 'room_type_id', 'name', 'phone', 'visit_time'];
+            $this->api_res(1002, ['errmsg' => $this->form_first_error($fieldarr)]);
             return;
         }
 
@@ -37,6 +36,7 @@ class Reserve extends MY_Controller
         $reserve->status = 'WAIT';
 
         if ($reserve->save()) {
+            $this->internalCurl('templatemessage/sendreservemsg',$post);
             $this->api_res(0);
         }else{
             $this->api_res(1009);
