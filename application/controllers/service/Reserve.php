@@ -1,7 +1,9 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
+
 use EasyWeChat\Foundation\Application;
 use EasyWeChat\Payment\Order;
+
 /**
  * Author:      hfq<1326432154@qq.com>
  * Date:        2018/5/21
@@ -21,56 +23,31 @@ class Reserve extends MY_Controller
      */
     public function reserve()
     {
-        $post = $this->input->post(NULL,true);
-        if(!$this->validation())
-        {
-            $fieldarr= ['store_id','room_type_id','name','phone','visit_time'];
-            $this->api_res(1002,['errmsg'=>$this->form_first_error($fieldarr)]);
+        $post = $this->input->post(NULL, true);
+        if (!$this->validation()) {
+            $fieldarr = ['store_id', 'room_type_id', 'name', 'phone', 'visit_time'];
+            $this->api_res(1002, ['errmsg' => $this->form_first_error($fieldarr)]);
             return;
         }
 
         $reserve = new Reserveordermodel();
         $reserve->fill($post);
         $reserve->customer_id = CURRENT_ID;
-        $reserve->time = date('Y-m-d H:i:s',time());
+        $reserve->time = date('Y-m-d H:i:s', time());
         $reserve->visit_by = 'WECHAT';
         $reserve->status = 'WAIT';
 
         if ($reserve->save()) {
+            $this->internalCurl('templatemessage/sendreservemsg',$post);
             $this->api_res(0);
-        }else{
+        } else {
             $this->api_res(1009);
         }
     }
-    public function Template_message($store_id,$yu_name){
-        $this->load->model('positionmodel');
-        $this->load->model('employeemodel');
-        $name = '店长';
-        $position = Positionmodel::where('name',$name)->select(['id'])->first();
-        if(!$position){
-            return false;
-        }
-        $employee = Employeemodel::where('position_id',$position->id)->where('store_ids','like',"%".$store_id."%")->get(['openid'])->toArray();
-        if(!$employee){
-            return false;
-        }
-        $this->load->helper('wechat');
-        $app    = new Application(getCustomerWechatConfig());
-        foreach ($employee as $value){
-        $app->notice->uses(config_item('tmplmsg_employee_Reserve'))
-            ->withUrl(config_item('wechat_base_url') . 'mini/resident/reservation')
-            ->andData([
-                'first'    => '有新的预约消息',
-                'keyword1' => '预约人为'.$yu_name,
-                'remark'   => '如有疑问，请与工作人员联系',
-            ])
-            ->andReceiver('o5zIb1FSlDNauJHIGFwMzTNGa-Ow')
-            ->send();
-        }
-    }
-    /**
-     * 预约过的房源
-     */
+    /*
+     /**
+      * 预约过的房源
+      */
     public function precontract()
     {
         $this->load->model('roomunionmodel');
@@ -97,19 +74,19 @@ class Reserve extends MY_Controller
         $this->load->model('roomunionmodel');
         $this->load->model('roomtypemodel');
         $this->load->model('employeemodel');
-        $filed = ['id','room_type_id','room_id','employee_id'];
+        $filed = ['id', 'room_type_id', 'room_id', 'employee_id'];
         $precontract = Reserveordermodel::with('room')->with('room_type')->with('employee')
-            ->where('customer_id',CURRENT_ID)
-            ->where('status','END')->get($filed)
-            ->map(function ($item){
-                if (isset($item->room_type->images)){
+            ->where('customer_id', CURRENT_ID)
+            ->where('status', 'END')->get($filed)
+            ->map(function ($item) {
+                if (isset($item->room_type->images)) {
                     $images = $item->room_type->images;
-                    $imageArray = json_decode($images,true);
-                    $item['room_type']['images'] = $this->fullAliossUrl($imageArray,true);
+                    $imageArray = json_decode($images, true);
+                    $item['room_type']['images'] = $this->fullAliossUrl($imageArray, true);
                 }
                 return $item;
             })->toArray();
-        $this->api_res(0,['list'=>$precontract]);
+        $this->api_res(0, ['list' => $precontract]);
     }
 
     /**
@@ -124,28 +101,28 @@ class Reserve extends MY_Controller
                 'label' => '门店ID',
                 'rules' => 'trim|required',
             ),
-        array(
+            array(
                 'field' => 'room_type_id',
                 'label' => '房型ID',
                 'rules' => 'trim|required',
             ),
-        array(
+            array(
                 'field' => 'name',
                 'label' => '姓名',
                 'rules' => 'trim|required',
             ),
-        array(
+            array(
                 'field' => 'phone',
                 'label' => '联系电话',
                 'rules' => 'trim|required|max_length[13]',
             ),
-        array(
+            array(
                 'field' => 'visit_time',
                 'label' => '预约时间',
                 'rules' => 'trim|required',
             ),
         );
-        $this->form_validation->set_rules($config)->set_error_delimiters('','');
+        $this->form_validation->set_rules($config)->set_error_delimiters('', '');
         return $this->form_validation->run();
     }
 }
