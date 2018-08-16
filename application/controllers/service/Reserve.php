@@ -82,7 +82,6 @@ class Reserve extends MY_Controller
             ->where('customer_id',CURRENT_ID)
             ->whereIn('status',['WAIT','BEGIN'])->get($filed)
             ->map(function ($item){
-                $item   = $item->toArray();
                 if (isset($item->room_type->images)){
                     $images = $item->room_type->images;
                     $imageArray = json_decode($images,true);
