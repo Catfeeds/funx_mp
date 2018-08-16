@@ -106,9 +106,10 @@ class MY_Controller extends CI_Controller {
         $x_api_token = "$apikey.$timestamp.$hash";
 
         //调用curl
-        $header[0] = "content-type: application/x-www-form-urlencoded;charset=UTF-8";
-        $header[]  = "x-api-token: $x_api_token";
+        $header[0] = "x-api-token: $x_api_token";
         $ch        = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $apiurl);
+        curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
         curl_setopt($ch, CURLOPT_POST, true); // 开启post提交
         curl_setopt($ch, CURLOPT_POSTFIELDS, $form); //post 数据  http_build_query($data)
