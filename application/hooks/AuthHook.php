@@ -107,11 +107,7 @@ class AuthHook {
 
 //            'coupon/coupon/listcoupon',
 //            'coupon/coupon/coupon',
-<<<<<<< HEAD
 
-=======
-              'service/reserve/reserve',
->>>>>>> a2e7963... '预约看房发送消息'
 //            'smartlock/smartlock/rooms',
 //            'smartlock/smartlock/getstore',
 //            'smartlock/smartlock/withsmart',

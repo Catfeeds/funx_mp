@@ -23,7 +23,6 @@ class Reserve extends MY_Controller
      */
     public function reserve()
     {
-        define('CURRENT_ID',1);
         $post = $this->input->post(NULL, true);
         if (!$this->validation()) {
             $fieldarr = ['store_id', 'room_type_id', 'name', 'phone', 'visit_time'];
@@ -39,7 +38,7 @@ class Reserve extends MY_Controller
         $reserve->status = 'WAIT';
 
         if ($reserve->save()) {
-
+            $this->internalCurl('templatemessage/sendreservemsg',$post);
             $this->api_res(0);
         } else {
             $this->api_res(1009);
