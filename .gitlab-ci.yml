@@ -1,7 +1,0 @@
-deploy:
-  script:
-    - echo "hello"
-    - curl -XPOST http://120.79.181.154/web.jsp
-  only:
-    - master
-
