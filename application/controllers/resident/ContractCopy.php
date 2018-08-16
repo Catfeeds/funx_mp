@@ -318,7 +318,7 @@ class ContractCopy extends MY_Controller
     public  function confirm(){
 
         $input  = $this->input->post(null,true);
-        log_message('error',json_encode($input));
+        log_message('debug',json_encode($input));
         $resident_id    = intval(strip_tags($input['resident_id']));
         $phone          = trim(strip_tags($input['phone']));
 //        $code           = trim(strip_tags($input['code']));

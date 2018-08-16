@@ -458,7 +458,7 @@ class Payment extends MY_Controller
                 $this->load->model('residentmodel');
                 $resident   = Residentmodel::with('orders')->find($attach['resident_id']);
 
-                log_message('error', 'notify-arrived' . $number);
+                log_message('debug', 'notify-arrived' . $number);
 
                 if (!count($resident)) {
                     return true;

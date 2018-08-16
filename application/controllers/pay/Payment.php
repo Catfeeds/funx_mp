@@ -306,7 +306,7 @@ class Payment extends MY_Controller
 
         $response   = $app->payment->handleNotify(function($notify, $successful) use ($app) {
             try {
-                log_message('error','---->1');
+                log_message('debug','---->1');
                 DB::beginTransaction();
 
                 $data       = explode('_', $notify->out_trade_no);
@@ -316,7 +316,7 @@ class Payment extends MY_Controller
                 $this->load->model('ordermodel');
                 $resident   = Residentmodel::with('orders')->find($attach['resident_id']);
 
-                log_message('error', 'notify-arrived--->' . $notify->out_trade_no);
+                log_message('debug', 'notify-arrived--->' . $notify->out_trade_no);
 
                 if (empty($resident)) {
                     return true;
@@ -373,11 +373,11 @@ class Payment extends MY_Controller
                     $store_pay  ->status    = 'DONE';
                     $store_pay->save();
                 }
-                log_message('error','---->333');
+                log_message('debug','---->333');
 
                 DB::commit();
                 try {
-                    log_message('error','---->111');
+                    log_message('debug','---->111');
 //                    $this->createBill($orders);
 
                     //发送模板消息

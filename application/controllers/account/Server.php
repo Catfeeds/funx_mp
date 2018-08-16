@@ -446,7 +446,7 @@ class Server extends MY_Controller
             ],
 
         ];
-        log_message('error',config_item('wechat_url').'service');
+        log_message('debug',config_item('wechat_url').'service');
         var_dump($menu->add($buttons));
     }
 
