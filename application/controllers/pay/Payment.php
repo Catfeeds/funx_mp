@@ -79,7 +79,6 @@ class Payment extends MY_Controller
             }
         }
         $store_id = $this->resident->store_id;
-
         //计算总金额
         $amount = $orders->sum('money');
         log_message('debug','amount.sum:'.$amount);
@@ -87,6 +86,7 @@ class Payment extends MY_Controller
             $this->api_res(10018);
             return;
         }
+
         try {
             DB::beginTransaction();
             //更新订单的付款方式和支付金额
