@@ -32,6 +32,7 @@ class Order extends MY_Controller
         $orders  = $resident->get()->map(function($query){
             $query->count   = count($query->orders);
             $query->amount  = ceil($query->orders->sum('money')*100)/100;
+            $query->month   = $query->orders->first()->month;
             $utility        = $this->utility($query->orders);
             return $query;
         })->where('amount','>',0);
@@ -84,6 +85,7 @@ class Order extends MY_Controller
         $orders  = $resident->get()->map(function($query){
             $query->count  = count($query->orders);
             $query->amount = number_format($query->orders->sum('money'),2,'.','');
+            $query->month   = $query->orders->first()->month;
             $utility        = $this->utility($query->orders);
             return $query;
         })->where('amount','>',0);
