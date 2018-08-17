@@ -30,8 +30,9 @@ class Order extends MY_Controller
             $query->where('status',Ordermodel::STATE_PENDING);
         }])->where('customer_id',$this->user->id);
         $orders  = $resident->get()->map(function($query){
-            $query->count  = count($query->orders);
-            $query->amount = number_format($query->orders->sum('money'),2);
+            $query->count   = count($query->orders);
+            $query->amount  = ceil($query->orders->sum('money')*100)/100;
+            $utility        = $this->utility($query->orders);
             return $query;
         })->where('amount','>',0);
         $arr=[];
@@ -39,6 +40,31 @@ class Order extends MY_Controller
             $arr[]=$order;
         }
         $this->api_res(0,['residents'=>$arr]);
+    }
+
+    /**
+     * 处理水电账单返回水电账单得详细信息
+     */
+    public function utility($order)
+    {
+        $this->load->model('meterreadingtransfermodel');
+        foreach ($order as $key => $value){
+            if ($value->transfer_id_s == 0||$value->transfer_id_e == 0){
+                $value->this_reading    = '';
+                $value->this_time       = '';
+                $value->last_reading    = '';
+                $value->last_time       = '';
+            }else{
+                $this_reading           = Meterreadingtransfermodel::where('id',$value->transfer_id_e)->first(['this_reading','this_time']);
+                $last_reading           = Meterreadingtransfermodel::where('id',$value->transfer_id_s)->first(['this_reading','this_time']);
+                $value->this_reading    = $this_reading->this_reading;
+                $value->this_time       = date('Y-m-d',strtotime($this_reading->this_time));
+                $value->last_reading    = $last_reading->this_reading;
+                $value->last_time       = date('Y-m-d',strtotime($last_reading->this_time));
+            }
+        }
+        return $order;
+
     }
 
     /**
@@ -54,11 +80,11 @@ class Order extends MY_Controller
         $resident   = Residentmodel::with(['roomunion','store','orders'=>function($query){
             $query->whereIn('status',[Ordermodel::STATE_CONFIRM,Ordermodel::STATE_COMPLETED]);
         }])->where('customer_id',$this->user->id);
-        log_message('debug','PAID-->'.$this->user->id);
-//        }])->where('customer_id',5373);
+        log_message('error','PAID-->'.$this->user->id);
         $orders  = $resident->get()->map(function($query){
             $query->count  = count($query->orders);
-            $query->amount = number_format($query->orders->sum('money'),2);
+            $query->amount = number_format($query->orders->sum('money'),2,'.','');
+            $utility        = $this->utility($query->orders);
             return $query;
         })->where('amount','>',0);
 
