@@ -1,6 +1,6 @@
-application/logs/
-application/cache/
-application/config/production/
+application/logs
+application/cache
+application/config/production
 public/.htaccess
 public/temp
 
