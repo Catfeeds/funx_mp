@@ -26,46 +26,40 @@ class Order extends MY_Controller
         $this->load->model('storemodel');
         $this->load->model('roomunionmodel');
 
-        $resident   = Residentmodel::with(['roomunion','store','orders'=>function($query){
-            $query->where('status',Ordermodel::STATE_PENDING);
-        }])->where('customer_id',$this->user->id);
-        $orders  = $resident->get()->map(function($query){
-            $query->count   = count($query->orders);
-            $query->amount  = ceil($query->orders->sum('money')*100)/100;
-            $query->month   = $query->orders->first()->month;
-            $utility        = $this->utility($query->orders);
+        $filed      = ['id','store_id','company_id','room_id','uxid','employee_id','name','customer_id'];
+        $resident   = Residentmodel::with(
+            ['roomunion'=>function($query){
+                $query->select(['id','number']);
+            },
+            'store'=>function($query){
+                $query->select(['id','name',]);
+            },
+            'orders'=>function($query){
+                $query->where('status',Ordermodel::STATE_PENDING)
+                ->select(['id','paid','money','year','month','type','resident_id','transfer_id_s','transfer_id_e']);
+        }])
+            ->where('customer_id',$this->user->id);
+
+        $orders  = $resident->get($filed)->map(function($query){
+            $this->utility($query->orders);
+            $order          = $query->orders->toArray();
+            $order   = $this->dict($order,['year','month']);
+            foreach ($order as $year => $value){
+                foreach ($value as $month => $val){
+                    $order[$year][$month]['amount']  = 0;
+                    foreach ($val as $key => $v){
+                        $order[$year][$month]['amount'] += $v['money'];
+                    }
+                }
+            }
+            $query->order = $order;
             return $query;
-        })->where('amount','>',0);
+        });
         $arr=[];
         foreach ($orders as $order){
             $arr[]=$order;
         }
-        $this->api_res(0,['residents'=>$arr]);
-    }
-
-    /**
-     * 处理水电账单返回水电账单得详细信息
-     */
-    public function utility($order)
-    {
-        $this->load->model('meterreadingtransfermodel');
-        foreach ($order as $key => $value){
-            if ($value->transfer_id_s == 0||$value->transfer_id_e == 0){
-                $value->this_reading    = '';
-                $value->this_time       = '';
-                $value->last_reading    = '';
-                $value->last_time       = '';
-            }else{
-                $this_reading           = Meterreadingtransfermodel::where('id',$value->transfer_id_e)->first(['this_reading','this_time']);
-                $last_reading           = Meterreadingtransfermodel::where('id',$value->transfer_id_s)->first(['this_reading','this_time']);
-                $value->this_reading    = $this_reading->this_reading;
-                $value->this_time       = date('Y-m-d',strtotime($this_reading->this_time));
-                $value->last_reading    = $last_reading->this_reading;
-                $value->last_time       = date('Y-m-d',strtotime($last_reading->this_time));
-            }
-        }
-        return $order;
-
+        $this->api_res(0,['residents'=>$orders]);
     }
 
     /**
@@ -78,23 +72,103 @@ class Order extends MY_Controller
         $this->load->model('storemodel');
         $this->load->model('roomunionmodel');
 
-        $resident   = Residentmodel::with(['roomunion','store','orders'=>function($query){
-            $query->whereIn('status',[Ordermodel::STATE_CONFIRM,Ordermodel::STATE_COMPLETED]);
-        }])->where('customer_id',$this->user->id);
+        $filed      = ['id','store_id','company_id','room_id','uxid','employee_id','name','customer_id'];
+        $resident   = Residentmodel::with(
+            ['roomunion'=>function($query){
+                $query->select(['id','number']);
+            },
+            'store'=>function($query){
+                $query->select(['id','name',]);
+            },
+            'orders'=>function($query){
+                $query->whereIn('status',[Ordermodel::STATE_CONFIRM,Ordermodel::STATE_COMPLETED])
+                    ->select(['id','paid','money','year','month','type','resident_id','transfer_id_s','transfer_id_e']);
+            }])
+            ->where('customer_id',$this->user->id);
         log_message('error','PAID-->'.$this->user->id);
-        $orders  = $resident->get()->map(function($query){
-            $query->count  = count($query->orders);
-            $query->amount = number_format($query->orders->sum('money'),2,'.','');
-            $query->month   = $query->orders->first()->month;
-            $utility        = $this->utility($query->orders);
-            return $query;
-        })->where('amount','>',0);
 
+        $orders  = $resident->get($filed)->map (function($query){
+            $this->utility($query->orders);
+            $order          = $query->orders->toArray();
+            $order   = $this->dict($order,['year','month']);
+            foreach ($order as $year => $value){
+                foreach ($value as $month => $val){
+                    $order[$year][$month]['amount']  = 0;
+                    foreach ($val as $key => $v){
+                        $order[$year][$month]['amount'] += $v['money'];
+                    }
+                }
+            }
+            $query->order = $order;
+            return $query;
+        });
         $arr=[];
         foreach ($orders as $order){
             $arr[]=$order;
         }
         $this->api_res(0,['residents'=>$orders]);
+    }
+
+    /**
+     * 呃...一个数组分组算法...
+     * @param array $list 需要分组的源数组
+     * @param null $group  需要分组的字段(字符串或数组)
+     * @return array
+     */
+    private function dict(array $list,$group = null){
+        if (is_string ( $group )) {
+            $group = array (
+                $group
+            );
+        }
+        $listNew = array ();
+        foreach ( $list as $v ) {
+            $vNew = $v;
+            //切换数据存储位置到指定分组
+            if (isset ( $group )) {
+                $vGroup = &$listNew;
+                //遍历分组
+                foreach ( $group as $v2 ) {
+                    //分组不存在，设置为空数组
+                    if (!isset ( $vGroup[$v [$v2]] )) {
+                        $vGroup [$v [$v2]] = array ();
+                    }
+                    //当前分组切换到新位置
+                    $vGroup = &$vGroup [$v[$v2]];
+                }
+                $vGroup [] = $vNew;
+            } else {
+                $listNew [] = $vNew;
+            }
+        }
+        return $listNew;
+    }
+
+    /**
+     * 处理水电账单返回水电账单得详细信息
+     */
+    public function utility($order)
+    {
+        $this->load->model('meterreadingtransfermodel');
+        foreach ($order as $key => $value){
+            if (in_array($value->type,['WATER','COLD_WATER','ELECTRICITY'])){
+                if ($value->transfer_id_s == 0||$value->transfer_id_e == 0){
+                    $value->this_reading    = '';
+                    $value->this_time       = '';
+                    $value->last_reading    = '';
+                    $value->last_time       = '';
+                }else{
+                    $this_reading           = Meterreadingtransfermodel::where('id',$value->transfer_id_e)->first(['this_reading','this_time']);
+                    $last_reading           = Meterreadingtransfermodel::where('id',$value->transfer_id_s)->first(['this_reading','this_time']);
+                    $value->this_reading    = $this_reading->this_reading;
+                    $value->this_time       = date('Y-m-d',strtotime($this_reading->this_time));
+                    $value->last_reading    = $last_reading->this_reading;
+                    $value->last_time       = date('Y-m-d',strtotime($last_reading->this_time));
+                }
+            }
+        }
+        return $order;
+
     }
 
 
