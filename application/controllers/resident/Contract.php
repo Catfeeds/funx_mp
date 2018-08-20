@@ -124,6 +124,7 @@ class Contract extends MY_Controller
         $input  = $this->input->post(null,true);
         $resident_id    = intval(strip_tags($input['resident_id']));
         $phone          = trim(strip_tags($input['phone']));
+        $old_phone      = trim(strip_tags($input['old_phone']));
 //        $code           = trim(strip_tags($input['code']));
         //验证短信验证码
         $this->load->library('m_redis');
@@ -205,7 +206,9 @@ class Contract extends MY_Controller
             }
         }
         log_message('debug',$targetUrl);
-
+        if($old_phone) {
+            Residentmodel::where('id', $resident_id)->update(['old_phone' => $old_phone]);
+        }
         $this->api_res(0,[compact('targetUrl')]);
 
     }
