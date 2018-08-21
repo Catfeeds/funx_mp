@@ -153,6 +153,11 @@ class Server extends MY_Controller
                                 case 'RECENT_ACTIVITIES':
                                     return $this->getNewsById($app, 'DI4QPqKm4hfeBNuMD4-Llp1Ehaiw4DEZET0lbvOrD88');
                                     break;
+
+                                case 'STRAWBERRY_SAVOUR':
+                                    return $this->getNewsById($app, 'DI4QPqKm4hfeBNuMD4-LlvCCLPa_p4Vie9diY2Z-2aM');
+                                    break;
+
                                 default:
                                     break;
                             }
