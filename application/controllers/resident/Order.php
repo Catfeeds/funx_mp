@@ -42,13 +42,16 @@ class Order extends MY_Controller
 
         $orders  = $resident->get($filed)->map(function($query){
             $this->utility($query->orders);
-            $order          = $query->orders->toArray();
+            $order   = $query->orders->toArray();
             $order   = $this->dict($order,['year','month']);
             foreach ($order as $year => $value){
                 foreach ($value as $month => $val){
-                    $order[$year][$month]['amount']  = 0;
+                    $amount = 0;
                     foreach ($val as $key => $v){
-                        $order[$year][$month]['amount'] += $v['money'];
+                        $order[$year][$month]['order'][]= $v;
+                        $amount                         += $v['money'];
+                        $order[$year][$month]['amount'] = number_format($amount,2,'.','');
+                        unset($order[$year][$month][$key]);
                     }
                 }
             }
@@ -59,7 +62,7 @@ class Order extends MY_Controller
         foreach ($orders as $order){
             $arr[]=$order;
         }
-        $this->api_res(0,['residents'=>$orders]);
+        $this->api_res(0,['residents'=>$arr]);
     }
 
     /**
@@ -87,15 +90,18 @@ class Order extends MY_Controller
             ->where('customer_id',$this->user->id);
         log_message('error','PAID-->'.$this->user->id);
 
-        $orders  = $resident->get($filed)->map (function($query){
+        $orders     = $resident->get($filed)->map (function($query){
             $this->utility($query->orders);
-            $order          = $query->orders->toArray();
-            $order   = $this->dict($order,['year','month']);
+            $order  = $query->orders->toArray();
+            $order  = $this->dict($order,['year','month']);
             foreach ($order as $year => $value){
                 foreach ($value as $month => $val){
-                    $order[$year][$month]['amount']  = 0;
+                    $amount = 0;
                     foreach ($val as $key => $v){
-                        $order[$year][$month]['amount'] += $v['money'];
+                        $order[$year][$month]['order'][]= $v;
+                        $amount                         += $v['money'];
+                        $order[$year][$month]['amount'] = number_format($amount,2,'.','');
+                        unset($order[$year][$month][$key]);
                     }
                 }
             }
@@ -106,7 +112,7 @@ class Order extends MY_Controller
         foreach ($orders as $order){
             $arr[]=$order;
         }
-        $this->api_res(0,['residents'=>$orders]);
+        $this->api_res(0,['residents'=>$arr]);
     }
 
     /**
@@ -136,7 +142,7 @@ class Order extends MY_Controller
                     //当前分组切换到新位置
                     $vGroup = &$vGroup [$v[$v2]];
                 }
-                $vGroup [] = $vNew;
+                $vGroup[] = $vNew;
             } else {
                 $listNew [] = $vNew;
             }
@@ -283,16 +289,18 @@ class Order extends MY_Controller
         $this->load->model('couponmodel');
         $this->load->model('storemodel');
 
-        $resident_id    = $this->input->post('resident_id',true);
+        $post           = $this->input->post(null,true);
+        $year           = $post['year'];
+        $month          = $post['month'];
+        $resident_id    = $post['resident_id'];
 
         log_message('debug','test_resident'.$resident_id);
 
         $resident   = Residentmodel::with(['roomunion','orders'=>function($query){
-            $query->where('status',Ordermodel::STATE_PENDING)/*->orderBy('year','ASC')->orderBy('month','ASC')*/;
+            $query->where('status',Ordermodel::STATE_PENDING);
         }])
             ->where('customer_id',$this->user->id)
             ->find($resident_id);
-//            ->find(2745);
 
         if(!$resident){
             $this->api_res(1007);
@@ -300,7 +308,7 @@ class Order extends MY_Controller
         }
 
         $room   = $resident->roomunion;
-        $orders   = $resident->orders;
+        $orders   = $resident->orders->where('year',$year)->where('month',$month);
 
         if(!$room->store->pay_online){
             $this->api_res(10020);
@@ -310,7 +318,7 @@ class Order extends MY_Controller
             $this->api_res(0,['list'=>[]]);
             return;
         }
-        //更新订单编号
+//更新订单编号
 //        $number = Ordermodel::newNumber($room->apartment->city->abbreviation, $room->apartment->abbreviation);
 //        Newordermodel::whereIn('id', $neworders->pluck('id')->toArray())->update(['number' => $number]);
 
