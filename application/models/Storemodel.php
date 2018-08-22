@@ -8,62 +8,63 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * 门店表
  */
 
-class Storemodel extends Basemodel{
+class Storemodel extends Basemodel {
 
-    protected $table    = 'boss_store';
+    protected $table = 'boss_store';
 
-    protected $casts    = ['images'=>'array'];
+    protected $casts = ['images' => 'array'];
 
     /**
      * 该公寓签署合同的类型
      */
-    const C_TYPE_FDD    = 'FDD';        //法大大电子合同
-    const C_TYPE_NORMAL = 'NORMAL';     //线下纸质合同
+    const C_TYPE_FDD    = 'FDD'; //法大大电子合同
+    const C_TYPE_NORMAL = 'NORMAL'; //线下纸质合同
+
+    const C_STATUS_NORMAL = 'NORMAL';
+    const C_STATUS_WAIT   = 'WAIT';
+    const C_STATUS_CLOSE  = 'CLOSE';
 
     protected $fillable = [];
 
-    protected $hidden   = ['updated_at','deleted_at'];
+    protected $hidden = ['updated_at', 'deleted_at'];
 
     //集中式房间
-    public function roomunion()
-    {
-        return $this->hasMany(Roomunionmodel::class,'store_id');
+    public function roomunion() {
+        return $this->hasMany(Roomunionmodel::class, 'store_id');
     }
 
     //集中式房型
-    public function roomtype()
-    {
-        return $this->hasMany(Roomtypemodel::class,'store_id');
+    public function roomtype() {
+        return $this->hasMany(Roomtypemodel::class, 'store_id');
     }
 //    //门店所管辖的楼栋
-//    public function building(){
-//
-//        return $this->hasMany(Buildingmodel::class,'store_id');
-//    }
-//
-//    //门店的员工信息
-//    public function employee(){
-//
-//        return $this->hasMany(employeemodel::class,'store_id');
-//    }
-//
-//    //门店的房型
-//    public function roomtype(){
-//
-//        return $this->hasMany(Roomtypemodel::class,'store_id');
-//    }
-//
-//    //门店的房间
-//    public function room(){
-//
-//        return $this->hasMany(Roommodel::class,'store_id');
-//    }
-    public function contracts()
-    {
+    //    public function building(){
+    //
+    //        return $this->hasMany(Buildingmodel::class,'store_id');
+    //    }
+    //
+    //    //门店的员工信息
+    //    public function employee(){
+    //
+    //        return $this->hasMany(employeemodel::class,'store_id');
+    //    }
+    //
+    //    //门店的房型
+    //    public function roomtype(){
+    //
+    //        return $this->hasMany(Roomtypemodel::class,'store_id');
+    //    }
+    //
+    //    //门店的房间
+    //    public function room(){
+    //
+    //        return $this->hasMany(Roommodel::class,'store_id');
+    //    }
+    public function contracts() {
         return $this->hasMany(Contractmodel::class, 'store_id');
     }
 
-    public function templateurl(){
+    public function templateurl() {
         return $this->hasMany(Contracttemplatemodel::class, 'store_id');
     }
 }
