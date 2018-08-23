@@ -72,6 +72,7 @@ class Payment extends MY_Controller {
             }
         }
         $store_id = $this->resident->store_id;
+
         //计算总金额
         $amount = $orders->sum('money');
         log_message('debug', 'amount.sum:' . $amount);
@@ -95,7 +96,7 @@ class Payment extends MY_Controller {
             $store        = $roomunion->store;
             $roomtype     = $roomunion->roomtype;
             $attach       = ['resident_id' => $residentId];
-            $out_trade_no = $residentId . '_' . date('YmdHis', time()) . mt_rand(10, 99);
+            $out_trade_no = $store_id . '_' . $residentId . '_' . date('YmdHis', time()) . mt_rand(10, 99);
             if (ENVIRONMENT == 'development') {
                 $attributes = [
                     'trade_type'   => Ordermodel::PAYWAY_JSAPI,
@@ -139,6 +140,7 @@ class Payment extends MY_Controller {
             });
 
             $wechatConfig = getCustomerWechatConfig();
+
             //微信支付商户id
             if (ENVIRONMENT != 'development') {
                 $wechatConfig['payment']['merchant_id'] = $store->payment_merchant_id;
@@ -151,7 +153,8 @@ class Payment extends MY_Controller {
             if (!($result->return_code == 'SUCCESS' && $result->result_code == 'SUCCESS')) {
                 throw new Exception($result->return_msg);
             }
-//            //生成js配置
+
+            // 生成js配置
             $all_result['json'] = $payment->configForPayment($result->prepay_id, false);
             log_message('debug', 'discount.amount:' . $amount);
             DB::commit();
@@ -271,7 +274,6 @@ class Payment extends MY_Controller {
      * 可以判断用户是否支付成功, 是否还有必要让员工进行确认呢
      */
     public function notify() {
-
         $store_id = $this->uri->segment(4);
 
         $this->load->model('storemodel');
