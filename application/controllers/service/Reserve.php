@@ -1,6 +1,6 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-
+use Illuminate\Database\Capsule\Manager as DB;
 /**
  * Author:      hfq<1326432154@qq.com>
  * Date:        2018/5/21
@@ -23,13 +23,21 @@ class Reserve extends MY_Controller {
             $this->api_res(1002, ['errmsg' => $this->form_first_error($fieldarr)]);
             return;
         }
-
         $reserve = new Reserveordermodel();
         $reserve->fill($post);
         $reserve->customer_id = CURRENT_ID;
         $reserve->time        = date('Y-m-d H:i:s', time());
         $reserve->visit_by    = 'WECHAT';
         $reserve->status      = 'WAIT';
+
+        //任务流流程
+        $this->load->model('taskflowtemplatemodel');
+        $template   = Taskflowtemplatemodel::where('company_id',$this->user->company_id)->where('type',Taskflowtemplatemodel::TYPE_RESERVE)->first();
+        if ($template) {
+            $this->load->model('taskflowmodel');
+            $taskflow_id   = $this->taskflowmodel->createTaskflow('RESERVE',$this->employee->store_id,$post['room_type_id']);
+            $reserve->taskflow_id   = $taskflow_id;
+        }
 
         if ($reserve->save()) {
             log_message('debug', '开始消息模版调用');
