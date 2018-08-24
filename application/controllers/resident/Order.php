@@ -76,7 +76,7 @@ class Order extends MY_Controller
         $this->load->model('roomunionmodel');
 
         $where = [];
-        $where['id']= empty($this->input->post('resident_id',true))?:$this->input->post('resident_id',true);
+        if(!empty($this->input->post('resident_id',true))){$where['id'] = $this->input->post('resident_id',true);}
         $filed      = ['id','store_id','company_id','room_id','uxid','employee_id','name','customer_id'];
         $resident   = Residentmodel::with(
             ['roomunion'=>function($query){
