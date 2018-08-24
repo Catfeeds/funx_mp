@@ -55,7 +55,7 @@ class Serviceorder extends MY_Controller
         $template   = Taskflowtemplatemodel::where('company_id',$this->user->company_id)->where('type',Taskflowtemplatemodel::TYPE_RESERVE)->first();
         if ($template) {
             $this->load->model('taskflowmodel');
-            $taskflow_id   = $this->taskflowmodel->createTaskflow(Taskflowmodel::TYPE_SERVICE,$this->employee->store_id,$room->room_type_id,$room_id);
+            $taskflow_id   = $this->taskflowmodel->createTaskflow(Taskflowmodel::TYPE_SERVICE,$store_id,$room->room_type_id,$room_id);
             $id->taskflow_id   = $taskflow_id;
         }
 
@@ -100,7 +100,7 @@ class Serviceorder extends MY_Controller
         $template   = Taskflowtemplatemodel::where('company_id',$this->user->company_id)->where('type',Taskflowtemplatemodel::TYPE_RESERVE)->first();
         if ($template) {
             $this->load->model('taskflowmodel');
-            $taskflow_id   = $this->taskflowmodel->createTaskflow(Taskflowmodel::TYPE_SERVICE,$this->employee->store_id,$room->room_type_id,$room_id);
+            $taskflow_id   = $this->taskflowmodel->createTaskflow(Taskflowmodel::TYPE_SERVICE,$store_id,$room->room_type_id,$room_id);
             $id->taskflow_id   = $taskflow_id;
         }
 
