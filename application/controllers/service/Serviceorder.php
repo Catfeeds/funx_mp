@@ -47,10 +47,19 @@ class Serviceorder extends MY_Controller
         $images   = $this->splitAliossUrl($post['paths']);
        // $images   = json_encode($images);
         $id->paths=isset($images)?($images):null;
-        $id->room_id   = trim($room_id);
+        $id->room_id    = trim($room_id);
         $id->store_id   = trim($store_id);
 
-        if($id->save()){
+        //如果有任务流模板则创建任务流
+        $this->load->model('taskflowtemplatemodel');
+        $template   = Taskflowtemplatemodel::where('company_id',$this->user->company_id)->where('type',Taskflowtemplatemodel::TYPE_RESERVE)->first();
+        if ($template) {
+            $this->load->model('taskflowmodel');
+            $taskflow_id   = $this->taskflowmodel->createTaskflow(Taskflowmodel::TYPE_SERVICE,$this->employee->store_id,$room->room_type_id,$room_id);
+            $id->taskflow_id   = $taskflow_id;
+        }
+
+        if ($id->save()) {
             $this->api_res(0);
         }else{
             $this->api_res(1009);
@@ -85,6 +94,16 @@ class Serviceorder extends MY_Controller
         $id->remark  = isset($post['remark'])?($post['remark']):null;
         $id->room_id   = trim($room_id);
         $id->store_id   = trim($store_id);
+
+        //如果有任务流模板则创建任务流
+        $this->load->model('taskflowtemplatemodel');
+        $template   = Taskflowtemplatemodel::where('company_id',$this->user->company_id)->where('type',Taskflowtemplatemodel::TYPE_RESERVE)->first();
+        if ($template) {
+            $this->load->model('taskflowmodel');
+            $taskflow_id   = $this->taskflowmodel->createTaskflow(Taskflowmodel::TYPE_SERVICE,$this->employee->store_id,$room->room_type_id,$room_id);
+            $id->taskflow_id   = $taskflow_id;
+        }
+
         if($id->save()){
             $this->api_res(0);
         }else{
