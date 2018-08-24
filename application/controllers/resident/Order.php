@@ -75,6 +75,8 @@ class Order extends MY_Controller
         $this->load->model('storemodel');
         $this->load->model('roomunionmodel');
 
+        $where = [];
+        $where['id']= empty($this->input->post('resident_id',true))?:$this->input->post('resident_id',true);
         $filed      = ['id','store_id','company_id','room_id','uxid','employee_id','name','customer_id'];
         $resident   = Residentmodel::with(
             ['roomunion'=>function($query){
@@ -87,7 +89,7 @@ class Order extends MY_Controller
                 $query->whereIn('status',[Ordermodel::STATE_CONFIRM,Ordermodel::STATE_COMPLETED])
                     ->select(['id','paid','money','year','month','type','resident_id','transfer_id_s','transfer_id_e']);
             }])
-            ->where('customer_id',$this->user->id);
+            ->where('customer_id',$this->user->id)->where($where);
         log_message('error','PAID-->'.$this->user->id);
 
         $orders     = $resident->get($filed)->map (function($query){
