@@ -17,7 +17,8 @@ class Taskflowmodel extends Basemodel
 
     const TYPE_CHECKOUT = 'CHECKOUT';
     const TYPE_PRICE    = 'PRICE';
-    const TYPE_RESERVE    = 'RESERVE';
+    const TYPE_RESERVE  = 'RESERVE';
+    const TYPE_SERVICE  = 'SERVICE';
 
     const CREATE_EMPLOYEE   = 'EMPLOYEE';
     const CREATE_CUSTOMER   = 'CUSTOMER';
@@ -83,6 +84,14 @@ class Taskflowmodel extends Basemodel
     }
 
     /**
+     * 服务订单
+     */
+    public function service()
+    {
+        return $this->hasOne(Serviceordermodel::class,'taskflow_id');
+    }
+
+    /**
      * 门店
      */
     public function store()
@@ -137,8 +146,8 @@ class Taskflowmodel extends Basemodel
         $taskflow->template_id  = $template->id;
         $taskflow->serial_number= $taskflow->newNumber($store_id);
         $taskflow->store_id     = $store_id;
-        $taskflow->create_role  = Taskflowmodel::CREATE_EMPLOYEE;
-        $taskflow->employee_id  = $this->CI->employee->id;
+        $taskflow->create_role  = Taskflowmodel::CREATE_CUSTOMER;
+        $taskflow->customer_id  = $this->CI->user->id;
         $taskflow->status       = Taskflowmodel::STATE_AUDIT;
         $taskflow->room_type_id = $room_type_id;
         $taskflow->room_id      = $room_id;
