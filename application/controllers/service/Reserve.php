@@ -35,7 +35,7 @@ class Reserve extends MY_Controller {
         $template   = Taskflowtemplatemodel::where('company_id',$this->user->company_id)->where('type',Taskflowtemplatemodel::TYPE_RESERVE)->first();
         if ($template) {
             $this->load->model('taskflowmodel');
-            $taskflow_id   = $this->taskflowmodel->createTaskflow(Taskflowmodel::TYPE_RESERVE,$this->employee->store_id,$post['room_type_id']);
+            $taskflow_id   = $this->taskflowmodel->createTaskflow(Taskflowmodel::TYPE_RESERVE,$post['store_id'],$post['room_type_id']);
             $reserve->taskflow_id   = $taskflow_id;
         }
 
