@@ -9,6 +9,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Serviceordermodel extends Basemodel
 {
+    const TYPE_REPAIR   = 'REPAIR'; //维修
+    const TYPE_CLEAN    = 'CLEAN'; //清洁
+
     protected $table    = 'boss_service_order';
     protected $hidden   = ['deleted_at'];
 

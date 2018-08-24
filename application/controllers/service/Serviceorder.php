@@ -43,22 +43,20 @@ class Serviceorder extends MY_Controller
         $id->name    = trim($post['name']);
         $id->phone   = trim($post['phone']);
         $id->time    = trim($post['time']);
-        $id->remark  = isset($post['remark'])?($post['remark']):null;
-        $images   = $this->splitAliossUrl($post['paths']);
-       // $images   = json_encode($images);
+        $id->remark  = isset($post['remark'])?($post['remark']):'';
+        $images   = json_encode($this->splitAliossUrl($post['paths'],true));
         $id->paths=isset($images)?($images):null;
         $id->room_id    = trim($room_id);
         $id->store_id   = trim($store_id);
-
+        $id->type   =  Serviceordermodel::TYPE_REPAIR;
         //如果有任务流模板则创建任务流
         $this->load->model('taskflowtemplatemodel');
-        $template   = Taskflowtemplatemodel::where('company_id',$this->user->company_id)->where('type',Taskflowtemplatemodel::TYPE_RESERVE)->first();
+        $template   = Taskflowtemplatemodel::where('company_id',$this->user->company_id)->where('type',Taskflowtemplatemodel::TYPE_SERVICE)->first();
         if ($template) {
             $this->load->model('taskflowmodel');
             $taskflow_id   = $this->taskflowmodel->createTaskflow(Taskflowmodel::TYPE_SERVICE,$store_id,$room->room_type_id,$room_id);
             $id->taskflow_id   = $taskflow_id;
         }
-
         if ($id->save()) {
             $this->api_res(0);
         }else{
@@ -73,9 +71,9 @@ class Serviceorder extends MY_Controller
     {
         $this->load->model('roomunionmodel');
         $post = $this->input->post(NULL, true);
-        if(!$this->validation())
+        if(!$this->validationClean())
         {
-            $fieldarr   = ['name','phone','time','remark'];
+            $fieldarr   = ['name','phone','time','remark','store_id'];
             $this->api_res(1002,['ermsg'=>$this->form_first_error($fieldarr)]);
             return ;
         }
@@ -91,13 +89,14 @@ class Serviceorder extends MY_Controller
         $id->name    = trim($post['name']);
         $id->phone   = trim($post['phone']);
         $id->time    = trim($post['time']);
-        $id->remark  = isset($post['remark'])?($post['remark']):null;
+        $id->remark  = isset($post['remark'])?($post['remark']):'';
         $id->room_id   = trim($room_id);
         $id->store_id   = trim($store_id);
+        $id->type   = Serviceordermodel::TYPE_CLEAN;
 
         //如果有任务流模板则创建任务流
         $this->load->model('taskflowtemplatemodel');
-        $template   = Taskflowtemplatemodel::where('company_id',$this->user->company_id)->where('type',Taskflowtemplatemodel::TYPE_RESERVE)->first();
+        $template   = Taskflowtemplatemodel::where('company_id',$this->user->company_id)->where('type',Taskflowtemplatemodel::TYPE_SERVICE)->first();
         if ($template) {
             $this->load->model('taskflowmodel');
             $taskflow_id   = $this->taskflowmodel->createTaskflow(Taskflowmodel::TYPE_SERVICE,$store_id,$room->room_type_id,$room_id);
@@ -188,5 +187,48 @@ class Serviceorder extends MY_Controller
         $this->form_validation->set_rules($config)->set_error_delimiters('','');
         return $this->form_validation->run();
     }
+
+    /**
+     * 表单验证规则
+     */
+    private function validationClean()
+    {
+        $this->load->library('form_validation');
+        $config = array(
+            array(
+                'field' => 'store_id',
+                'label' => '公寓id',
+                'rules' => 'trim|required',
+            ),
+            array(
+                'field' => 'number',
+                'label' => '房间号',
+                'rules' => 'trim|required',
+            ),
+            array(
+                'field' => 'name',
+                'label' => '客户姓名',
+                'rules' => 'trim|required',
+            ),
+            array(
+                'field' => 'phone',
+                'label' => '电话号码',
+                'rules' => 'trim|required',
+            ),
+            array(
+                'field' => 'time',
+                'label' => '预约时间',
+                'rules' => 'trim|required',
+            ),
+            array(
+                'field' => 'remark',
+                'label' => '需求备注',
+                'rules' => 'trim',
+            ),
+        );
+        $this->form_validation->set_rules($config)->set_error_delimiters('','');
+        return $this->form_validation->run();
+    }
+
 
 }
