@@ -1,14 +1,16 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
-use Illuminate\Database\Capsule\Manager as DB;
+defined('BASEPATH') or exit('No direct script access allowed');
+
 /**
  * Author:      hfq<1326432154@qq.com>
  * Date:        2018/5/21
  * Time:        14:10
  * Describe:    预约看房
  */
-class Reserve extends MY_Controller {
-    public function __construct() {
+class Reserve extends MY_Controller
+{
+    public function __construct()
+    {
         parent::__construct();
         $this->load->model('reserveordermodel');
     }
@@ -16,8 +18,9 @@ class Reserve extends MY_Controller {
     /*
      * 生成新预约订单
      */
-    public function reserve() {
-        $post = $this->input->post(NULL, true);
+    public function reserve()
+    {
+        $post = $this->input->post(null, true);
         if (!$this->validation()) {
             $fieldarr = ['store_id', 'room_type_id', 'name', 'phone', 'visit_time'];
             $this->api_res(1002, ['errmsg' => $this->form_first_error($fieldarr)]);
@@ -32,19 +35,24 @@ class Reserve extends MY_Controller {
 
         //任务流流程
         $this->load->model('taskflowtemplatemodel');
-        $template   = Taskflowtemplatemodel::where('company_id',$this->user->company_id)->where('type',Taskflowtemplatemodel::TYPE_RESERVE)->first();
+        $template = Taskflowtemplatemodel::where('company_id', $this->user->company_id)->where('type', Taskflowtemplatemodel::TYPE_RESERVE)->first();
         if ($template) {
             $this->load->model('taskflowmodel');
-            $taskflow_id   = $this->taskflowmodel->createTaskflow(Taskflowmodel::TYPE_RESERVE,$post['store_id'],$post['room_type_id']);
-            $reserve->taskflow_id   = $taskflow_id;
+            $taskflow_id = $this->taskflowmodel->createTaskflow(
+                Taskflowmodel::TYPE_RESERVE,
+                $post['store_id'],
+                $post['room_type_id'],
+                null,
+                json_encode([
+                    "name"       => $post['name'],
+                    "phone"      => $post['phone'],
+                    "visit_time" => $post['visit_time'],
+                ]));
+
+            $reserve->taskflow_id = $taskflow_id;
         }
 
         if ($reserve->save()) {
-            log_message('debug', '开始消息模版调用');
-            $result = $this->internalCurl('employeemp/sendreservemsg', $post);
-            if (!$result) {
-                log_message('error', '预约消息模版调用失败');
-            }
             $this->api_res(0);
         } else {
             $this->api_res(1009);
@@ -54,7 +62,8 @@ class Reserve extends MY_Controller {
     /**
      * 预约过的房源
      */
-    public function precontract() {
+    public function precontract()
+    {
         $this->load->model('roomunionmodel');
         $this->load->model('roomtypemodel');
         $this->load->model('employeemodel');
@@ -74,7 +83,8 @@ class Reserve extends MY_Controller {
     /**
      * 看过的房源
      */
-    public function visited() {
+    public function visited()
+    {
         $this->load->model('roomunionmodel');
         $this->load->model('roomtypemodel');
         $this->load->model('employeemodel');
@@ -96,7 +106,8 @@ class Reserve extends MY_Controller {
     /**
      * 表单验证
      */
-    public function validation() {
+    public function validation()
+    {
         $this->load->library('form_validation');
         $config = array(
             array(

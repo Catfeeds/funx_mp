@@ -58,10 +58,10 @@ function getWechatEmployeeConfig()
         'guzzle' => [
             'timeout' => 3.0,
         ],
-        'oauth' => [
-            'scopes'   => ['snsapi_userinfo'],
+        // 'oauth' => [
+            // 'scopes'   => ['snsapi_userinfo'],
             /*'callback' => site_url('callback'),*/
-        ],
+        // ],
     ];
 
 }

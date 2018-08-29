@@ -26,6 +26,24 @@ $config['my_bill_url']    = 'http://tweb.funxdata.com/#/myBill';
 $config['wx_web_appid']  = 'wx75fd74e2316b2355';
 $config['wx_web_secret'] = '70fa3a7fe658be97552788fc764f5434';
 
+/**
+测试环境里 员工端和租户端共用了公众号
+用途: 微信员工端端公众号的信息
+微信公众平台类型: 公众号
+公众号名称: 梵响数据
+微信号: funxdata
+管理邮箱: slfw@fun-x.cn
+原始ID: gh_08cb40357652
+AppID: wxd8da84ed2a26aa06
+主域名: tapi.web.funxdata.com
+ */
+$config['wx_employee_appid']   = 'wxd8da84ed2a26aa06';
+$config['wx_employee_secret']  = '00e6fd3ce1151e3d2bd0e01c98c925d3';
+$config['wx_employee_token']   = 'aJ1B3XhY7qRvTG3DrbxNhCLo90kpsds4';
+$config['wx_employee_aes_key'] = 'IwTUFptFaJ1B3XhY7qRvTG3DrbxNhCLo90kpsqP0cNL';
+// 预约看房模板消息
+$config['tmplmsg_employee_Reserve'] = 'qCwYA7zOn-s5cxx8zLBcXpa-n24N_2dZIbV3K0dbEKY';
+
 //云片信息
 //https://sms.yunpian.com/v1/sms/send.json
 $config['yunpian_api_url'] = 'http://sms.yunpian.com/v2/sms/single_send.json';
