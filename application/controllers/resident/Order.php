@@ -159,7 +159,7 @@ class Order extends MY_Controller
     {
         $this->load->model('meterreadingtransfermodel');
         foreach ($order as $key => $value){
-            if (in_array($value->type,['WATER','COLD_WATER','ELECTRICITY'])){
+            if (in_array($value->type,['WATER','HOT_WATER','ELECTRICITY'])){
                 if ($value->transfer_id_s == 0||$value->transfer_id_e == 0){
                     $value->this_reading    = '';
                     $value->this_time       = '';
