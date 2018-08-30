@@ -106,6 +106,8 @@ $config['extsign_auto.api']      = 'extsign_auto.api';
 
 //2.预约看房通知
 $config['tmplmsg_employee_Reserve'] = 'qCwYA7zOn-s5cxx8zLBcXpa-n24N_2dZIbV3K0dbEKY';
+//模板消息-员工-审核通知(物品/退房)
+$config['tmplmsg_employee_Check']   = 'UoQcQsMD0oPYOfd6V5p9exw8x8M3bQMGkxlFJs1mEmY';
 
 // 内部服务调用相关配置
 $config['internal_api_key']    = "111111111";
