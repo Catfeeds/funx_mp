@@ -21,6 +21,7 @@ class Serviceorder extends MY_Controller
     public function serviceOrder()
     {
         $this->load->model('roomunionmodel');
+        $this->load->model('storemodel');
         $post = $this->input->post(NULL, true);
         if(!$this->validation())
         {
@@ -29,6 +30,7 @@ class Serviceorder extends MY_Controller
             return ;
         }
         $store_id = intval(strip_tags(trim($post['store_id'])));
+        $store  = Storemodel::find($store_id);
         $room_number = strip_tags(trim($post['number']));
         $room = Roomunionmodel::where('store_id', $store_id)->where('number', $room_number)->first();
         if (!$room) {
@@ -54,7 +56,16 @@ class Serviceorder extends MY_Controller
         $template   = Taskflowtemplatemodel::where('company_id',$this->user->company_id)->where('type',Taskflowtemplatemodel::TYPE_SERVICE)->first();
         if ($template) {
             $this->load->model('taskflowmodel');
-            $taskflow_id   = $this->taskflowmodel->createTaskflow(Taskflowmodel::TYPE_SERVICE,$store_id,$room->room_type_id,$room_id);
+            $msg    = json_encode(
+                [
+                    'store'=>$store->name,
+                    'number'=>$room_number,
+                    'name'=>$post['name'],
+                    'phone'=>$post['phone'],
+                    'type'=>'清洁',
+                    'remark'=>$post['remark']]
+            );
+            $taskflow_id   = $this->taskflowmodel->createTaskflow(Taskflowmodel::TYPE_SERVICE,$store_id,$room->room_type_id,$room_id,$msg);
             $id->taskflow_id   = $taskflow_id;
         }
         if ($id->save()) {
@@ -70,6 +81,7 @@ class Serviceorder extends MY_Controller
     public function cleanOrder()
     {
         $this->load->model('roomunionmodel');
+        $this->load->model('storemodel');
         $post = $this->input->post(NULL, true);
         if(!$this->validationClean())
         {
@@ -78,6 +90,7 @@ class Serviceorder extends MY_Controller
             return ;
         }
         $store_id = intval(strip_tags(trim($post['store_id'])));
+        $store  = Storemodel::find($store_id);
         $room_number = strip_tags(trim($post['number']));
         $room = Roomunionmodel::where('store_id', $store_id)->where('number', $room_number)->first();
         if (!$room) {
@@ -99,7 +112,16 @@ class Serviceorder extends MY_Controller
         $template   = Taskflowtemplatemodel::where('company_id',$this->user->company_id)->where('type',Taskflowtemplatemodel::TYPE_SERVICE)->first();
         if ($template) {
             $this->load->model('taskflowmodel');
-            $taskflow_id   = $this->taskflowmodel->createTaskflow(Taskflowmodel::TYPE_SERVICE,$store_id,$room->room_type_id,$room_id);
+            $msg    = json_encode(
+                [
+                    'store'=>$store->name,
+                    'number'=>$room_number,
+                    'name'=>$post['name'],
+                    'phone'=>$post['phone'],
+                    'type'=>'清洁',
+                    'remark'=>$post['remark']]
+            );
+            $taskflow_id   = $this->taskflowmodel->createTaskflow(Taskflowmodel::TYPE_SERVICE,$store_id,$room->room_type_id,$room_id,$msg);
             $id->taskflow_id   = $taskflow_id;
         }
 
