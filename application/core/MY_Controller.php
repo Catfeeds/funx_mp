@@ -17,39 +17,38 @@ class MY_Controller extends CI_Controller {
 
     //API返回统一方法
     public function api_res($code, $data = false) {
+        switch ($code) {
+            case 0:
+                break;
+            case 1002:
+            case 1004:
+            case 1005:
+            case 10008:
+                $this->output->set_status_header(400);
+                break;
+            case 1001:
+            case 1006:
+            case 11005:
+                $this->output->set_status_header(401);
+                break;
+            case 1011:
+            case 10011:
+                $this->output->set_status_header(403);
+                break;
+            default:
+                $this->output->set_status_header(500);
+                break;
+        }
 
         $msg = $this->config->item('api_code')[$code];
         if ($data) {
             $this->output
-                ->set_content_type('application/json')
                 ->set_output(json_encode(array('rescode' => $code, 'resmsg' => $msg, 'data' => $data)));
         } else {
             $this->output
-                ->set_content_type('application/json')
                 ->set_output(json_encode(array('rescode' => $code, 'resmsg' => $msg, 'data' => [])));
         }
-        switch ($code) {
-        case 0:
-            break;
-        case 1002:
-        case 1004:
-        case 1005:
-        case 10008:
-            $this->output->set_status_header(400);
-            break;
-        case 1001:
-        case 1006:
-        case 11005:
-            $this->output->set_status_header(401);
-            break;
-        case 1011:
-        case 10011:
-            $this->output->set_status_header(403);
-            break;
-        default:
-            $this->output->set_status_header(500);
-            break;
-        }
+        
     }
 
     /**
