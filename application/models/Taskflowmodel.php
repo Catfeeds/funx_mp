@@ -262,7 +262,8 @@ class Taskflowmodel extends Basemodel
                 log_message('info', '微信回调成功发送模板消息: ' . $employee->name);
             } catch (Exception $e) {
                 log_message('error', '租户预约模板消息通知失败：' . $e->getMessage());
-                throw $e;
+//                throw $e;
+                return;
             }
         }
     }
@@ -270,11 +271,11 @@ class Taskflowmodel extends Basemodel
     protected function sendServiceMsg($body, $employees = [])
     {
         $data = [
-            'first'     => "有新的{$body->type}服务订单",
-            'keyword1'  => "{$body->store}-{$body->number}",
+            'first'     => "有新的服务订单",
+            'keyword1'  => "{$body->type}服务",
             'keyword2'  => "{$body->name}-{$body->phone}",
             'keyword3'  => date('Y-m-d H:i:s'),
-            'keyword4'  => "{$body->remark}",
+            'keyword4'  => "{$body->store}-{$body->number}",
             'remark'    => '请尽快处理!',
         ];
         // $this->CI->load()
@@ -288,7 +289,7 @@ class Taskflowmodel extends Basemodel
             }
             try {
                 log_message('debug', 'try to 服务订单发送模板消息');
-                $app->notice->uses(config_item('tmplmsg_employee_Check'))
+                $app->notice->uses(config_item('tmplmsg_employee_TaskRemind'))
                     // ->withUrl(config_item('wechat_url') . '')
                     ->andData($data)
                     ->andReceiver($employee['employee_mp_openid'])
@@ -296,7 +297,8 @@ class Taskflowmodel extends Basemodel
                 log_message('info', '微信回调成功发送模板消息: ' . $employee->name);
             } catch (Exception $e) {
                 log_message('error', '租户服务订单模板消息通知失败：' . $e->getMessage());
-                throw $e;
+//                throw $e;
+                return;
             }
         }
     }
