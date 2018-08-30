@@ -117,10 +117,21 @@ class Residentmodel extends Basemodel{
         return $this->hasMany(Newordermodel::class,'resident_id');
     }
 
-    //住户的合同信息
+    //住户的入住合同信息
     public function contract(){
 
-        return $this->hasOne(Contractmodel::class,'resident_id');
+        return $this->hasMany(Contractmodel::class,'resident_id')->where('rent_type','!=',Contractmodel::RENT_RESERVE);
+    }
+
+    //住户预定合同
+    public function reserve_contract()
+    {
+        return $this->hasMany(Contractmodel::class,'resident_id')->where('rent_type',Contractmodel::RENT_RESERVE);
+    }
+
+    //住户的所有合同
+    public function contracts(){
+        return $this->hasMany(Contractmodel::class,'resident_id');
     }
 
     //住户的用户信息
@@ -128,12 +139,6 @@ class Residentmodel extends Basemodel{
 
         return $this->belongsTo(Customermodel::class,'customer_id');
     }
-
-    //同住人信息
-//    public function commonresident(){
-//
-//        return $this->hasMany(Commonresidentmodel::class,'resident_id');
-//    }
 
     //住户的优惠券
     public function  coupons()
@@ -160,7 +165,7 @@ class Residentmodel extends Basemodel{
 
     public function store(){
 
-        return $this->belongsTo(storemodel::class,'store_id')->select('id','name','created_at') ;
+        return $this->belongsTo(storemodel::class,'store_id') ;
     }
 
 

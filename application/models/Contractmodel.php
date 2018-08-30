@@ -40,6 +40,13 @@ class Contractmodel extends Basemodel {
     const TYPE_FDD         = 'FDD';
     const TYPE_NORMAL      = 'NORMAL';
 
+    /**
+     * 合同的类型
+     */
+    const RENT_LONG     = 'LONG';
+    const RENT_SHORT    = 'SHORT';
+    const RENT_RESERVE  = 'RESERVE';
+
 
     protected $hidden   = [];
 

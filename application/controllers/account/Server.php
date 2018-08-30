@@ -519,7 +519,8 @@ class Server extends MY_Controller
         //有未支付的预订订单, 则应该去支付
         if (0 < $bookingOrdersCnt) {
 //            $url    = $loginUrl.site_url(['order', 'status']);
-            $url    = config_item('my_bill_url');
+//            $url    = config_item('my_bill_url');
+            $url    = config_item('wechat_url').'#/reservationContract?resident_id='.$resident->id;
         } else {
 //            $url    = $loginUrl.site_url(['contract', 'preview', $resident->id]);
             $url    = config_item('wechat_url').'#/generates?resident_id='.$resident->id;
