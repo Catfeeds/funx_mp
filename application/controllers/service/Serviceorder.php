@@ -62,7 +62,7 @@ class Serviceorder extends MY_Controller
                     'number'=>$room_number,
                     'name'=>$post['name'],
                     'phone'=>$post['phone'],
-                    'type'=>'清洁',
+                    'type'=>'维修',
                     'remark'=>$post['remark']]
             );
             $taskflow_id   = $this->taskflowmodel->createTaskflow(Taskflowmodel::TYPE_SERVICE,$store_id,$room->room_type_id,$room_id,$msg);
