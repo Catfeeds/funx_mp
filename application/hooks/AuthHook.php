@@ -133,6 +133,10 @@ class AuthHook {
                 $d_company_id   = $decoded->company_id;
                 define('CURRENT_ID',$d_uxid);
                 define('COMPANY_ID',$d_company_id);
+                
+                //SaaS权限验证
+                $this->saas();
+
                 $this->CI->load->model('customermodel');
                 log_message('debug','current_id='.CURRENT_ID);
                 $this->CI->user = Customermodel::where('uxid',CURRENT_ID)->first();
@@ -140,6 +144,36 @@ class AuthHook {
                 header("Content-Type:application/json;charset=UTF-8");
                 echo json_encode(array('rescode' => 1001, 'resmsg' => 'token无效', 'data' => []));
                 exit;
+            }
+        }
+    }
+
+    //SaaS权限验证
+    private function saas(){
+       
+        $company_id = COMPANY_ID;
+
+        if(!empty($company_id)){
+            // if(!$this->CI->load->is_loaded('companymodel')){
+                $this->CI->load->model('companymodel');
+            // }
+            $model = Companymodel::where('id',$company_id)->first();
+
+            if(empty($model)){
+                throw new Exception('该账号不存在');
+            }
+
+            //判断有效期
+            if(strtotime($model->expiretime)<time()){
+                throw new Exception('该账号已经过期失效，请续费');
+            }
+
+            //判断模块权限
+
+
+            //判断状态
+            if('CLOSE' === $model->status){
+                throw new Exception('该账号已经注销，请联系管理员');
             }
         }
     }
