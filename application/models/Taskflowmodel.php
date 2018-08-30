@@ -250,11 +250,15 @@ class Taskflowmodel extends Basemodel
             }
             try {
                 log_message('debug', 'try to 预约发送模版消息');
-                $app->notice->uses(config_item('tmplmsg_employee_Reserve'))
-                    // ->withUrl(config_item('wechat_url') . '')
-                    ->andData($data)
-                    ->andReceiver($employee['employee_mp_openid'])
-                    ->send();
+                $app->notice->send([
+                    'touser' => $employee['employee_mp_openid'],
+                    'template_id' => config_item('tmplmsg_employee_Reserve'),
+                    'data' => $data,
+                    "miniprogram"=> [
+                        "appid"=> config_item('miniAppid'),
+                        "pagepath"=>"/pages/index/homePage"
+                    ],
+                ]);
                 log_message('info', '微信回调成功发送模板消息: ' . $employee->name);
             } catch (Exception $e) {
                 log_message('error', '租户预约模板消息通知失败：' . $e->getMessage());
