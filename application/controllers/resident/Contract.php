@@ -133,7 +133,7 @@ class Contract extends MY_Controller
             return;
         }
         $this->load->model('residentmodel');
-        $resident   = Residentmodel::find($resident_id);
+        $resident   = Residentmodel::withoutGlobalScopes()->find($resident_id);
         if(!$resident){
             $this->api_res(1007);
             return;
@@ -459,8 +459,8 @@ class Contract extends MY_Controller
             throw $e;
         }
 
-        $resident   = $contract->resident;
-        $room   = $contract->roomunion;
+//        $resident   = $contract->resident;
+//        $room   = $contract->roomunion;
 
         //没有问题就跳转支付页面
 

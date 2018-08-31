@@ -22,7 +22,7 @@ class Resident extends MY_Controller
         $resident_id   = $this->input->post('resident_id',true);
         $this->load->model('residentmodel');
         $this->load->model('contractmodel');
-        $resident   = Residentmodel::find($resident_id);
+        $resident   = Residentmodel::withoutGlobalScopes()->find($resident_id);
         if(!$resident){
             $this->api_res(1007);
             return;

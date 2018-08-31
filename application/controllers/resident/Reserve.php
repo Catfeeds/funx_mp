@@ -40,7 +40,7 @@ class Reserve extends MY_Controller
         $this->load->model('contarctmodel');
         $this->load->model('ordermodel');
         $this->load->model('fddrecordmodel');
-        $resident   = Residentmodel::find($resident_id);
+        $resident   = Residentmodel::withoutGlobalScopes()->find($resident_id);
         if (!$resident) {
             $this->api_res(1007);
             return;
@@ -386,17 +386,8 @@ class Reserve extends MY_Controller
             //redirect(site_url('center'));
             throw $e;
         }
-
-        $resident   = $contract->resident;
-        $room   = $contract->roomunion;
-
         //没有问题就跳转支付页面
-
         header('Location:'.config_item('my_bill_url'));
-
-        //$this->api_res(0);
-
-        //redirect(site_url(['order', 'payment', $contract->resident->id]));
     }
 
 }
