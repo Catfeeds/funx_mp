@@ -503,26 +503,10 @@ class Server extends MY_Controller
                 DB::rollBack();
                 throw  $e;
             }
-
-//        }else{
-//
-//            return new Text(['content' => '该入住信息已经被确认']);
-//        }
-        //根据住户状态分别进行处理
-        //扫码的来源: 1,办理入住; 2,预订房间的支付
-        //如果是办理入住,将用户带到合同信息确认的页面
-        $bookingOrdersCnt   = $resident->orders()
-            ->where('status', Ordermodel::STATE_PENDING)
-            ->where('type', Ordermodel::PAYTYPE_RESERVE)
-            ->count();
-
-        //有未支付的预订订单, 则应该去支付
-        if (0 < $bookingOrdersCnt) {
-//            $url    = $loginUrl.site_url(['order', 'status']);
-//            $url    = config_item('my_bill_url');
+        //如果是预定用户跳转到预定签合同页面
+        if ($resident->reserve_contract_time>0 && $resident->contract_time=0) {
             $url    = config_item('wechat_url').'#/reservationContract?resident_id='.$resident->id;
         } else {
-//            $url    = $loginUrl.site_url(['contract', 'preview', $resident->id]);
             $url    = config_item('wechat_url').'#/generates?resident_id='.$resident->id;
         }
         return new News(array(

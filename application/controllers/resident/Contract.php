@@ -161,11 +161,8 @@ class Contract extends MY_Controller
 
         //判断门店的合同类型选择调用哪个合同流程
         $this->load->model('storemodel');
-        $contract   = $resident->contract;
-
+        $contract   = $resident->contract()->first();
         $contract_type  = $room->store->contract_type;
-
-
         $this->load->model('roomtypemodel');
         //默认跳转的页面 账单列表
         $targetUrl  = '';
@@ -174,35 +171,25 @@ class Contract extends MY_Controller
             if($resident->status!='NORMAL'){
                 //生成纸质版合同
                 $contract   = $this->contractPaper($resident);
-
                 $this->load->model('ordermodel');
                 $this->ordermodel->firstCheckInOrders($resident, $room);
-
                 $orderUnpaidCount   = $resident->orders()
                     ->whereIn('status', [Ordermodel::STATE_AUDITED, Ordermodel::STATE_PENDING, Ordermodel::STATE_CONFIRM])
                     ->count();
-
                 if (0 == $orderUnpaidCount) {
                     $resident->update(['status' => Residentmodel::STATE_NORMAL]);
                     $resident->roomunion->update(['status' => Roomunionmodel::STATE_RENT]);
                 }
             }
         }else{
-
             $this->load->model('fddrecordmodel');
             if(empty($contract)){
-
                 $contract   = $this->signContract($resident);
-
                 $this->load->model('ordermodel');
                 $this->ordermodel->firstCheckInOrders($resident, $room);
-
             }
-
             if($contract->status!==Contractmodel::STATUS_ARCHIVED){
-
                 $targetUrl    = $this->signFddUrl($contract);
-
             }
         }
         log_message('debug',$targetUrl);

@@ -59,7 +59,7 @@ class Reserve extends MY_Controller
             $this->api_res(10015);
             return;
         }
-        $reserve_contract   = $resident->reserve_contract;
+        $reserve_contract   = $resident->reserve_contract()->first();
         $contract_type  = $resident->store->contract_type;
         //默认跳转的页面 账单列表
         $targetUrl  = '';
@@ -191,9 +191,6 @@ class Reserve extends MY_Controller
             'customer_name'       => $resident->name,               //租户姓名
             'id_card'             => $resident->card_number,        //身份证号
             'phone'               => $resident->phone,              //电话号码
-//            'address'             => $resident->address,            //地址
-//            'alternative_person'  => $resident->alternative,        //紧急联人
-//            'alternative_phone'   => $resident->alter_phone,        //紧急联系人电话
             'store_address'       => $store->provice.$store->city.$store->district.$store->address, //+门店地址
             'room_number'         => $resident->roomunion->number,       //房间号
             'year_start'          => "{$resident->begin_time->year}",           //起租年
@@ -203,22 +200,12 @@ class Reserve extends MY_Controller
             'month_end'           => "{$resident->end_time->month}",            //结束月
             'day_end'             => "{$resident->end_time->day}",              //接速日
             'rent_money'          => "{$resident->rent_price}",            //租金
-//            'rent_money_upper'    => num2rmb($resident->rent_price),       //租金确认
             'service_money'       => "{$resident->property_price}",        //服务费
             'electricity_price'   => $store->electricity_price,           //电费
             'water_price'         => $store->water_price,                  //冷水
             'hot_water_price'           => $store->hot_water_price,                  //热水
             'book_money'           => $resident->book_money,            //定金
-//            'service_money_upper' => num2rmb($resident->property_price),   //服务费确认
-//            'deposit_money'       => "{$resident->deposit_money}",              //暂时不确定
-//            'deposit_month'       => (string)$resident->deposit_month,          //金额确定
-//            'deposit_money_upper' => num2rmb($resident->deposit_money),         //金额确定
-//            'tmp_deposit'         => "{$resident->tmp_deposit}",                //临时租金
-//            'tmp_deposit_upper'   => num2rmb($resident->tmp_deposit),           //零食租金确认
             'special_term'        => $resident->special_term ? $resident->special_term : '无',
-//            'year'                => date("Y"),                         //签约年
-//            'month'               => date("m"),                         //签约月
-//            'day'                 => date("d"),                         //签约日
             'attachment_2_date'   => date("Y-m-d")                      //最终时间确认
         );
 
