@@ -26,6 +26,13 @@ class Reserve extends MY_Controller
             $this->api_res(1002, ['errmsg' => $this->form_first_error($fieldarr)]);
             return;
         }
+        $has_reserve    = Reserveordermodel::where('phone',$post['phone'])->orderBy('created_at','desc')->first();
+        if ($has_reserve) {
+            if ((strtotime($has_reserve->created_at)+(10*60))>time()){
+                $this->api_res(10023);
+                return;
+            }
+        }
         $reserve = new Reserveordermodel();
         $reserve->fill($post);
         $reserve->customer_id = CURRENT_ID;
