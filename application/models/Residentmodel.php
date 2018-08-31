@@ -236,6 +236,11 @@ class Residentmodel extends Basemodel{
             $data['end_time']       = Carbon::parse($resident->end_time)->toDateString();
         }
 
+        if (0 < $resident->reserve_contract_time) {
+            $data['reserve_begin_time']     = Carbon::parse($resident->reserve_begin_time)->toDateString();
+            $data['reserve_end_time']       = Carbon::parse($resident->reserve_end_time)->toDateString();
+        }
+
         if (self::STATE_NORMAL == $resident->status) {
             $data['days_left']  = Carbon::now()->startOfDay()->diffIndays($resident->end_time, false);
         }
@@ -300,13 +305,24 @@ class Residentmodel extends Basemodel{
             $data['time']  = $resident->book_time->format('Y-m-d');
         }
 
-        if ($contract = $resident->contract) {
+        if ($contract = $resident->contract()->first()) {
             $data   = array_merge($data, [
                 'contract'  => [
                     'id'        => $contract->id,
                     'status'    => $contract->status,
                     'type'      => $contract->type,
                     'view_url'  => $contract->view_url,
+                ],
+            ]);
+        }
+
+        if ($reserve_contract = $resident->reserve_contract()->first()) {
+            $data   = array_merge($data, [
+                'reserve_contract'  => [
+                    'id'        => $reserve_contract->id,
+                    'status'    => $reserve_contract->status,
+                    'type'      => $reserve_contract->type,
+                    'view_url'  => $reserve_contract->view_url,
                 ],
             ]);
         }

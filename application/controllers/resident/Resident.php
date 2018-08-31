@@ -22,15 +22,11 @@ class Resident extends MY_Controller
         $resident_id   = $this->input->post('resident_id',true);
         $this->load->model('residentmodel');
         $this->load->model('contractmodel');
-
-        //$resident   = Residentmodel::where('uxid',CURRENT_ID)->find($resident_id);
         $resident   = Residentmodel::find($resident_id);
         if(!$resident){
             $this->api_res(1007);
             return;
         }
-
-
         if(!empty($input['type'])&&$input['type']='sign_contract'&&$resident->card_type!==0){
 
             header('Location:'.config_item('my_bill_url'));
@@ -45,11 +41,20 @@ class Resident extends MY_Controller
 
         //判断是否有合同
         if(isset($input['has_contract'])){
-
-            $contract   = $resident->contract()->where('status','!=',Contractmodel::STATUS_GENERATED);
-            if($contract->exists()){
-                $this->api_res(10016);
-                return;
+            //入住判断合同
+            if($input['sign_type']=='CHECKIN'){
+                $contract   = $resident->contract()->where('status','!=',Contractmodel::STATUS_GENERATED);
+                if($contract->exists()){
+                    $this->api_res(10016);
+                    return;
+                }
+            } elseif ($input['sign_type']=='RESERVE') {
+                //预定判断合同
+                $contract   = $resident->reserve_contract()->where('status','!=',Contractmodel::STATUS_GENERATED);
+                if($contract->exists()){
+                    $this->api_res(10016);
+                    return;
+                }
             }
         }
         //验证住户的uxid是不是当前ID
