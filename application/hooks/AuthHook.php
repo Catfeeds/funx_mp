@@ -51,6 +51,11 @@ class AuthHook {
             'resident/resident/checkout',
             'common/imageupload',
             'common/fileupload',
+
+           //预定签约的一些回调
+            'resident/reserve/contractconfirm',
+            'resident/reserve/signresult',
+
            /* 'store/store/showcity',
             'store/store/showstore',
             'store/store/liststore',*/

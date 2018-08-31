@@ -37,7 +37,7 @@ class Reserve extends MY_Controller
         $this->load->model('roomunionmodel');
         $this->load->model('storemodel');
         $this->load->model('roomtypemodel');
-        $this->load->model('contarctmodel');
+        $this->load->model('contractmodel');
         $this->load->model('ordermodel');
         $this->load->model('fddrecordmodel');
         $resident   = Residentmodel::withoutGlobalScopes()->find($resident_id);
