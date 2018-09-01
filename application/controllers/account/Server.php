@@ -193,6 +193,9 @@ class Server extends MY_Controller
                         case 'WIFI':
                             return new Text(['content' => '点击<a href="http://wportal.tpauth.cn:8080/portal/wechat_auth/?token=48b9d3b1 ">免费上网</a>']);
                             break;
+                        case '练习生':
+                            return new Text(['content' => '点击提交信息http://cn.mikecrm.com/Ef2NIao ，即刻加入草莓练习生计划']);
+                            break;
                         default:
                             return $this->handleTextMessage($message, $msgContent, $app);
                             break;
