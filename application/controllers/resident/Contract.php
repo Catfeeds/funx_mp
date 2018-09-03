@@ -335,10 +335,10 @@ class Contract extends MY_Controller
         $recordOld = $contract->transactions->where('role', Fddrecordmodel::ROLE_B)
             ->where('status', Fddrecordmodel::STATUS_INITIATED)->first();
 
-        if (empty($recordOld)) {
+        if (!empty($recordOld)) {
             $transactionId = $recordOld->transaction_id;
         }else{
-            $transactionId  = 'B'.date("Ymd His").mt_rand(10,60);
+            $transactionId  = 'B'.date("YmdHis").mt_rand(10,60);
         }
 
         //生成调用该接口所需要的信息

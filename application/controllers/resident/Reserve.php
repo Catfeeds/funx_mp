@@ -250,7 +250,7 @@ class Reserve extends MY_Controller
         $contract->download_url = $data['download_url'];
         $contract->view_url     = $data['view_url'];
         $contract->status       = $data['status'];
-//            $contract->sign_type       = Contractmodel::SIGN_NEW ;
+        $contract->rent_type       = Contractmodel::RENT_RESERVE ;
         $contract->save();
 
         return $contract;
@@ -266,10 +266,10 @@ class Reserve extends MY_Controller
         $recordOld = $contract->transactions->where('role', Fddrecordmodel::ROLE_B)
             ->where('status', Fddrecordmodel::STATUS_INITIATED)->first();
 
-        if (empty($recordOld)) {
+        if (!empty($recordOld)) {
             $transactionId = $recordOld->transaction_id;
         }else{
-            $transactionId  = 'B'.date("Ymd His").mt_rand(10,60);
+            $transactionId  = 'B'.date("YmdHis").mt_rand(10,60);
         }
 
         //生成调用该接口所需要的信息
