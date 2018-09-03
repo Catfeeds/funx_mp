@@ -334,7 +334,6 @@ class Contract extends MY_Controller
 
         $recordOld = $contract->transactions->where('role', Fddrecordmodel::ROLE_B)
             ->where('status', Fddrecordmodel::STATUS_INITIATED)->first();
-
         if (!empty($recordOld)) {
             $transactionId = $recordOld->transaction_id;
         }else{

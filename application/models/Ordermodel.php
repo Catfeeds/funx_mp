@@ -215,6 +215,7 @@ class Ordermodel extends Basemodel{
             'store_id'       => $roomunion->store_id,
             'room_type_id'   => $roomunion->room_type_id,
             'employee_id'    => $resident->employee_id,
+            'company_id'     => $resident->company_id,
             'uxid'           => $resident->uxid,
             'customer_id'    => $resident->customer_id,
             'room_id'        => $resident->room_id,
