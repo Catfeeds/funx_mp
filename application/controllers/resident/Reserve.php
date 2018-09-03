@@ -184,7 +184,7 @@ class Reserve extends MY_Controller
         }
         $store  = $resident->store;
         //签署合同需要准备的信息
-        $contractNumber = $resident->store->abbreviation . '-' . $resident->begin_time->year .'-' . $resident->name . '-' . $resident->room_id;
+        $contractNumber = $resident->store->abbreviation . '-' . $resident->reserve_begin_time->year .'-' . $resident->name . '-' . $resident->room_id;
         $parameters     = array(
             'contract_number'     => $contractNumber,               //合同号
             'store_name'          => $store->name,        //+门店

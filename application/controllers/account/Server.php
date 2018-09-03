@@ -507,7 +507,7 @@ class Server extends MY_Controller
                 throw  $e;
             }
         //如果是预定用户跳转到预定签合同页面
-        if ($resident->reserve_contract_time>0 && $resident->contract_time=0) {
+        if ($resident->reserve_contract_time>0 && $resident->contract_time==0) {
             $url    = config_item('wechat_url').'#/reservationContract?resident_id='.$resident->id;
         } else {
             $url    = config_item('wechat_url').'#/generates?resident_id='.$resident->id;
