@@ -390,5 +390,18 @@ class Reserve extends MY_Controller
         header('Location:'.config_item('my_bill_url'));
     }
 
+    /**
+     * 申请用户证书
+     */
+    private function getCustomerCA($data)
+    {
+        $res = $this->fadada->getCustomerCA($data['name'], $data['phone'], $data['cardNumber'], $data['cardType']);
+        if ($res == false) {
+            throw new Exception($this->fadada->showError());
+        }
+
+        return $res['customer_id'];
+    }
+
 }
 
