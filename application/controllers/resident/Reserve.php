@@ -162,6 +162,9 @@ class Reserve extends MY_Controller
         $order->status       = Ordermodel::STATE_PENDING;
         $order->deal         = Ordermodel::DEAL_UNDONE;
         $order->type         = Ordermodel::PAYTYPE_RESERVE;
+        $order->company_id         = $resident->company_id;
+        $order->customer_id        = $resident->customer_id;
+        $order->uxid         = $resident->uxid;
         $b                   = $order->save();
         if($b){
             return $order->id;
@@ -265,7 +268,6 @@ class Reserve extends MY_Controller
 
         $recordOld = $contract->transactions->where('role', Fddrecordmodel::ROLE_B)
             ->where('status', Fddrecordmodel::STATUS_INITIATED)->first();
-
         if (!empty($recordOld)) {
             $transactionId = $recordOld->transaction_id;
         }else{
