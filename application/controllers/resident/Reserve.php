@@ -100,7 +100,7 @@ class Reserve extends MY_Controller
                 }
             }
             //返回签署页面的url
-            if($reserve_contract->status!==Contractmodel::STATUS_ARCHIVED){
+            if($reserve_contract->status!=Contractmodel::STATUS_ARCHIVED){
                 $targetUrl    = $this->signFddUrl($reserve_contract);
             }
         }
@@ -266,7 +266,7 @@ class Reserve extends MY_Controller
         $recordOld = $contract->transactions->where('role', Fddrecordmodel::ROLE_B)
             ->where('status', Fddrecordmodel::STATUS_INITIATED)->first();
 
-        if (count($recordOld)) {
+        if (empty($recordOld)) {
             $transactionId = $recordOld->transaction_id;
         }else{
             $transactionId  = 'B'.date("Ymd His").mt_rand(10,60);
