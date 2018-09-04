@@ -333,14 +333,6 @@ class Payment extends MY_Controller {
                         }
                     }
 
-                    if ($order->type == 'UTILITY') {
-                        $this->load->model('utilitymodel');
-                        $temp = Utilitymodel::find($order->other_id);
-                        if (!empty($temp)) {
-                            $temp->status = Utilitymodel::STATE_CONFIRM;
-                            $temp->save();
-                        }
-                    }
                 }
 
                 $this->load->model('couponmodel');
