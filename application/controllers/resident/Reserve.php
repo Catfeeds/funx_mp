@@ -208,7 +208,7 @@ class Reserve extends MY_Controller
             'water_price'         => $store->water_price,                  //冷水
             'hot_water_price'           => $store->hot_water_price,                  //热水
             'book_money'           => $resident->book_money,            //定金
-            'special_term'        => $resident->special_term ? $resident->special_term : '无',
+            'special_term'        => $resident->reserve_special_term ? $resident->reserve_special_term : '无',
             'attachment_2_date'   => date("Y-m-d")                      //最终时间确认
         );
 
