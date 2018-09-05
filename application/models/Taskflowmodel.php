@@ -115,6 +115,7 @@ class Taskflowmodel extends Basemodel
     public function newNumber($store_id)
     {
         $count = $this
+            ->withTrashed()
             ->where('store_id', $store_id)
             ->whereDate('created_at', date('Y-m-d'))
             ->count();
