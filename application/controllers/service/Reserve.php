@@ -39,7 +39,7 @@ class Reserve extends MY_Controller
         $reserve->time        = date('Y-m-d H:i:s', time());
         $reserve->visit_by    = 'WECHAT';
         $reserve->status      = 'WAIT';
-
+        $reserve->save();
         //任务流流程
         $this->load->model('taskflowtemplatemodel');
         $template = Taskflowtemplatemodel::where('company_id', $this->user->company_id)->where('type', Taskflowtemplatemodel::TYPE_RESERVE)->first();
@@ -57,13 +57,9 @@ class Reserve extends MY_Controller
                 ]));
 
             $reserve->taskflow_id = $taskflow_id;
+            $reserve->save();
         }
-
-        if ($reserve->save()) {
             $this->api_res(0);
-        } else {
-            $this->api_res(1009);
-        }
     }
 
     /**
