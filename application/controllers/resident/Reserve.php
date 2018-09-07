@@ -204,10 +204,10 @@ class Reserve extends MY_Controller
             'day_end'             => "{$resident->reserve_end_time->day}",              //接速日
             'rent_money'          => "{$resident->rent_price}",            //租金
             'service_money'       => "{$resident->property_price}",        //服务费
-            'electricity_price'   => $store->electricity_price,           //电费
-            'water_price'         => $store->water_price,                  //冷水
-            'hot_water_price'           => $store->hot_water_price,                  //热水
-            'book_money'           => $resident->book_money,            //定金
+            'electricity_price'   => $resident->roomunion->electricity_price,           //电费
+            'water_price'         => $resident->roomunion->cold_water_price,                  //冷水
+            'hot_water_price'     => $resident->roomunion->hot_water_price,                  //热水
+            'book_money'          => $resident->book_money,            //定金
             'special_term'        => $resident->reserve_special_term ? $resident->reserve_special_term : '无',
             'attachment_2_date'   => date("Y-m-d")                      //最终时间确认
         );
