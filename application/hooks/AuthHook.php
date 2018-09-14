@@ -146,6 +146,7 @@ class AuthHook {
                 log_message('debug','current_id='.CURRENT_ID);
                 $this->CI->user = Customermodel::where('uxid',CURRENT_ID)->first();
             } catch (Exception $e) {
+                log_message('error',$e->getMessage());
                 header("Content-Type:application/json;charset=UTF-8");
                 echo json_encode(array('rescode' => 1001, 'resmsg' => 'token无效', 'data' => []));
                 exit;
