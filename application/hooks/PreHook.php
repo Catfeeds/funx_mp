@@ -17,27 +17,12 @@ class PreHook {
             header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
             
             //允许所有的options请求
-            if(IS_OPTIONS){
+            $my_request = empty($_SERVER["REQUEST_METHOD"]) ? '' : $_SERVER['REQUEST_METHOD'];
+            if (strtolower($my_request) == 'options') {
                 header('HTTP/1.1 200 OK');
                 exit;
             }
 
-             //对于非post请求进行拦截报错
-//             else if(!IS_POST){
-//                 header('HTTP/1.1 403 Forbidden');
-//                 echo 'access denied';
-//                 exit;
-//             }
-
-
-             // 对token参数进行校验
-             //$token=$_SERVER['token'];
-            //  $token=isset($_SERVER['HTTP_TOKEN'])?$_SERVER['HTTP_TOKEN']:null;
-            //  if (empty($token)){
-                 //  header("Content-Type:application/json;charset=UTF-8");
-                 //  echo json_encode(array('rescode' => 1001, 'resmsg' => '无效token,请重新登录', 'data' => []));
-                 //  exit;
-            //  }
 
             
              //添加应用防火墙waf，提升安全性
@@ -45,7 +30,7 @@ class PreHook {
              $query_string=empty($_SERVER["QUERY_STRING"]) ? array() : array($_SERVER["QUERY_STRING"]);
 
              $this->check_data($query_string,$this->url_arr);
-            //  $this->check_data($_GET,$this->args_arr);
+             $this->check_data($_GET,$this->args_arr);
              $this->check_data($_POST,$this->args_arr);
              $this->check_data($_COOKIE,$this->args_arr);
              $this->check_data($referer,$this->args_arr);
