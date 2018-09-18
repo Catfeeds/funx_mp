@@ -66,6 +66,7 @@ class Wechat extends MY_Controller
             $customer->uxid         = $customer->max('id')+1;
             $customer->company_id   = $company_id;
             $customer->openid       = $openid;
+            $customer->unionid      = $unionid;
         }
             $customer->subscribe    = 1;
             $customer->nickname     = $nickname;
