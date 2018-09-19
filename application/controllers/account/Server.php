@@ -41,7 +41,6 @@ class Server extends MY_Controller
 
         return $this;
     }
-
     /**
      * 设置事件的 eventKey
      */
@@ -79,7 +78,6 @@ class Server extends MY_Controller
         $app = $this->app;
         $server = $app->server;
         $server->setMessageHandler(function ($message) use ($app) {
-
             $this->setMessage($message)
                 ->setOpenid($message->FromUserName)
                 ->setEvent($message->Event)
@@ -486,8 +484,13 @@ class Server extends MY_Controller
                     //$customer   = Customermodel::where('openid', 1)->first();
 
                     if (empty($customer)) {
+                        $userService = $this->app->user;
+                        $user = $userService->get($message->FromUserName);
+                        $unionid = $user->unionid;
+
                         $customer = new Customermodel();
                         $customer->openid = $message->FromUserName;
+                        $customer->unionid = $unionid;
                         $customer->company_id = 1;
                         $customer->subscribe  = 1;
 //                    $customer->uxid         = Customermodel::max('uxid')+1;
