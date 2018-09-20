@@ -592,7 +592,7 @@ class Contract extends MY_Controller
     {
         $this->load->model('storemodel');
         $this->load->model('roomunionmodel');
-        $uxid = CURRENT_ID;
+        $uxid = $this->current_id;
         $field = ['id','store_id', 'room_id','view_url'];
         if (isset($uxid)) {
             $contract = Contractmodel::with('store')->with('roomunion')->where('uxid',$uxid)->get($field);

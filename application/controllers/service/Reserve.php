@@ -35,7 +35,7 @@ class Reserve extends MY_Controller
         }
         $reserve = new Reserveordermodel();
         $reserve->fill($post);
-        $reserve->customer_id = CURRENT_ID;
+        $reserve->customer_id = $this->current_id;
         $reserve->time        = date('Y-m-d H:i:s', time());
         $reserve->visit_by    = 'WECHAT';
         $reserve->status      = 'WAIT';
@@ -72,7 +72,7 @@ class Reserve extends MY_Controller
         $this->load->model('employeemodel');
         $filed       = ['id', 'room_type_id', 'room_id', 'employee_id'];
         $precontract = Reserveordermodel::with('room')->with('room_type')->with('employee')
-            ->where('customer_id', CURRENT_ID)
+            ->where('customer_id', $this->current_id)
             ->whereIn('status', ['WAIT', 'BEGIN'])->get($filed)
             ->toArray();
         for ($i = 0; $i < count($precontract); $i++) {
@@ -93,7 +93,7 @@ class Reserve extends MY_Controller
         $this->load->model('employeemodel');
         $filed       = ['id', 'room_type_id', 'room_id', 'employee_id'];
         $precontract = Reserveordermodel::with('room')->with('room_type')->with('employee')
-            ->where('customer_id', CURRENT_ID)
+            ->where('customer_id', $this->current_id)
             ->where('status', 'END')->get($filed)
             ->map(function ($item) {
                 if (isset($item->room_type->images)) {

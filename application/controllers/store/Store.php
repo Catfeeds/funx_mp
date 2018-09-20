@@ -28,7 +28,7 @@ class Store extends MY_Controller {
      * 城市
      */
     public function showCity() {
-        $where = ['company_id' => COMPANY_ID];
+        $where = ['company_id' => get_instance()->company_id];
         $city  = Storemodel::where($where)->groupBy('city')->get(['city'])->map(function ($c) {
             return $c->city;
         });
@@ -40,7 +40,7 @@ class Store extends MY_Controller {
      */
     public function showStore() {
         $city                  = $this->input->post('city', true);
-        $where                 = ['company_id' => COMPANY_ID];
+        $where                 = ['company_id' => get_instance()->company_id];
         $city ? $where['city'] = $city : null;
         $store                 = Storemodel::where($where)->get(['id', 'name', 'province', 'city', 'district']);
         $this->api_res(0, ['stores' => $store]);

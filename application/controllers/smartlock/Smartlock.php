@@ -24,7 +24,7 @@ class Smartlock extends MY_Controller
         $this->load->model('buildingmodel');
 
 
-        $resident_id = Residentmodel::where('customer_id',CURRENT_ID)->get(['id'])
+        $resident_id = Residentmodel::where('customer_id',$this->current_id)->get(['id'])
             ->map(function ($re_id){
                 return $re_id->id;
             })->toArray();

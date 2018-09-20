@@ -22,7 +22,7 @@ class Goodscart extends MY_Controller
         $this->load->model('goodsmodel');
        // $post = $this->input->post(null, true);
         //$uxid = intval(strip_tags(trim($post['uxid'])));
-        $uxid  = CURRENT_ID;//CURRENT_ID
+        $uxid  = $this->current_id;//$this->current_id
         $field = ['id', 'goods_id', 'quantity'];
         if (isset($uxid)) {
                 $goodscart = Goodscartmodel::with('goods')->where('uxid',$uxid)->get($field)->toArray();
@@ -65,7 +65,7 @@ class Goodscart extends MY_Controller
             $this->api_res(0);
         } else {
             $cart = new Goodscartmodel();
-            $cart->uxid = CURRENT_ID;
+            $cart->uxid = $this->current_id;
             $cart->goods_id = $goods_id;
             $cart->quantity = 1;
             if ($cart->save()) {
@@ -124,8 +124,8 @@ class Goodscart extends MY_Controller
         //$uxid = intval(strip_tags(trim($post['uxid'])));
         $goods_id = intval(strip_tags(trim($post['goods_id'])));
         $cart_num = intval(strip_tags(trim($post['quantity'])));
-       // $uxid  =intval(strip_tags(trim($post['uxid'])));//CURRENT_ID
-       // $cart_id  =intval(strip_tags(trim($post['cart_id'])));//CURRENT_ID
+       // $uxid  =intval(strip_tags(trim($post['uxid'])));//$this->current_id
+       // $cart_id  =intval(strip_tags(trim($post['cart_id'])));//$this->current_id
         $filed = ['quantity'];
         $goods = Goodsmodel::where('id',$goods_id)->get($filed)->toArray();
         if($cart_num <= $goods[0]){
@@ -153,7 +153,7 @@ class Goodscart extends MY_Controller
         $cart_id = $post['cart_id'];
         $id         = isset($cart_id)?explode(',',$cart_id):NULL;
         $goodscarts = Goodscartmodel::with('goods')->find($id)->map(function ($cart) {
-            if ($cart->uxid != CURRENT_ID) { //CURRENT_ID
+            if ($cart->uxid != $this->current_id) { //$this->current_id
                 log_message('error', '购物车跟当前用户不匹配');
                 throw new Exception();
             }
@@ -181,7 +181,7 @@ class Goodscart extends MY_Controller
         $number = Goodsordermodel::getOrderNumber();
         $order = new Goodsordermodel();
         $order->number = $number;
-        $order->uxid = CURRENT_ID; //CURRENT_ID
+        $order->uxid = $this->current_id; //$this->current_id
         $order->status = Goodsordermodel::STATE_PENDING;
         $order->goods_quantity = trim($post['sum']);
         $order->goods_money = trim($post['price']);
@@ -214,7 +214,7 @@ class Goodscart extends MY_Controller
         $this->load->model('goodsmodel');
         $post = $this->input->post(null, true);
         $goodsid = intval(trim($post['id']));
-        $uxid = CURRENT_ID;
+        $uxid = $this->current_id;
         $field = ['id','name','shop_price','description','goods_thumb'];
         if (isset($uxid)) {
             //$goodscart = Goodscartmodel::with('goods')->where('id', $goods_id)->get($field)->toArray();
@@ -224,7 +224,7 @@ class Goodscart extends MY_Controller
             }
             //var_dump($goods);die();
             $cart = new Goodscartmodel();
-            $cart->uxid = CURRENT_ID;
+            $cart->uxid = $this->current_id;
             $cart->goods_id = $goodsid;
             $cart->quantity = 1;
             if($cart->save()){

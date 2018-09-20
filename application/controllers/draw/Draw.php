@@ -86,14 +86,14 @@ class Draw extends MY_Controller
         $customer = unserialize($data[0]['limit']);
         $Qualifications = $customer['com'];
         if ($Qualifications == '1') {
-            $costomer = Customermodel::where('id', CURRENT_ID)->get();
-            $resident = Residentmodel::where(['customer_id' => CURRENT_ID])->get();
+            $costomer = Customermodel::where('id', $this->current_id)->get();
+            $resident = Residentmodel::where(['customer_id' => $this->current_id])->get();
             if (!$costomer || $resident) {
                 $this->api_res(11004);
                 return false;
             }
         } elseif ($Qualifications == '2') {
-            $resident = Residentmodel::where(['customer_id' => CURRENT_ID, 'status' => 'NORMAL'])->select(['store_id'])->first();
+            $resident = Residentmodel::where(['customer_id' => $this->current_id, 'status' => 'NORMAL'])->select(['store_id'])->first();
             if (!$resident) {
                 $this->api_res(11004);
                 return false;
@@ -104,7 +104,7 @@ class Draw extends MY_Controller
                 return false;
             }
         } elseif ($Qualifications == '3') {
-            $resident = Residentmodel::where(['customer_id' => CURRENT_ID, 'status' => 'NORMAL_REFUND'])->select(['store_id'])->first();
+            $resident = Residentmodel::where(['customer_id' => $this->current_id, 'status' => 'NORMAL_REFUND'])->select(['store_id'])->first();
             if (!$resident) {
                 $this->api_res(11004);
                 return false;
@@ -115,14 +115,14 @@ class Draw extends MY_Controller
                 return false;
             }
         } elseif ($Qualifications == '1,2') {
-            $costomer = Customermodel::where('id', CURRENT_ID)->get();
-            $resident = Residentmodel::where(['customer_id' => CURRENT_ID, 'status' => 'NORMAL'])->get();
+            $costomer = Customermodel::where('id', $this->current_id)->get();
+            $resident = Residentmodel::where(['customer_id' => $this->current_id, 'status' => 'NORMAL'])->get();
             if ((!$costomer || !$resident)) {
                 $this->api_res(11004);
                 return false;
             }
         } elseif ($Qualifications == '2,3') {
-            $resident = Residentmodel::where(['customer_id' => CURRENT_ID])->get();
+            $resident = Residentmodel::where(['customer_id' => $this->current_id])->get();
             if (!$resident) {
                 $this->api_res(11004);
                 return false;
@@ -131,20 +131,20 @@ class Draw extends MY_Controller
 //次数符合要求 1-一人一次 2-一天一次 3-一天两次
         $drawlimt = $customer['limit'];
         if ($drawlimt == '1') {
-            $count = Drawmodel::where(['activity_id' => $data[0]['id'], 'customer_id' => CURRENT_ID])->count();
+            $count = Drawmodel::where(['activity_id' => $data[0]['id'], 'customer_id' => $this->current_id])->count();
             if ($count >= 1) {
                 $this->api_res(11002);
                 return false;
             }
         } elseif ($drawlimt == '2') {
-            $count = Drawmodel::where(['activity_id' => $data[0]['id'], 'customer_id' => CURRENT_ID,])
+            $count = Drawmodel::where(['activity_id' => $data[0]['id'], 'customer_id' => $this->current_id,])
                 ->whereDate('draw_time', date('Y-m-d', time()))->count();
             if ($count >= 1) {
                 $this->api_res(11002);
                 return false;
             }
         } elseif ($drawlimt == '3') {
-            $count = Drawmodel::where(['activity_id' => $data[0]['id'], 'customer_id' => CURRENT_ID,])
+            $count = Drawmodel::where(['activity_id' => $data[0]['id'], 'customer_id' => $this->current_id,])
                 ->whereDate('draw_time', date('Y-m-d', time()))->count();
             if ($count >= 2) {
                 $this->api_res(11002);
@@ -186,7 +186,7 @@ class Draw extends MY_Controller
         if ((time() - strtotime($time)) < $de_time) {
             //插入未中奖记录
             $draw->activity_id = $data_id;
-            $draw->customer_id = CURRENT_ID;
+            $draw->customer_id = $this->current_id;
             $draw->draw_time = date('Y-m-d H:i:s', time());
             $draw->is_draw = 0;
             if ($draw->save()) {
@@ -204,7 +204,7 @@ class Draw extends MY_Controller
                 //插入中奖记录
                 $prize_name = Coupontypemodel::where('id', $p[$i])->get(['name']);
                 $draw->activity_id = $data_id;
-                $draw->customer_id = CURRENT_ID;
+                $draw->customer_id = $this->current_id;
                 $draw->draw_time = date('Y-m-d H:i:s', time());
                 $draw->is_draw = 1;
                 $draw->prize_id = $p[$i];
@@ -213,7 +213,7 @@ class Draw extends MY_Controller
                     //发放奖品
                     $coupon = Coupontypemodel::where('id', $p[$i])->first();
                     $update_coupon = [
-                        'customer_id' => CURRENT_ID,
+                        'customer_id' => $this->current_id,
                         'coupon_type_id' => $p[$i],
                         'store_ids' => $store_str,
                         'activity_id' => $data_id,
@@ -241,7 +241,7 @@ class Draw extends MY_Controller
             } elseif ($i == (count($p) - 1)) {
                 //插入未中奖记录
                 $draw->activity_id = $data_id;
-                $draw->customer_id = CURRENT_ID;
+                $draw->customer_id = $this->current_id;
                 $draw->draw_time = date('Y-m-d H:i:s', time());
                 $draw->is_draw = 0;
                 if ($draw->save()) {

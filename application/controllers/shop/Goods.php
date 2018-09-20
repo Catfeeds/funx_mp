@@ -59,7 +59,7 @@ class Goods extends MY_Controller
         $this->load->model('goodsordermodel');
 
 
-        $uxid = CURRENT_ID;
+        $uxid = $this->current_id;
         $field = ['number','goods_money','created_at','status'];
 
         if(isset($uxid)){
@@ -95,7 +95,7 @@ class Goods extends MY_Controller
 //        $order = Goodsordermodel::with('address1')->where('uxid',7)->where('number',$number)->get($field);
 //        $id         = isset($cart_id)?explode(',',$cart_id):NULL;
 //        $goodscarts = Goodscartmodel::with('goods')->find($id)->map(function ($cart) {
-//            if ($cart->uxid != 7) { //CURRENT_ID
+//            if ($cart->uxid != 7) { //$this->current_id
 //                log_message('error', '当前用户不匹配');
 //                throw new Exception();
 //            }
