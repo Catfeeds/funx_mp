@@ -80,7 +80,7 @@ class AuthHook {
                 $d_uxid   = $decoded->uxid;
                 $d_company_id   = $decoded->company_id;
             
-                $this->CI->current_id = $d_bxid;
+                $this->CI->current_id = $d_uxid;
                 $this->CI->company_id = $d_company_id;
                 
                 //SaaS权限验证
