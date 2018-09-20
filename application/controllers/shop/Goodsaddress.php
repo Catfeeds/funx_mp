@@ -90,7 +90,7 @@ class Goodsaddress extends MY_Controller
         $post        = $this->input->post(NULL,true);
        // $uxid = intval(trim($post['uxid']));
         $field       = ['id','uxid','apartment','building','room_number','name','phone'];
-        $listaddress = Goodsaddressmodel::where('uxid',35)->orderBy('id','desc')->get($field);//CURRENT_ID;
+        $listaddress = Goodsaddressmodel::where('uxid',35)->orderBy('id','desc')->get($field);//$this->current_id;
         $this->api_res(0,['list'=>$listaddress]);
     }
 

@@ -204,7 +204,7 @@ class MY_Controller extends CI_Controller {
      * 核对当前操作用户
      */
     /*  public function checkUser($uxid){
-    if($uxid!=CURRENT_ID){
+    if($uxid!=get_instance()->current_id){
     return flase;
     //            throw new Exception('核对当前操作用户异常');
     }else{

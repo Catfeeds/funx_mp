@@ -86,7 +86,7 @@ class Resident extends MY_Controller
         $this->load->model('storemodel');
         $this->load->model('buildingmodel');
 
-        $resident_id = Residentmodel::where('customer_id',CURRENT_ID)->get(['id'])
+        $resident_id = Residentmodel::where('customer_id',$this->current_id)->get(['id'])
             ->map(function ($re_id){
                 return $re_id->id;
             })->toArray();
@@ -170,7 +170,7 @@ class Resident extends MY_Controller
     public function count()
     {
         $this->load->model('reserveordermodel');
-        $count['reserve'] = Reserveordermodel::where('status','WAIT')->where('customer_id',CURRENT_ID)->count();
+        $count['reserve'] = Reserveordermodel::where('status','WAIT')->where('customer_id',$this->current_id)->count();
         $this->load->model('residentmodel');
         $this->load->model('ordermodel');
         $this->load->model('storemodel');
@@ -186,9 +186,9 @@ class Resident extends MY_Controller
         })->where('amount','>',0)->count();
         $count['order'] = $orders;
         $this->load->model('couponmodel');
-        $count['coupon'] = Couponmodel::where('status','UNUSED')->where('customer_id',CURRENT_ID)->count();
+        $count['coupon'] = Couponmodel::where('status','UNUSED')->where('customer_id',$this->current_id)->count();
         //$this->load->model('shopmodel');
-        $count['shop'] = 0;/*Couponmodel::where('status','UNUSED')->where('customer_id',CURRENT_ID)->count();*/
+        $count['shop'] = 0;/*Couponmodel::where('status','UNUSED')->where('customer_id',$this->current_id)->count();*/
         $this->api_res(0,$count);
     }
 }

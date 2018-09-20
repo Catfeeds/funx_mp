@@ -22,7 +22,7 @@ class Center extends MY_Controller
     public function showInfo()
     {
         $filed = ['id', 'name', 'avatar', 'nickname', 'phone'];
-        $customer = Customermodel::where('uxid', CURRENT_ID)->first($filed);
+        $customer = Customermodel::where('uxid', $this->current_id)->first($filed);
         if ($customer) {
             $this->api_res(0, $customer);
         } else {
@@ -35,7 +35,7 @@ class Center extends MY_Controller
      */
     public function showNickname()
     {
-        $customer = Customermodel::where('uxid', CURRENT_ID)->get(['nickname']);
+        $customer = Customermodel::where('uxid', $this->current_id)->get(['nickname']);
         if ($customer) {
             $this->api_res(0, $customer);
         } else {
@@ -55,7 +55,7 @@ class Center extends MY_Controller
             return false;
         } else {
             $nickname = $post['nickname'];
-            $customer = Customermodel::where('uxid', CURRENT_ID)->first();
+            $customer = Customermodel::where('uxid', $this->current_id)->first();
             $customer->nickname = $nickname;
             if ($customer->save()) {
                 $this->api_res(0);
@@ -104,7 +104,7 @@ class Center extends MY_Controller
             $phone = $post['phone'];
             $code = $post['code'];
             if ($this->m_redis->verifyCustomerPhoneCode($phone, $code)) {
-                $customer = Customermodel::where('uxid', CURRENT_ID)->first();
+                $customer = Customermodel::where('uxid', $this->current_id)->first();
                 $customer->phone = $phone;
                 if ($customer->save()) {
                     $this->api_res(0);
