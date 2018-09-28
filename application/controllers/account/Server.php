@@ -281,39 +281,35 @@ class Server extends MY_Controller
             ->where('activity_id',$activity->id)
             ->count();
         $limit  = $activity->data['limit'];
-        if(in_array($helpCnt,$limit)){
-            $attract_prize  = Attractprizemodel::where('activity_id',$activity->id)
-                ->where('limit',$helpCnt)->first();
+        if(in_array($helpCnt,$limit)) {
+            $attract_prize = Attractprizemodel::where('activity_id', $activity->id)
+                ->where('limit', $helpCnt)->first();
             //剩余奖品数
-            $remain = $attract_prize->count-$attract_prize->sent;
+            $remain = $attract_prize->count - $attract_prize->sent;
             //查看奖品剩余数量大于0
-            if($remain>0){
-                try{
-                    DB::beginTransaction();
-                    //如果剩余奖品小于一次发放的数量,那么一次性都发完
-                    if($remain<=$activity->single){
-                        $send_cnt   = $remain;
-                        $attract_prize->sent    = $attract_prize+$send_cnt;
-                        $attract_prize->status  = Attractprizemodel::STATE_EMPTY;
-                    }else{
-                        $send_cnt   = $activity->single;
-                        $attract_prize->sent    = $attract_prize+$send_cnt;
-                    }
-                    $attract_prize->save();
-                    //发放优惠券
-                    if($this->attractSendCoupons($activity,$friend,$attract_prize,$send_cnt)){
-                        //推送消息
-                        DB::commit();
-                        $this->attractSendCouponsMessage($friend,$activity,$attract_prize,$app);
-                    }
-                }catch (Exception $e){
-                    DB::rollBack();
-                    throw $e;
+            if ($remain > 0) {
+
+                //如果剩余奖品小于一次发放的数量,那么一次性都发完
+                if ($remain <= $activity->single) {
+                    $send_cnt = $remain;
+                    $attract_prize->sent = $attract_prize + $send_cnt;
+                    $attract_prize->status = Attractprizemodel::STATE_EMPTY;
+                } else {
+                    $send_cnt = $activity->single;
+                    $attract_prize->sent = $attract_prize + $send_cnt;
                 }
+                $attract_prize->save();
+                //发放优惠券
+                if ($this->attractSendCoupons($activity, $friend, $attract_prize, $send_cnt)) {
+                    //推送消息
+                    DB::commit();
+                    $this->attractSendCouponsMessage($friend, $activity, $attract_prize, $app);
+                }
+
             } else {
                 //查看状态是否是empty
-                if($attract_prize->status!=Attractprizemodel::STATE_EMPTY){
-                    $attract_prize->status  = Attractprizemodel::STATE_EMPTY;
+                if ($attract_prize->status != Attractprizemodel::STATE_EMPTY) {
+                    $attract_prize->status = Attractprizemodel::STATE_EMPTY;
                     $attract_prize->save();
                 }
                 //看别的奖品发完了吗？如果都发完了则活动结束
@@ -591,7 +587,7 @@ class Server extends MY_Controller
             ->insert($imgAvatar, 'top-left', 176, 424)
             ->insert($imgQrCode, 'bottom-right', $offsetX, $offsetY)
             ->text(mb_convert_encoding($myInfo->nickname, "html-entities", "utf-8"), 380, 538, function($font) {
-                $font->file(FCPATH.'font/Hiragino-Sans-GB-W6.otf');
+                $font->file(FCPATH.'fonts/simfang.ttf');
                 $font->size(36);
                 $font->color('#fff');
             })
@@ -637,7 +633,7 @@ class Server extends MY_Controller
         $path   = APPPATH.'/cache/attract/'.date('Y-m-d',time()).'/';
         $pathinfo   = pathinfo($url);
         $filename   = $pathinfo['filename'].rand(10,99).'.'.$pathinfo['extension'];
-        $fullpath   = $path.$filename;
+        $fullpath   = realpath($path.$filename);
         if (!is_dir(APPPATH.'/cache/attract/')) {
             if (!mkdir(APPPATH.'/cache/attract/',0777)) {
                 throw new Exception('无法创建目录, 请稍后重试');
