@@ -107,6 +107,8 @@ $config['extsign_auto.api']      = 'extsign_auto.api';
 //2.预约看房通知
 $config['tmplmsg_employee_Reserve'] = 'qCwYA7zOn-s5cxx8zLBcXpa-n24N_2dZIbV3K0dbEKY';
 
+$config['tmplmsg_customer_tasknotify']  = 'xoB4P5AEix6YCeyCukVWeSRx1a0OUIbZ55r9kyE0yew';
+
 // 任务提醒
 /**
 {{first.DATA}}
