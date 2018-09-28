@@ -1,7 +1,7 @@
 SERVICE:=client-api
 # Variables
 PWD := $(shell pwd)
-DEV_UI_IMAGE := registry.cn-beijing.aliyuncs.com/wa/php-fpm
+DEV_UI_IMAGE := registry.cn-beijing.aliyuncs.com/wa/php-fpm:1.0.12
 IMG_HUB?=registry.cn-shenzhen.aliyuncs.com/funxdata
 REDIS_IMG?=registry.cn-beijing.aliyuncs.com/wa/redis:3.2
 # Version information
@@ -23,20 +23,20 @@ dev: redis
 	 -v $(PWD)/hack/nginx.conf:/etc/nginx/nginx.conf \
 	 -v $(PWD):/var/www/html/ \
 	 -w /var/www/html/ \
-	 --link ${SERVICE}-redis:redis \
-	 $(DEV_UI_IMAGE)
+	 --link funx-redis:redis \
+	 $(DEV_UI_IMAGE) bash
 
 run: image
 	docker run --rm -it \
 	 --name ${SERVICE} \
 	 -e APPLICATION_ENV=development \
 	 -p 80:80 \
-	 --link ${SERVICE}-redis:redis \
+	 --link funx-redis:redis \
 	 $(IMG_HUB)/$(SERVICE):latest
 
 redis:
 	-docker run -d \
-	 --name ${SERVICE}-redis \
+	 --name funx-redis \
 	 -p 6379:6379 \
 	 ${REDIS_IMG}
 
