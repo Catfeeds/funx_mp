@@ -80,6 +80,11 @@ class Payment extends MY_Controller {
             $this->api_res(10018);
             return;
         }
+        $this->load->model('premoneymodel');
+
+        $premoneyobj   = Premoneymodel::where('customer_id',$this->resident->customer_id)->first();
+
+        $premoney   = Premoneymodel::premoney($premoneyobj);
 
         try {
             DB::beginTransaction();
@@ -90,73 +95,118 @@ class Payment extends MY_Controller {
                 $discount = $this->amountOfDiscount($orders, $coupons);
                 $amount   = $amount - $discount;
             }
-            log_message('debug', 'discount:' . $discount);
-            $this->load->helper('url');
-            $roomunion    = $this->resident->roomunion;
-            $store        = $roomunion->store;
-            $roomtype     = $roomunion->roomtype;
-            $attach       = ['resident_id' => $residentId];
-            $out_trade_no = $store_id . '_' . $residentId . '_' . date('YmdHis', time()) . mt_rand(10, 99);
-            if (ENVIRONMENT == 'development') {
-                $attributes = [
-                    'trade_type'   => Ordermodel::PAYWAY_JSAPI,
-                    'body'         => $store->name . '-' . $roomtype->name,
-                    'detail'       => $store->name . '-' . $roomtype->name,
-                    'out_trade_no' => $out_trade_no,
-                    'total_fee'    => 1,
-                    'notify_url'   => config_item('base_url') . "pay/payment/notify/" . $store->id,
-                    'openid'       => $this->user->openid,
-                    'attach'       => serialize($attach),
+
+            //计算预存金抵扣后的金额
+            $pre_data = $this->calcPremoney($amount,$premoney);
+            $pre_money  = $pre_data['pre_money'];
+            $amount = $pre_data['should_pay'];
+            //如果需要缴纳的金额大于0，缴纳剩余部分的。
+            if($amount>0){
+                log_message('debug', 'discount:' . $discount);
+                $this->load->helper('url');
+                $roomunion    = $this->resident->roomunion;
+                $store        = $roomunion->store;
+                $roomtype     = $roomunion->roomtype;
+                $attach       = ['resident_id' => $residentId];
+                $out_trade_no = $store_id . '_' . $residentId . '_' . date('YmdHis', time()) . mt_rand(10, 99);
+                if (ENVIRONMENT == 'development') {
+                    $attributes = [
+                        'trade_type'   => Ordermodel::PAYWAY_JSAPI,
+                        'body'         => $store->name . '-' . $roomtype->name,
+                        'detail'       => $store->name . '-' . $roomtype->name,
+                        'out_trade_no' => $out_trade_no,
+                        'total_fee'    => 1,
+                        'notify_url'   => config_item('base_url') . "pay/payment/notify/" . $store->id,
+                        'openid'       => $this->user->openid,
+                        'attach'       => serialize($attach),
+                    ];
+                } else {
+                    $attributes = [
+                        'trade_type'   => Ordermodel::PAYWAY_JSAPI,
+                        'body'         => $store->name . '-' . $roomtype->name,
+                        'detail'       => $store->name . '-' . $roomtype->name,
+                        'out_trade_no' => $out_trade_no,
+                        'total_fee'    => $amount * 100,
+                        'notify_url'   => config_item('base_url') . "pay/payment/notify/" . $store->id,
+                        'openid'       => $this->user->openid,
+                        'attach'       => serialize($attach),
+                    ];
+                }
+
+                $this->load->model('storepaymodel');
+                $store_pay               = new Storepaymodel();
+                $store_pay->out_trade_no = $out_trade_no;
+                $store_pay->store_id     = $store->id;
+                $store_pay->amount       = $amount;
+                $store_pay->discount     = $discount;
+                $store_pay->status       = 'UNDONE';
+                $store_pay->resident_id  = $residentId;
+                $store_pay->pre_money    = $pre_money;
+                $store_pay->start_date   = date('Y-m-d H-i-s', time());
+                $store_pay->data         = ['orders' => $orders, 'coupons' => $coupons];
+                $store_pay->save();
+
+                $orders->each(function ($query) use ($out_trade_no, $store_pay) {
+                    $query->out_trade_no = $out_trade_no;
+                    $query->store_pay_id = $store_pay->id;
+                    $query->save();
+                });
+
+                $wechatConfig = getCustomerWechatConfig();
+
+                //微信支付商户id
+                if (ENVIRONMENT != 'development') {
+                    $wechatConfig['payment']['merchant_id'] = $store->payment_merchant_id;
+                    $wechatConfig['payment']['key']         = $store->payment_key;
+                }
+                $app         = new Application($wechatConfig);
+                $wechatOrder = new Order($attributes);
+                $payment     = $app->payment;
+                $result      = $payment->prepare($wechatOrder);
+                if (!($result->return_code == 'SUCCESS' && $result->result_code == 'SUCCESS')) {
+                    throw new Exception($result->return_msg);
+                }
+
+                // 生成js配置
+                $all_result['type'] = 'PAY';
+                $all_result['json'] = $payment->configForPayment($result->prepay_id, false);
+                log_message('debug', 'discount.amount:' . $amount);
+            }else{
+                //更新预存金表
+                $premoneyobj->money    = $premoney->money-$pre_money;
+                $premoneyobj->save();
+                $pay_date   = date('Y-m-d H:i:s',time());
+                //并生成一笔预存金流水
+                $this->load->model('billmodel');
+                $bill_data  = [
+                    'company_id'    => $this->resident->company_id,
+                    'store_id'      => $store_id,
+                    'room_id'       => $this->resident->room_id,
+                    'employee_id'   => 0,
+                    'resident_id'   => $this->resident->id,
+                    'customer_id'   => $this->resident->customer_id,
+                    'uxid'          => $this->resident->uxid,
+                    'money'         => $pre_money,
+                    'type'          => 'INPUT',
+                    'pay_type'      => 'PREMONEY',
+                    'pay_date'      => $pay_date,
+                    'pre_money'     => $pre_money
                 ];
-            } else {
-                $attributes = [
-                    'trade_type'   => Ordermodel::PAYWAY_JSAPI,
-                    'body'         => $store->name . '-' . $roomtype->name,
-                    'detail'       => $store->name . '-' . $roomtype->name,
-                    'out_trade_no' => $out_trade_no,
-                    'total_fee'    => $amount * 100,
-                    'notify_url'   => config_item('base_url') . "pay/payment/notify/" . $store->id,
-                    'openid'       => $this->user->openid,
-                    'attach'       => serialize($attach),
-                ];
+                $bill   = Billmodel::createBill($bill_data);
+                //把账单状态完成
+                $this->resident->orders()->where('status', Ordermodel::STATE_PENDING)->update(
+                    [
+                        'status'    => Ordermodel::STATE_COMPLETED,
+                        'deal'      => Ordermodel::DEAL_DONE,
+                        'pay_type'  => Ordermodel::PAYWAY_PREMONEY,
+                        'pay_date'  => $pay_date,
+                        'remark'    => '预存金支付',
+                        'bill_id'   => $bill->id,
+                        'sequence_number'   => $bill->sequence_number,
+                        ]
+                );
             }
-
-            $this->load->model('storepaymodel');
-            $store_pay               = new Storepaymodel();
-            $store_pay->out_trade_no = $out_trade_no;
-            $store_pay->store_id     = $store->id;
-            $store_pay->amount       = $amount;
-            $store_pay->discount     = $discount;
-            $store_pay->status       = 'UNDONE';
-            $store_pay->resident_id  = $residentId;
-            $store_pay->start_date   = date('Y-m-d H-i-s', time());
-            $store_pay->data         = ['orders' => $orders, 'coupons' => $coupons];
-            $store_pay->save();
-
-            $orders->each(function ($query) use ($out_trade_no, $store_pay) {
-                $query->out_trade_no = $out_trade_no;
-                $query->store_pay_id = $store_pay->id;
-                $query->save();
-            });
-
-            $wechatConfig = getCustomerWechatConfig();
-
-            //微信支付商户id
-            if (ENVIRONMENT != 'development') {
-                $wechatConfig['payment']['merchant_id'] = $store->payment_merchant_id;
-                $wechatConfig['payment']['key']         = $store->payment_key;
-            }
-            $app         = new Application($wechatConfig);
-            $wechatOrder = new Order($attributes);
-            $payment     = $app->payment;
-            $result      = $payment->prepare($wechatOrder);
-            if (!($result->return_code == 'SUCCESS' && $result->result_code == 'SUCCESS')) {
-                throw new Exception($result->return_msg);
-            }
-
-            // 生成js配置
-            $all_result['json'] = $payment->configForPayment($result->prepay_id, false);
-            log_message('debug', 'discount.amount:' . $amount);
+            $all_result['type'] = 'BILL';
             DB::commit();
         } catch (Exception $e) {
 
@@ -164,7 +214,22 @@ class Payment extends MY_Controller {
             log_message('error', $e->getMessage());
             throw $e;
         }
-        $this->api_res(0, $all_result);
+        $this->api_res(0,$all_result);
+    }
+
+    /**
+     * 计算预存金抵扣的金额
+     */
+    private function calcPremoney($amount,$premoney)
+    {
+        if($amount>=$premoney){
+            $money  = $premoney;
+            $should_pay = $amount-$premoney;
+        }else{
+            $money  = $amount;
+            $should_pay = 0;
+        }
+        return ['pre_money'=>$money,'should_pay'=>$should_pay];
     }
 
     /**

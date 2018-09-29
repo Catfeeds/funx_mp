@@ -337,7 +337,11 @@ class Order extends MY_Controller
 
         $coupons    = $this->getCouponsAvailable($resident, $orders);
 
-        $this->api_res(0,['orders'=>$orders,'list'=>$list,'store'=>$store,'coupons'=>$coupons,'resident'=>$resident,'room'=>$room,'totalMoeny'=>$totalMoney]);
+        //用户的预存金额
+        $this->load->model('premoneymodel');
+        $premoney   = Premoneymodel::premoney($resident->customer_id);
+
+        $this->api_res(0,['orders'=>$orders,'list'=>$list,'store'=>$store,'coupons'=>$coupons,'resident'=>$resident,'room'=>$room,'totalMoeny'=>$totalMoney,'premoney'=>$premoney]);
 
     }
 

@@ -170,6 +170,12 @@ class Residentmodel extends Basemodel{
         return $this->belongsTo(storemodel::class,'store_id') ;
     }
 
+    //住户的预存金
+    public function premoney()
+    {
+        return $this->hasOne(Premoneymodel::class,'customer_id','customer_id');
+    }
+
 
     /**
      * 计算用户的合同结束时间
