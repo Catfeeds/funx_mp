@@ -405,6 +405,14 @@ class Payment extends MY_Controller {
 
                 $this->load->model('storepaymodel');
                 $store_pay = Storepaymodel::where('resident_id', $resident->id)->where('out_trade_no', $notify->out_trade_no)->first();
+
+                if ($store_pay->pre_money>0) {
+                    $this->load->model('premoneymodel');
+                    $preobj = Premoneymodel::find('customer_id',$resident->customer_id)->first();
+                    $preobj->money  = $preobj->money-$store_pay->pre_money;
+                    $preobj->save();
+                }
+
                 //test
                 if (!empty($store_pay)) {
                     $store_pay->notify_date = $pay_date;
