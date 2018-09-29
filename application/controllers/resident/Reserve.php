@@ -389,7 +389,7 @@ class Reserve extends MY_Controller
             throw $e;
         }
         //没有问题就跳转支付页面
-        header('Location:'.config_item('my_bill_url'));
+        headers_sent() or header('Location:'.config_item('my_bill_url'));
     }
 
     /**

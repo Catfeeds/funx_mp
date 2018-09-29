@@ -29,13 +29,13 @@ class Resident extends MY_Controller
         }
         if(!empty($input['type'])&&$input['type']='sign_contract'&&$resident->card_type!==0){
 
-            header('Location:'.config_item('my_bill_url'));
+            headers_sent() or header('Location:'.config_item('my_bill_url'));
             return;
         }
 
 //        if($input['type']='sign_contract'&&$resident->card_type!==0){
 //
-//            header('Location:'.config_item('my_bill_url'));
+//            headers_sent() or header('Location:'.config_item('my_bill_url'));
 //            return;
 //        }
 
