@@ -188,7 +188,7 @@ class Payment extends MY_Controller {
                     'uxid'          => $this->resident->uxid,
                     'money'         => $pre_money,
                     'type'          => 'INPUT',
-                    'pay_type'      => 'PREMONEY',
+                    'pay_type'      => 'JSAPI',
                     'pay_date'      => $pay_date,
                     'pre_money'     => $pre_money
                 ];
@@ -198,7 +198,7 @@ class Payment extends MY_Controller {
                     [
                         'status'    => Ordermodel::STATE_COMPLETED,
                         'deal'      => Ordermodel::DEAL_DONE,
-                        'pay_type'  => Ordermodel::PAYWAY_PREMONEY,
+                        'pay_type'  => Ordermodel::PAYWAY_JSAPI,
                         'pay_date'  => $pay_date,
                         'remark'    => '预存金支付',
                         'bill_id'   => $bill->id,

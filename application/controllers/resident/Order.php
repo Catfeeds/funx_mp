@@ -339,7 +339,8 @@ class Order extends MY_Controller
 
         //用户的预存金额
         $this->load->model('premoneymodel');
-        $premoney   = Premoneymodel::premoney($resident->customer_id);
+        $premoneyobj   = Premoneymodel::where('customer_id',$resident->customer_id)->first();
+        $premoney   = Premoneymodel::premoney($premoneyobj);
 
         $this->api_res(0,['orders'=>$orders,'list'=>$list,'store'=>$store,'coupons'=>$coupons,'resident'=>$resident,'room'=>$room,'totalMoeny'=>$totalMoney,'premoney'=>$premoney]);
 
