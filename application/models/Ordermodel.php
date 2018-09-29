@@ -29,6 +29,7 @@ class Ordermodel extends Basemodel{
     const PAYWAY_BANK       = 'BANK';       // 银行卡支付
     const PAYWAY_ALIPAY     = 'ALIPAY';     // 支付宝转账
     const PAYWAY_DEPOSIT    = 'DEPOSIT';    // 押金抵扣
+    const PAYWAY_PREMONEY   = 'PREMONEY';   // 预存金抵扣
 
     /**
      * 订单类型
