@@ -333,7 +333,7 @@ class Order extends MY_Controller
 
         $store  = $room->store;
 
-        $totalMoney = number_format($orders->sum('money'), 2);
+        $totalMoney = number_format($orders->sum('money'), 2,'.','');
 
         $coupons    = $this->getCouponsAvailable($resident, $orders);
 
