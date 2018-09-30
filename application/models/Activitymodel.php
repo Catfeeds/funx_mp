@@ -19,12 +19,20 @@ class Activitymodel extends Basemodel
 
     protected $dates    = ['created_at', 'updated_at', 'start_time', 'end_time'];
 
+    protected $casts    = ['data'=>'array'];
+
     /**
      * 活动类型
      */
     const TYPE_ATTRACT  = 'ATTRACT';     //吸粉活动
     const TYPE_NORMAL   = 'NORMAL';      //普通活动, 先不管, 先处理吸粉活动
     const TYPE_DISCOUNT = 'DISCOUNT';    //房租打折
+
+    /**
+     * 活动状态
+     */
+    const STATE_NORMAL  = 'NORMAL';
+
 
     /**
      * 参与该活动的公寓
