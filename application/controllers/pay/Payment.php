@@ -173,7 +173,7 @@ class Payment extends MY_Controller {
                 log_message('debug', 'discount.amount:' . $amount);
             }else{
                 //更新预存金表
-                $premoneyobj->money    = $premoney->money-$pre_money;
+                $premoneyobj->money    = $premoneyobj->money-$pre_money;
                 $premoneyobj->save();
                 $pay_date   = date('Y-m-d H:i:s',time());
                 //并生成一笔预存金流水
