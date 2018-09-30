@@ -205,8 +205,8 @@ class Payment extends MY_Controller {
                         'sequence_number'   => $bill->sequence_number,
                         ]
                 );
+                $all_result['type'] = 'BILL';
             }
-            $all_result['type'] = 'BILL';
             DB::commit();
         } catch (Exception $e) {
 
