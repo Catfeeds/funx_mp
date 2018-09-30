@@ -408,7 +408,7 @@ class Payment extends MY_Controller {
 
                 if ($store_pay->pre_money>0) {
                     $this->load->model('premoneymodel');
-                    $preobj = Premoneymodel::find('customer_id',$resident->customer_id)->first();
+                    $preobj = Premoneymodel::where('customer_id',$resident->customer_id)->first();
                     $preobj->money  = $preobj->money-$store_pay->pre_money;
                     $preobj->save();
                 }
