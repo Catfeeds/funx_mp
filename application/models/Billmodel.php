@@ -39,7 +39,7 @@ class Billmodel extends Basemodel
     /**
      * 检索当日确定的账单的数量
      */
-    public function ordersConfirmedToday()
+    public static function ordersConfirmedToday()
     {
         return Billmodel::whereDate('updated_at', '=', date('Y-m-d'))
             ->count();
@@ -49,6 +49,7 @@ class Billmodel extends Basemodel
      * 生成流水
      */
     public static function  createBill($data){
+
         $count      = self::ordersConfirmedToday() + 1;
         $dateString = date('Ymd');
         $bill   = new Billmodel();
