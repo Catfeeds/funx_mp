@@ -566,15 +566,15 @@ class Server extends MY_Controller
         $imgAvatar  = $httpClient->request('GET', $myInfo->headimgurl)->getBody()->getContents();
 
         //生成画布, 同时将获取的头像和二维码缩放到指定尺寸, BIA到画布上.
-        $canvas     = $imgManager->canvas(1080, 1920);
+        $canvas     = $imgManager->canvas(540, 960);
         //$imgBG      = $imgManager->make(FCPATH."attachment/coupon_bg_v2_{$activity->id}.png")->resize(1080, 1920);
-        $imgBG      = $imgManager->make($activity->back_path)->resize(1080, 1920);
-        $imgAvatar  = $imgManager->make($imgAvatar)->resize(158, 158);
-        $imgQrCode  = $imgManager->make($imgQrCode)->resize(235, 235);
+        $imgBG      = $imgManager->make($activity->back_path)->resize(540, 960);
+        $imgAvatar  = $imgManager->make($imgAvatar)->resize(79, 79);
+        $imgQrCode  = $imgManager->make($imgQrCode)->resize(117, 117);
 
         //不同的海报, 二维码的位置不一样
-        $offsetX    = 108;
-        $offsetY    = 300;
+        $offsetX    = 54;
+        $offsetY    = 150;
 
         //原富杨店的海报与其余的有不同, 活动重新开始后, 与其余店相同, 本行注释.
         // if (3 == $activity->id) {
@@ -584,14 +584,14 @@ class Server extends MY_Controller
         //文件的临时路径, 上传到微信服务器需要该路径值.
         $tmpImgPath = FCPATH."temp/{$myInfo->openid}.png";
         $canvas->insert($imgBG)
-            ->insert($imgAvatar, 'top-left', 176, 424)
+            ->insert($imgAvatar, 'top-left', 88, 212)
             ->insert($imgQrCode, 'bottom-right', $offsetX, $offsetY)
-            ->text(mb_convert_encoding($myInfo->nickname, "html-entities", "utf-8"), 380, 538, function($font) {
+            ->text(mb_convert_encoding($myInfo->nickname, "html-entities", "utf-8"), 190, 269, function($font) {
                 $font->file(FCPATH.'fonts/simfang.ttf');
-                $font->size(36);
+                $font->size(18);
                 $font->color('#fff');
             })
-            ->save($tmpImgPath);
+            ->save($tmpImgPath,60);
 
         //将处理完的图片作为临时素材上传到微信服务器, 获得该图片的media_id
         $resUpload  = $app->material_temporary->uploadImage($tmpImgPath);
