@@ -34,7 +34,7 @@ function getCustomerWechatConfig(){
             'key_path'      => config_item('customer_wechat_payment_key_path'),
         ],
         'guzzle' => [
-            'timeout' => 3.0,
+            'timeout' => 15.0,
         ]
     );
 }
