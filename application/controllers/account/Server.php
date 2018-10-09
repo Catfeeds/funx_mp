@@ -630,12 +630,12 @@ class Server extends MY_Controller
      */
     private function downloadAttractImage($url)
     {
-        $path   = APPPATH.'/cache/attract/'.date('Y-m-d',time()).'/';
+        $path   = APPPATH.DIRECTORY_SEPARATOR.'cache'.DIRECTORY_SEPARATOR.'attract'.DIRECTORY_SEPARATOR.date('Y-m-d',time()).DIRECTORY_SEPARATOR;
         $pathinfo   = pathinfo($url);
         $filename   = $pathinfo['filename'].rand(10,99).'.'.$pathinfo['extension'];
-        $fullpath   = realpath($path.$filename);
-        if (!is_dir(APPPATH.'/cache/attract/')) {
-            if (!mkdir(APPPATH.'/cache/attract/',0777)) {
+        $fullpath   = $path.$filename;
+        if (!is_dir(APPPATH.DIRECTORY_SEPARATOR.'cache'.DIRECTORY_SEPARATOR.'attract')) {
+            if (!mkdir(APPPATH.DIRECTORY_SEPARATOR.'cache'.DIRECTORY_SEPARATOR.'attract',0777)) {
                 throw new Exception('无法创建目录, 请稍后重试');
             }
         }
