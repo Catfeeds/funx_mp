@@ -591,7 +591,7 @@ class Server extends MY_Controller
                 $font->size(18);
                 $font->color('#fff');
             })
-            ->save($tmpImgPath,60);
+            ->save($tmpImgPath,30);
 
         //将处理完的图片作为临时素材上传到微信服务器, 获得该图片的media_id
         $resUpload  = $app->material_temporary->uploadImage($tmpImgPath);
