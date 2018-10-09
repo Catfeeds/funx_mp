@@ -6,6 +6,7 @@ IMG_HUB?=registry.cn-shenzhen.aliyuncs.com/funxdata
 REDIS_IMG?=registry.cn-beijing.aliyuncs.com/wa/redis:3.2
 # Version information
 VERSION=${shell cat VERSION 2> /dev/null}
+GIT_COMMIT := $(shell git rev-parse --short HEAD)
 
 sync:
 	rsync -vaz --delete \
@@ -40,11 +41,12 @@ redis:
 	 -p 6379:6379 \
 	 ${REDIS_IMG}
 
+IMAGE_NAME:=$(IMG_HUB)/$(SERVICE):${GIT_COMMIT}
 image:
-	docker build -t $(IMG_HUB)/$(SERVICE):latest .
+	docker build -t $(IMAGE_NAME) .
 
 push: image
-	docker push $(IMG_HUB)/$(SERVICE):latest
+	docker push $(IMAGE_NAME)
 
 image-prod:
 	docker build -t $(IMG_HUB)/$(SERVICE):$(VERSION) .
