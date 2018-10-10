@@ -25,7 +25,7 @@ class Wechat extends MY_Controller
 	public function login()
 	{
 		log_message('debug', '调用登陆');
-		$post = $this->input->post(null, true);
+		$post       = $this->input->post(null, true);
 		$company_id = $post['company_id'];
 		$code       = $post['code'];
 		$appid      = config_item('wx_map_appid');
@@ -88,26 +88,30 @@ class Wechat extends MY_Controller
 	public function saasLogin()
 	{
 		log_message('debug', '调用登陆');
-		$post = $this->input->post(null, true);
+		$post       = $this->input->post(null, true);
 		$appid      = $post['appid'];
 		$company_id = Companywxinfomodel::where('authorizer_appid', $appid)->where('status', 'authorized')->first(['company_id'])->company_id;
-		if (empty($company_id)){
+		if (empty($company_id)) {
 			return false;
 		}
-		$code       = $post['code'];
-		$appid      = config_item('wx_map_appid');
-		$secret     = config_item('wx_map_secret');
-		$url        = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=' . $appid . '&secret=' . $secret . '&code=' . $code . '&grant_type=authorization_code';
-		$user       = $this->httpCurl($url, 'get', 'json');
+		$code            = $post['code'];
+		$component_appid = config_item('wx_auth_appid');
+		if ($this->m_redis->getAccess_token()){
+			$access_token = $this->m_redis->getAccessToken();
+//			var_dump($access_token);
+		}else{
+			$this->api_res(1006);
+			return false;
+		}
+		$url  = "https://api.weixin.qq.com/sns/oauth2/component/access_token?appid=$appid&code=$code&grant_type=authorization_code&component_appid=$component_appid&component_access_token=$access_token";
+		$user = $this->httpCurl($url, 'get', 'json');
 		if (array_key_exists('errcode', $user)) {
 			$this->api_res(1006);
 			return false;
 		}
-		
 		$access_token  = $user['access_token'];
 		$refresh_token = $user['refresh_token'];
 		$openid        = $user['openid'];
-		$unionid       = $user['unionid'];
 		$info_url      = 'https://api.weixin.qq.com/sns/userinfo?access_token=' . $access_token . '&openid=' . $openid . '&lang=zh_CN';
 		$user_info     = $this->httpCurl($info_url, 'get', 'json');
 		if (array_key_exists('errcode', $user_info)) {
@@ -115,13 +119,13 @@ class Wechat extends MY_Controller
 			$this->api_res(1006);
 			return false;
 		}
-		
 		$nickname = $user_info['nickname'];
 		$gender   = $user_info['sex'];
 		$province = $user_info['province'];
 		$city     = $user_info['city'];
 		$country  = $user_info['country'];
 		$avatar   = $user_info['headimgurl'];
+		$unionid  = $user_info['unionid'];
 		$this->load->model('customermodel');
 		if (Customermodel::where(['company_id' => $company_id, 'openid' => $openid])->exists()) {
 			$customer = Customermodel::where(['company_id' => $company_id, 'openid' => $openid])->first();
