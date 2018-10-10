@@ -296,7 +296,7 @@ class Server extends MY_Controller
                     $attract_prize->status = Attractprizemodel::STATE_EMPTY;
                 } else {
                     $send_cnt = $activity->single;
-                    $attract_prize->sent = $attract_prize + $send_cnt;
+                    $attract_prize->sent = $attract_prize->sent + $send_cnt;
                 }
                 $attract_prize->save();
                 //发放优惠券
