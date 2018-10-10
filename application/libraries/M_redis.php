@@ -272,4 +272,13 @@ class M_redis
         $token  = $this->redis->get($key);
         return $token;
     }
+	
+	/*
+	 * 获取jsapi_ticket
+	 * */
+	public function getAccessToken(){
+		$key    = ACCESSTOKEN;
+		$token  = $this->redis->get($key);
+		return $token;
+	}
 }
