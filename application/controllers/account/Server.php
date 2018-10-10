@@ -679,7 +679,7 @@ class Server extends MY_Controller
      */
     public function menu()
     {
-        exit;
+//        exit;
         $app    = new Application(getCustomerWechatConfig());
         $menu   = $app->menu;
         // 草莓公约
