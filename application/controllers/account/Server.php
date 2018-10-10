@@ -233,7 +233,7 @@ class Server extends MY_Controller
             return $this->defaultTextResponse();
         }
         //如果已经回复过
-        if($attract_record->valid){
+        if($attract_record->is_valid){
             return $this->defaultTextResponse();
         }
         //查看活动是否结束
