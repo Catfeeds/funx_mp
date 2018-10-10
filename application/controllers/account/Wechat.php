@@ -88,24 +88,29 @@ class Wechat extends MY_Controller
 	public function saasLogin()
 	{
 		log_message('debug', '调用登陆');
+		$this->load->library('m_redis');
+		$this->load->model('companywxinfomodel');
 		$post       = $this->input->post(null, true);
 		$appid      = $post['appid'];
+		log_message('debug','$appid');
 		$company_id = Companywxinfomodel::where('authorizer_appid', $appid)->where('status', 'authorized')->first(['company_id'])->company_id;
 		if (empty($company_id)) {
 			return false;
 		}
 		$code            = $post['code'];
 		$component_appid = config_item('wx_auth_appid');
-		if ($this->m_redis->getAccess_token()){
-			$access_token = $this->m_redis->getAccessToken();
-//			var_dump($access_token);
-		}else{
+		$access_token 	 = $this->m_redis->getAccessToken();
+		if (!$access_token){
+			log_message('debug','-----------------------');
 			$this->api_res(1006);
 			return false;
 		}
+		log_message('debug','---access_token---'.$access_token);
 		$url  = "https://api.weixin.qq.com/sns/oauth2/component/access_token?appid=$appid&code=$code&grant_type=authorization_code&component_appid=$component_appid&component_access_token=$access_token";
+		log_message('debug','---url---'.$url);
 		$user = $this->httpCurl($url, 'get', 'json');
 		if (array_key_exists('errcode', $user)) {
+			log_message('error', '请求info--->:' . $user['errmsg']);
 			$this->api_res(1006);
 			return false;
 		}
