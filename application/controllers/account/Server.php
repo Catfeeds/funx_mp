@@ -291,12 +291,12 @@ class Server extends MY_Controller
             if ($remain > 0) {
 
                 //如果剩余奖品小于一次发放的数量,那么一次性都发完
-                if ($remain <= $activity->single) {
+                if ($remain <= $attract_prize->single) {
                     $send_cnt = $remain;
                     $attract_prize->sent = $attract_prize->sent + $send_cnt;
                     $attract_prize->status = Attractprizemodel::STATE_EMPTY;
                 } else {
-                    $send_cnt = $activity->single;
+                    $send_cnt = $attract_prize->single;
                     $attract_prize->sent = $attract_prize->sent + $send_cnt;
                 }
                 $attract_prize->save();
