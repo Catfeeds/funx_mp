@@ -259,6 +259,7 @@ class Server extends MY_Controller
             DB::commit();
         }catch (Exception $e){
             DB::rollBack();
+            return new Text(['content' => '好友助力出现故障，请稍后再试!']);
         }
         return new Text(['content' => '您为好友助力成功, 感谢您的参与!']);
     }
@@ -292,17 +293,16 @@ class Server extends MY_Controller
                 //如果剩余奖品小于一次发放的数量,那么一次性都发完
                 if ($remain <= $activity->single) {
                     $send_cnt = $remain;
-                    $attract_prize->sent = $attract_prize + $send_cnt;
+                    $attract_prize->sent = $attract_prize->sent + $send_cnt;
                     $attract_prize->status = Attractprizemodel::STATE_EMPTY;
                 } else {
                     $send_cnt = $activity->single;
                     $attract_prize->sent = $attract_prize->sent + $send_cnt;
                 }
                 $attract_prize->save();
+                log_message('debug','ATTRACT_PRIZE_SENT:'.$attract_prize->sent);
                 //发放优惠券
                 if ($this->attractSendCoupons($activity, $friend, $attract_prize, $send_cnt)) {
-                    //推送消息
-                    DB::commit();
                     $this->attractSendCouponsMessage($friend, $activity, $attract_prize, $app);
                 }
 
@@ -316,6 +316,7 @@ class Server extends MY_Controller
                 //do something
             }
         }
+        return true;
     }
 
     /**
@@ -366,12 +367,11 @@ class Server extends MY_Controller
             'first'     => "恭喜您，邀请{$prize->limit}人助力的目标达成啦！",
             'keyword1'  => $activity->name,
             'keyword2'  => "您已经完成{$prize->name}人助力者的邀请，系统将于5个工作日内识别粉丝并发放抵扣券!",
-//            'remark'    => '请点击详情，领取莓子酱的见面礼！',
-            'remark'    => '',
+            'remark'    => '请点击详情，领取莓子酱的见面礼！',
         );
         $app->notice
             ->uses(config_item('tmplmsg_customer_tasknotify'))
-//            ->withUrl(site_url("coupon/acquire?activity_id={$activity->id}"))
+            ->withUrl(config_item('wechat_url').'myCoupon')
             ->andData($tplMessage)
             ->andReceiver($customer->openid)
             ->send();
