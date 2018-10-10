@@ -511,6 +511,7 @@ class Server extends MY_Controller
         if (!$myself) {
             $myself = new Customermodel();
             $myself->openid     = $myInfo->openid;
+            $myself->subscribe  = 1;
             $myself->nickname   = $myInfo->nickname;
             $myself->avatar     = $myInfo->headimgurl;
             $myself->unionid    = $myInfo->unionid;
