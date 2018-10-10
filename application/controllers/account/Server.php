@@ -537,7 +537,14 @@ class Server extends MY_Controller
 
         $textMessageStr = "感谢关注金地商置青年公寓品牌【火花草莓社区】，莓子酱将为您奉上专属福利，您只需完成下面的步骤即可获得：\n\n1.转发好友助力卡，邀请好友扫描二维码完成关注，并回复租户名字到后台即可；\n2.成功邀请30位好友可获得100元房租抵扣券，成功邀请60位好友可获得160元房租抵扣券，成功邀请100位好友可获得260元房租抵扣券；\n3.完成好友关注后，后台将会自动识别有效粉丝并于5个工作日内发放抵扣券，此抵扣券仅限租约次月使用，获得2张及以上抵扣券的需在合约次月开始后的三个月内使用完毕，每月仅限一张；\n4.活动期间每位用户只能领取一次优惠券，仅限签约半年及以上用户使用；\n5.此券仅限本人使用，不兑现，不可转让。";
 
+        log_message('debug','WECHATUSER:'.$message->ToUserName);
+        echo $this->reMsgText($message->ToUserName,$myself->openid,$textMessageStr);
+
         $post = $this->generatePost($app, $activity, $myInfo, $myself->id);
+
+        $staff = $app->staff;
+        $staff->message($post)->to($myself->openid)->send();
+        exit;
         $text = new Text(['content' => $textMessageStr]);
 
         //多条消息通过客服消息的方式发出去, 先发送文字
@@ -548,6 +555,26 @@ class Server extends MY_Controller
         log_message('debug','HELPTIME7:'.$time7.'-'.($time7-$time1)*1000);
         //回复海报图片消息
         return $post;
+    }
+
+    /* @    被动回复文本消息接口
+    @      $content 回复内容
+    @*/
+    public function reMsgText($from,$to,$content){
+        $ctime=time();
+        $tamplate =   '<xml>
+                        <ToUserName><![CDATA['.$to.']]></ToUserName>
+                        
+                        <FromUserName><![CDATA['.$from.']]></FromUserName>
+                        
+                        <CreateTime>'.$ctime.'</CreateTime>
+                        
+                        <MsgType><![CDATA[text]]></MsgType>
+                        
+                        <Content><![CDATA['.$content.']]></Content>
+                        
+                        </xml>';
+        echo $tamplate;
     }
 
     private function generatePost($app, $activity, $myInfo, $customerId)
