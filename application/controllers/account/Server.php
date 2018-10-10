@@ -658,7 +658,7 @@ class Server extends MY_Controller
     {
         $friend_record  = Attractrecordmodel::where('activity_id',$activity->id)
             ->where('customer_id',$friend->id)->first();
-        if (empty($friend)||empty($friend_record)) {
+        if (empty($friend)) {
             $friend_id  = 0;
         } else {
             $friend_id  = $friend->id;
