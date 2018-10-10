@@ -491,6 +491,10 @@ class Server extends MY_Controller
      */
     private function helpFriend($app, $message, $sceneId)
     {
+        //@1
+        $time1  = microtime(true);
+        log_message('debug','HELPTIME1:'.$time1.'-0');
+
         $this->load->model('activitymodel');
         $this->load->model('attractcustomerprizemodel');
         $this->load->model('attractprizemodel');
@@ -539,16 +543,23 @@ class Server extends MY_Controller
         //多条消息通过客服消息的方式发出去, 先发送文字
         $staff = $app->staff;
         $staff->message($text)->to($myself->openid)->send();
-
+        //@7
+        $time7  = microtime(true);
+        log_message('debug','HELPTIME7:'.$time7.'-'.($time7-$time1)*1000);
         //回复海报图片消息
         return $post;
     }
 
     private function generatePost($app, $activity, $myInfo, $customerId)
     {
+        //@2
+        $time2  = microtime(true);
+        log_message('debug','HELPTIME2:'.$time2.'-'.'0');
         //处理背景图
         $this->handleActivityBackPath($activity);
-
+        //@3
+        $time3  = microtime(true);
+        log_message('debug','HELPTIME3:'.$time3.'-'.($time3-$time2)*1000);
         //生成响应的工具实例, 用于获取和处理图片, 用 file_get_contents 函数无法获取用户头像, 原因暂时未知
         $httpClient = new Client();
         $imgManager = new ImageManager(array('dirver' => 'gd'));
@@ -566,6 +577,9 @@ class Server extends MY_Controller
         // $imgAvatar  = $httpClient->request('GET', substr_replace($myInfo->headimgurl, '64', -1, 1))->getBody()->getContents();
         $imgAvatar  = $httpClient->request('GET', $myInfo->headimgurl)->getBody()->getContents();
 
+        //@4
+        $time4  = microtime(true);
+        log_message('debug','HELPTIME4:'.$time4.'-'.($time4-$time3)*1000);
         //生成画布, 同时将获取的头像和二维码缩放到指定尺寸, BIA到画布上.
         $canvas     = $imgManager->canvas(540, 960);
         //$imgBG      = $imgManager->make(FCPATH."attachment/coupon_bg_v2_{$activity->id}.png")->resize(1080, 1920);
@@ -593,10 +607,14 @@ class Server extends MY_Controller
                 $font->color('#fff');
             })
             ->save($tmpImgPath,30);
-
+        //@5
+        $time5  = microtime(true);
+        log_message('debug','HELPTIME5:'.$time5.'-'.($time5-$time4)*1000);
         //将处理完的图片作为临时素材上传到微信服务器, 获得该图片的media_id
         $resUpload  = $app->material_temporary->uploadImage($tmpImgPath);
-
+        //@6
+        $time6  = microtime(true);
+        log_message('debug','HELPTIME6:'.$time6.'-'.($time6-$time5)*1000);
         // 上传完成后删除图片
         unlink($tmpImgPath);
 
